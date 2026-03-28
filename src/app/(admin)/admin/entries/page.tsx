@@ -74,6 +74,7 @@ export default async function AdminEntriesPage({
           limit={limit}
           filters={{ search, districtId, constituencyId, status, verified }}
           isAdmin={true}
+          isSuperAdmin={session.user.role === "SUPER_ADMIN"}
         />
       </div>
     </div>

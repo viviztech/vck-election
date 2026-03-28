@@ -59,6 +59,7 @@ interface Props {
 export function SplitReviewPage({ entry, districts, constituencies, currentUserRole }: Props) {
   const router = useRouter();
   const isAdmin = currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN";
+  const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
 
   const [form, setForm] = useState({
     serialNumber: entry.serialNumber ?? "",
@@ -80,6 +81,14 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [imageZoomed, setImageZoomed] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    await fetch(`/api/entries/${entry.id}`, { method: "DELETE" });
+    router.push("/admin/entries");
+  }
 
   const filteredConstituencies = form.districtId
     ? constituencies.filter((c) => c.districtId === form.districtId)
@@ -167,10 +176,38 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
             </span>
           )}
         </div>
-        <div className="ml-auto flex items-center gap-2 text-xs text-gray-400">
-          <span>Uploaded by {entry.submittedBy?.name ?? entry.submittedBy?.email}</span>
-          <span>·</span>
-          <span>{new Date(entry.createdAt).toLocaleDateString("en-IN")}</span>
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-xs text-gray-400">
+            Uploaded by {entry.submittedBy?.name ?? entry.submittedBy?.email}
+            {" · "}{new Date(entry.createdAt).toLocaleDateString("en-IN")}
+          </span>
+          {isSuperAdmin && (
+            confirmDelete ? (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-red-600 font-medium">Delete this entry?</span>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="text-xs px-3 py-1.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+                >
+                  {deleting ? "Deleting..." : "Yes, Delete"}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="text-xs px-3 py-1.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="text-xs px-3 py-1.5 border border-red-300 text-red-600 rounded-lg font-medium hover:bg-red-50 transition"
+              >
+                Delete Entry
+              </button>
+            )
+          )}
         </div>
       </div>
 

@@ -41,9 +41,10 @@ interface Props {
   limit: number;
   filters: Filters;
   isAdmin: boolean;
+  isSuperAdmin?: boolean;
 }
 
-export function EntriesClient({ entries, districts, total, page, limit, filters, isAdmin }: Props) {
+export function EntriesClient({ entries, districts, total, page, limit, filters, isAdmin, isSuperAdmin }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [, startTransition] = useTransition();
@@ -51,6 +52,16 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
   const [districtId, setDistrictId] = useState(filters.districtId);
   const [status, setStatus] = useState(filters.status);
   const [verified, setVerified] = useState(filters.verified);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    setDeletingId(id);
+    await fetch(`/api/entries/${id}`, { method: "DELETE" });
+    setDeletingId(null);
+    setConfirmId(null);
+    startTransition(() => router.refresh());
+  }
 
   function applyFilters(overrides: Partial<Filters> = {}) {
     const params = new URLSearchParams();
@@ -249,6 +260,7 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Verified</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Date</th>
                   <th className="px-4 py-3"></th>
+                  {isSuperAdmin && <th className="px-4 py-3"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -300,6 +312,34 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
                         Open →
                       </Link>
                     </td>
+                    {isSuperAdmin && (
+                      <td className="px-4 py-3">
+                        {confirmId === entry.id ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(entry.id)}
+                              disabled={deletingId === entry.id}
+                              className="text-xs px-2 py-1 bg-red-600 text-white rounded font-medium hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {deletingId === entry.id ? "..." : "Confirm"}
+                            </button>
+                            <button
+                              onClick={() => setConfirmId(null)}
+                              className="text-xs px-2 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmId(entry.id)}
+                            className="text-xs text-red-500 hover:text-red-700 font-medium hover:underline"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
