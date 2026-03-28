@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPresignedReadUrl } from "@/lib/s3";
 import { Header } from "@/components/layout/Header";
 import { EntriesClient } from "@/components/entries/EntriesClient";
 
@@ -51,8 +52,9 @@ export default async function EntriesPage({
     prisma.district.findMany({ orderBy: { nameEnglish: "asc" } }),
   ]);
 
-  const serializedEntries = entries.map((e) => ({
+  const serializedEntries = await Promise.all(entries.map(async (e) => ({
     ...e,
+    imageUrl: await getPresignedReadUrl(e.imageKey),
     entryDate: e.entryDate?.toISOString() ?? null,
     createdAt: e.createdAt.toISOString(),
     updatedAt: e.updatedAt.toISOString(),
@@ -60,7 +62,7 @@ export default async function EntriesPage({
     verifiedAt: e.verifiedAt?.toISOString() ?? null,
     lastEditedAt: e.lastEditedAt?.toISOString() ?? null,
     ocrRawResponse: null,
-  }));
+  })));
 
   return (
     <div className="flex flex-col min-h-screen">

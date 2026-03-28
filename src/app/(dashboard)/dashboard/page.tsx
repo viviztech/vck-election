@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPresignedReadUrl } from "@/lib/s3";
 import { Header } from "@/components/layout/Header";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DistrictChart } from "@/components/dashboard/DistrictChart";
@@ -41,6 +42,9 @@ export default async function DashboardPage() {
       select: { id: true, nameEnglish: true },
     });
     const nameMap = Object.fromEntries(districtNames.map((d) => [d.id, d.nameEnglish]));
+    const signedRecentUploads = await Promise.all(
+      recentUploads.map(async (e) => ({ ...e, imageUrl: await getPresignedReadUrl(e.imageKey) }))
+    );
     const chartData = districtGroups.map((d) => ({
       name: d.districtId ? (nameMap[d.districtId] ?? "Unknown") : "No District",
       count: d._count.id,
@@ -84,7 +88,7 @@ export default async function DashboardPage() {
                 <h3 className="font-semibold text-gray-800">Recently Uploaded</h3>
                 <Link href="/admin/entries" className="text-xs text-blue-600 hover:underline">View all</Link>
               </div>
-              {recentUploads.length === 0 ? (
+              {signedRecentUploads.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <p className="text-3xl mb-2">📭</p>
                   <p className="text-sm">No forms uploaded yet</p>
@@ -92,7 +96,7 @@ export default async function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {recentUploads.map((entry) => (
+                  {signedRecentUploads.map((entry) => (
                     <Link
                       key={entry.id}
                       href={`/entries/${entry.id}`}
