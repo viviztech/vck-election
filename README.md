@@ -226,17 +226,21 @@ cd /opt/vck-form-capture
 # Link environment file
 ln -s /etc/vck-form-capture/.env.local .env.local
 
-# Install dependencies
+# Install Node.js 22 (must match local version)
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install dependencies (postinstall runs prisma generate automatically)
 npm ci
 
-# Build the application
-npm run build
-
-# Run database migrations
-npm run db:migrate
+# Run database migrations (use deploy, not dev, in production)
+npm run db:migrate:deploy
 
 # Seed reference data (districts, constituencies, admin user)
 npm run db:seed
+
+# Build the application (prisma generate runs again before next build)
+npm run build
 ```
 
 ---
@@ -332,8 +336,8 @@ sudo journalctl -u vck-form-capture -f
 cd /opt/vck-form-capture
 git pull
 npm ci
+npm run db:migrate:deploy
 npm run build
-npm run db:migrate
 sudo systemctl restart vck-form-capture
 ```
 
