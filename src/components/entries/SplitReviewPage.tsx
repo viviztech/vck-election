@@ -293,13 +293,73 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+            {/* ── MANDATORY FIELDS ── */}
+            <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">தேவையான தகவல்கள் <span className="text-red-500">*</span></p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5">
 
-              {/* Serial No — MANDATORY */}
+              {/* Serial No */}
               <div>
                 <label className={labelClass}>{reqLabel("வரிசை எண் (Serial No)")}</label>
                 <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={mandatoryFieldClass(form.serialNumber)} />
               </div>
+
+              {/* Contact */}
+              <div>
+                <label className={labelClass}>{reqLabel("தொடர்பு எண் (Contact)")}</label>
+                <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
+              </div>
+
+              {/* District */}
+              <div>
+                <label className={labelClass}>மாவட்டம் (District)</label>
+                <select name="districtId" value={form.districtId} onChange={handleChange} className={fieldClass}>
+                  <option value="">-- Select --</option>
+                  {districts.map((d) => (
+                    <option key={d.id} value={d.id}>{d.nameTamil} ({d.nameEnglish})</option>
+                  ))}
+                </select>
+                {entry.rawDistrictText && (
+                  <p className="text-xs text-orange-500 mt-0.5">OCR: &quot;{entry.rawDistrictText}&quot;</p>
+                )}
+              </div>
+
+              {/* Constituency */}
+              <div>
+                <label className={labelClass}>{reqLabel("தொகுதி (Constituency)")}</label>
+                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={mandatoryFieldClass(form.constituencyId)}>
+                  <option value="">-- Select --</option>
+                  {filteredConstituencies.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish})</option>
+                  ))}
+                </select>
+                {entry.rawConstituencyText && (
+                  <p className="text-xs text-orange-500 mt-0.5">OCR: &quot;{entry.rawConstituencyText}&quot;</p>
+                )}
+              </div>
+
+              {/* Name */}
+              <div className="col-span-2">
+                <label className={labelClass}>{reqLabel("பெயர் (Name)")}</label>
+                <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
+              </div>
+
+              {/* Party Position */}
+              <div className="col-span-2">
+                <label className={labelClass}>{reqLabel("பொறுப்பு நிலை (Party Position)")}</label>
+                <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
+              </div>
+
+              {/* For Thalaivar */}
+              <div className="col-span-2">
+                <label className={labelClass}>{reqLabel("தலைவருக்காக (For Thalaivar)")}</label>
+                <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={mandatoryFieldClass(form.forThalaivar)} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
+              </div>
+
+            </div>
+
+            {/* ── OTHER FIELDS ── */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">மற்ற தகவல்கள்</p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
 
               {/* Receipt No */}
               <div>
@@ -307,22 +367,17 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
               </div>
 
-              {/* Name — MANDATORY */}
-              <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("பெயர் (Name)")}</label>
-                <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
+              {/* Year Joined */}
+              <div>
+                <label className={labelClass}>சேர்ந்த ஆண்டு (Year Joined)</label>
+                <input name="yearJoinedParty" type="number" min="1900" max="2100" value={form.yearJoinedParty} onChange={handleChange} className={fieldClass} />
               </div>
 
               {/* Parent Name */}
               <div className="col-span-2">
                 <label className={labelClass}>த.பெ / க.பெ (Father / Mother Name)</label>
                 <div className="flex gap-2">
-                  <select
-                    name="parentType"
-                    value={form.parentType}
-                    onChange={handleChange}
-                    className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  >
+                  <select name="parentType" value={form.parentType} onChange={handleChange} className="px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                     <option value="FATHER">Father</option>
                     <option value="MOTHER">Mother</option>
                   </select>
@@ -336,52 +391,6 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 <textarea name="address" value={form.address} onChange={handleChange} rows={2} className={fieldClass} />
               </div>
 
-              {/* Contact — MANDATORY */}
-              <div>
-                <label className={labelClass}>{reqLabel("தொடர்பு எண் (Contact)")}</label>
-                <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
-              </div>
-
-              {/* Year Joined */}
-              <div>
-                <label className={labelClass}>சேர்ந்த ஆண்டு (Year Joined)</label>
-                <input name="yearJoinedParty" type="number" min="1900" max="2100" value={form.yearJoinedParty} onChange={handleChange} className={fieldClass} />
-              </div>
-
-              {/* District */}
-              <div>
-                <label className={labelClass}>மாவட்டம் (District)</label>
-                <select name="districtId" value={form.districtId} onChange={handleChange} className={fieldClass}>
-                  <option value="">-- Select --</option>
-                  {districts.map((d) => (
-                    <option key={d.id} value={d.id}>{d.nameTamil} ({d.nameEnglish})</option>
-                  ))}
-                </select>
-                {entry.rawDistrictText && (
-                  <p className="text-xs text-orange-500 mt-0.5">OCR read: &quot;{entry.rawDistrictText}&quot;</p>
-                )}
-              </div>
-
-              {/* Constituency — MANDATORY */}
-              <div>
-                <label className={labelClass}>{reqLabel("தொகுதி (Constituency)")}</label>
-                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={mandatoryFieldClass(form.constituencyId)}>
-                  <option value="">-- Select --</option>
-                  {filteredConstituencies.map((c) => (
-                    <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish})</option>
-                  ))}
-                </select>
-                {entry.rawConstituencyText && (
-                  <p className="text-xs text-orange-500 mt-0.5">OCR read: &quot;{entry.rawConstituencyText}&quot;</p>
-                )}
-              </div>
-
-              {/* Party Position — MANDATORY */}
-              <div>
-                <label className={labelClass}>{reqLabel("பொறுப்பு நிலை (Party Position)")}</label>
-                <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
-              </div>
-
               {/* Entry Date */}
               <div>
                 <label className={labelClass}>நாள் (Date)</label>
@@ -389,15 +398,9 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               </div>
 
               {/* Place */}
-              <div className="col-span-2">
+              <div>
                 <label className={labelClass}>இடம் (Place)</label>
                 <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
-              </div>
-
-              {/* For Thalaivar — MANDATORY */}
-              <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("தலைவருக்காக (For Thalaivar)")}</label>
-                <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={mandatoryFieldClass(form.forThalaivar)} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
               </div>
 
             </div>
