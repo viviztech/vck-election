@@ -31,6 +31,7 @@ export default async function ReportPage({
           id: true,
           serialNumber: true,
           name: true,
+          parentName: true,
           partyPosition: true,
           contactNumber: true,
           forThalaivar: true,

@@ -22,6 +22,7 @@ interface Entry {
   id: string;
   serialNumber?: string | null;
   name?: string | null;
+  parentName?: string | null;
   partyPosition?: string | null;
   contactNumber?: string | null;
   forThalaivar?: boolean | null;
@@ -193,6 +194,7 @@ export function ReportClient({
                     <tr>
                       <th className="col-sno">வ.எண்</th>
                       <th className="col-name">பெயர்</th>
+                      <th className="col-parent">தந்தை பெயர்</th>
                       <th className="col-position">பொறுப்பு நிலை</th>
                       <th className="col-contact">தொடர்பு எண்</th>
                       <th className="col-payment">கட்டண முறை</th>
@@ -204,6 +206,7 @@ export function ReportClient({
                       <tr key={entry.id} className={idx % 2 === 0 ? "row-even" : "row-odd"}>
                         <td className="col-sno">{idx + 1}</td>
                         <td className="col-name">{entry.name ?? "—"}</td>
+                        <td className="col-parent">{entry.parentName ?? "—"}</td>
                         <td className="col-position">{entry.partyPosition ?? "—"}</td>
                         <td className="col-contact">{entry.contactNumber ?? "—"}</td>
                         <td className="col-payment">{entry.paymentMode ?? "—"}</td>
@@ -385,8 +388,9 @@ export function ReportClient({
         .report-table tbody tr:last-child td { border-bottom: 2px solid #1e3a5f; }
 
         .col-sno   { width: 5%;  text-align: center; font-weight: 600; color: #6b7280; }
-        .col-name  { width: 36%; font-weight: 600; }
-        .col-position { width: 20%; }
+        .col-name  { width: 22%; font-weight: 600; }
+        .col-parent { width: 18%; }
+        .col-position { width: 16%; }
         .col-contact { width: 15%; font-family: monospace; }
         .col-payment { width: 10%; text-align: center; }
         .col-thalaivar { width: 9%; text-align: center; font-size: 11pt; color: #15803d; font-weight: 700; }
