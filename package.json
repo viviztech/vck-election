@@ -6,21 +6,48 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "ts-node --project tsconfig.seed.json prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@aws-sdk/client-s3": "^3.1018.0",
+    "@aws-sdk/s3-request-presigner": "^3.1018.0",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "@tanstack/react-query": "^5.95.2",
+    "@tanstack/react-table": "^8.21.3",
+    "@types/pg": "^8.20.0",
+    "adm-zip": "^0.5.16",
+    "bcryptjs": "^3.0.3",
+    "exceljs": "^4.4.0",
+    "fastest-levenshtein": "^1.0.16",
     "next": "16.2.1",
+    "next-auth": "^4.24.13",
+    "pg": "^8.20.0",
+    "prisma": "^7.5.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-dropzone": "^15.0.0",
+    "recharts": "^3.8.1",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/adm-zip": "^0.5.8",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
