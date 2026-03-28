@@ -24,7 +24,8 @@ interface Entry {
   name?: string | null;
   partyPosition?: string | null;
   contactNumber?: string | null;
-  forThalaivar?: string | null;
+  forThalaivar?: boolean | null;
+  paymentMode?: string | null;
   constituency?: { nameTamil: string; nameEnglish: string } | null;
   district?: { nameTamil: string; nameEnglish: string } | null;
 }
@@ -179,6 +180,7 @@ export function ReportClient({
                       <th className="col-position">பொறுப்பு நிலை</th>
                       <th className="col-contact">தொடர்பு எண்</th>
                       <th className="col-thalaivar">தலைவருக்காக</th>
+                      <th className="col-payment">கட்டண முறை</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -189,7 +191,8 @@ export function ReportClient({
                         <td className="col-name">{entry.name ?? "—"}</td>
                         <td className="col-position">{entry.partyPosition ?? "—"}</td>
                         <td className="col-contact">{entry.contactNumber ?? "—"}</td>
-                        <td className="col-thalaivar">{entry.forThalaivar ?? "—"}</td>
+                        <td className="col-thalaivar">{entry.forThalaivar ? "✓" : "—"}</td>
+                        <td className="col-payment">{entry.paymentMode ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -267,7 +270,8 @@ export function ReportClient({
         .col-name { width: 25%; }
         .col-position { width: 20%; }
         .col-contact { width: 15%; }
-        .col-thalaivar { width: 25%; }
+        .col-thalaivar { width: 8%; text-align: center; }
+        .col-payment { width: 12%; }
 
         .report-footer {
           display: flex;

@@ -123,7 +123,8 @@ model FormEntry {
 
   applicationGivenBy String?
   applicationGivenTo String?
-  forThalaivar       String?
+  forThalaivar       Boolean @default(false)
+  paymentMode        String?
 
   ocrStatus          OcrStatus @default(PENDING)
   ocrJobId           String?   @unique

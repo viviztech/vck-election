@@ -37,7 +37,8 @@ interface Entry {
   partyPosition?: string | null;
   entryDate?: string | null;
   entryPlace?: string | null;
-  forThalaivar?: string | null;
+  forThalaivar?: boolean | null;
+  paymentMode?: string | null;
   districtId?: string | null;
   constituencyId?: string | null;
   rawDistrictText?: string | null;
@@ -74,7 +75,8 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
     partyPosition: entry.partyPosition ?? "",
     entryDate: entry.entryDate ? new Date(entry.entryDate).toISOString().slice(0, 10) : "",
     entryPlace: entry.entryPlace ?? "",
-    forThalaivar: entry.forThalaivar ?? "",
+    forThalaivar: entry.forThalaivar ?? false,
+    paymentMode: entry.paymentMode ?? "",
     districtId: entry.districtId ?? "",
     constituencyId: entry.constituencyId ?? "",
   });
@@ -99,9 +101,11 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     if (name === "districtId") {
       setForm((prev) => ({ ...prev, districtId: value, constituencyId: "" }));
+    } else if (type === "checkbox") {
+      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -114,7 +118,7 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
     !form.name && "பெயர் (Name)",
     !form.partyPosition && "பொறுப்பு நிலை (Party Position)",
     !form.contactNumber && "தொடர்பு எண் (Contact)",
-    !form.forThalaivar && "தலைவருக்காக (For Thalaivar)",
+    !form.paymentMode && "கட்டண முறை (Payment Mode)",
   ].filter(Boolean) as string[];
 
   async function handleSave(verify = false) {
@@ -349,10 +353,39 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
               </div>
 
-              {/* For Thalaivar */}
+              {/* For Thalaivar — checkbox */}
               <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("தலைவருக்காக (For Thalaivar)")}</label>
-                <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={mandatoryFieldClass(form.forThalaivar)} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    name="forThalaivar"
+                    checked={form.forThalaivar}
+                    onChange={handleChange}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="text-sm font-semibold text-gray-700 tamil-text">தலைவருக்காக (For Thalaivar)</span>
+                </label>
+              </div>
+
+              {/* Payment Mode — MANDATORY */}
+              <div className="col-span-2">
+                <label className={labelClass}>{reqLabel("கட்டண முறை (Payment Mode)")}</label>
+                <div className="flex gap-3">
+                  {["Cash", "DD", "Online"].map((mode) => (
+                    <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMode"
+                        value={mode}
+                        checked={form.paymentMode === mode}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">{mode}</span>
+                    </label>
+                  ))}
+                </div>
+                {!form.paymentMode && <p className="text-xs text-red-500 mt-1">கட்டண முறை தேர்வு செய்யவும்</p>}
               </div>
 
             </div>

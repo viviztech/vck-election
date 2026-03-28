@@ -31,7 +31,8 @@ interface FormEntry {
   entryPlace?: string | null;
   applicationGivenBy?: string | null;
   applicationGivenTo?: string | null;
-  forThalaivar?: string | null;
+  forThalaivar?: boolean | null;
+  paymentMode?: string | null;
   districtId?: string | null;
   constituencyId?: string | null;
   rawDistrictText?: string | null;
@@ -65,7 +66,8 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
     entryPlace: entry.entryPlace ?? "",
     applicationGivenBy: entry.applicationGivenBy ?? "",
     applicationGivenTo: entry.applicationGivenTo ?? "",
-    forThalaivar: entry.forThalaivar ?? "",
+    forThalaivar: entry.forThalaivar ?? false,
+    paymentMode: entry.paymentMode ?? "",
     districtId: entry.districtId ?? "",
     constituencyId: entry.constituencyId ?? "",
   });
@@ -81,8 +83,12 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
     // Reset constituency when district changes
     if (name === "districtId") {
       setForm((prev) => ({ ...prev, districtId: value, constituencyId: "" }));
@@ -270,8 +276,35 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
         </div>
 
         <div>
-          <label className={labelClass}>தலைவருக்காக (For Thalaivar) <span className="text-red-500">*</span></label>
-          <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={fieldClass} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
+          <label className="flex items-center gap-3 cursor-pointer select-none mt-1">
+            <input
+              type="checkbox"
+              name="forThalaivar"
+              checked={form.forThalaivar}
+              onChange={handleChange}
+              className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <span className="text-sm font-semibold text-gray-700 tamil-text">தலைவருக்காக (For Thalaivar)</span>
+          </label>
+        </div>
+
+        <div>
+          <label className={labelClass}>கட்டண முறை (Payment Mode)</label>
+          <div className="flex gap-4 mt-1">
+            {["Cash", "DD", "Online"].map((mode) => (
+              <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="paymentMode"
+                  value={mode}
+                  checked={form.paymentMode === mode}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">{mode}</span>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -34,6 +34,7 @@ export default async function ReportPage({
           partyPosition: true,
           contactNumber: true,
           forThalaivar: true,
+          paymentMode: true,
           constituency: { select: { nameTamil: true, nameEnglish: true } },
           district: { select: { nameTamil: true, nameEnglish: true } },
         },
