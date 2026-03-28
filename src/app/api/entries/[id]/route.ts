@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPresignedReadUrl } from "@/lib/s3";
 import { UpdateEntrySchema } from "@/lib/validations/entry.schema";
 import { z } from "zod";
 
@@ -32,7 +33,10 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return NextResponse.json(entry);
+  return NextResponse.json({
+    ...entry,
+    imageUrl: await getPresignedReadUrl(entry.imageKey),
+  });
 }
 
 export async function PATCH(
