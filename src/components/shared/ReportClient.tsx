@@ -192,7 +192,6 @@ export function ReportClient({
                   <thead>
                     <tr>
                       <th className="col-sno">வ.எண்</th>
-                      <th className="col-serial">வரிசை எண்</th>
                       <th className="col-name">பெயர்</th>
                       <th className="col-position">பொறுப்பு நிலை</th>
                       <th className="col-contact">தொடர்பு எண்</th>
@@ -204,7 +203,6 @@ export function ReportClient({
                     {group.rows.map((entry, idx) => (
                       <tr key={entry.id} className={idx % 2 === 0 ? "row-even" : "row-odd"}>
                         <td className="col-sno">{idx + 1}</td>
-                        <td className="col-serial">{entry.serialNumber ?? "—"}</td>
                         <td className="col-name">{entry.name ?? "—"}</td>
                         <td className="col-position">{entry.partyPosition ?? "—"}</td>
                         <td className="col-contact">{entry.contactNumber ?? "—"}</td>
@@ -387,8 +385,7 @@ export function ReportClient({
         .report-table tbody tr:last-child td { border-bottom: 2px solid #1e3a5f; }
 
         .col-sno   { width: 5%;  text-align: center; font-weight: 600; color: #6b7280; }
-        .col-serial { width: 10%; font-family: monospace; }
-        .col-name  { width: 26%; font-weight: 600; }
+        .col-name  { width: 36%; font-weight: 600; }
         .col-position { width: 20%; }
         .col-contact { width: 15%; font-family: monospace; }
         .col-payment { width: 10%; text-align: center; }
