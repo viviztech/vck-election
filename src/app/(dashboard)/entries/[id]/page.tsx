@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getPresignedReadUrl } from "@/lib/s3";
 import { SplitReviewPage } from "@/components/entries/SplitReviewPage";
 
 export default async function EntryDetailPage({
@@ -39,6 +40,7 @@ export default async function EntryDetailPage({
 
   const serializedEntry = {
     ...entry,
+    imageUrl: await getPresignedReadUrl(entry.imageKey),
     entryDate: entry.entryDate?.toISOString() ?? null,
     createdAt: entry.createdAt.toISOString(),
     updatedAt: entry.updatedAt.toISOString(),
