@@ -14,6 +14,8 @@ export const UpdateEntrySchema = z.object({
   partyPosition: nullableString,
   entryDate: nullableString,
   entryPlace: nullableString,
+  applicationGivenBy: nullableString,
+  applicationGivenTo: nullableString,
   districtId: nullableString,
   constituencyId: nullableString,
   rawDistrictText: nullableString,

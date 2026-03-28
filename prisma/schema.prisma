@@ -121,6 +121,9 @@ model FormEntry {
   entryDate       DateTime?
   entryPlace      String?
 
+  applicationGivenBy String?
+  applicationGivenTo String?
+
   ocrStatus          OcrStatus @default(PENDING)
   ocrJobId           String?   @unique
   ocrConfidenceScore Float?
