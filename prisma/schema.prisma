@@ -123,6 +123,7 @@ model FormEntry {
 
   applicationGivenBy String?
   applicationGivenTo String?
+  forThalaivar       String?
 
   ocrStatus          OcrStatus @default(PENDING)
   ocrJobId           String?   @unique

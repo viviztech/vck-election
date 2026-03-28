@@ -37,6 +37,7 @@ interface Entry {
   partyPosition?: string | null;
   entryDate?: string | null;
   entryPlace?: string | null;
+  forThalaivar?: string | null;
   districtId?: string | null;
   constituencyId?: string | null;
   rawDistrictText?: string | null;
@@ -73,6 +74,7 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
     partyPosition: entry.partyPosition ?? "",
     entryDate: entry.entryDate ? new Date(entry.entryDate).toISOString().slice(0, 10) : "",
     entryPlace: entry.entryPlace ?? "",
+    forThalaivar: entry.forThalaivar ?? "",
     districtId: entry.districtId ?? "",
     constituencyId: entry.constituencyId ?? "",
   });
@@ -106,7 +108,20 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
     setSaved(false);
   }
 
+  const mandatoryErrors = [
+    !form.serialNumber && "வரிசை எண் (Serial No)",
+    !form.constituencyId && "தொகுதி (Constituency)",
+    !form.name && "பெயர் (Name)",
+    !form.partyPosition && "பொறுப்பு நிலை (Party Position)",
+    !form.contactNumber && "தொடர்பு எண் (Contact)",
+    !form.forThalaivar && "தலைவருக்காக (For Thalaivar)",
+  ].filter(Boolean) as string[];
+
   async function handleSave(verify = false) {
+    if (mandatoryErrors.length > 0) {
+      setError(`தேவையான தகவல்கள் நிரப்பப்படவில்லை: ${mandatoryErrors.join(", ")}`);
+      return;
+    }
     setSaving(true);
     setError("");
     setSaved(false);
@@ -137,6 +152,13 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
   const fieldClass =
     "w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white tamil-text";
   const labelClass = "block text-xs font-semibold text-gray-500 mb-0.5 uppercase tracking-wide";
+  const mandatoryFieldClass = (val: string) =>
+    `w-full px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white tamil-text ${
+      !val ? "border-red-400 bg-red-50" : "border-gray-300"
+    }`;
+  const reqLabel = (label: string) => (
+    <span>{label} <span className="text-red-500">*</span></span>
+  );
 
   const ocrStatusColor = {
     COMPLETED: "bg-green-100 text-green-700",
@@ -273,10 +295,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
 
-              {/* Serial No */}
+              {/* Serial No — MANDATORY */}
               <div>
-                <label className={labelClass}>வரிசை எண் (Serial No)</label>
-                <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={fieldClass} />
+                <label className={labelClass}>{reqLabel("வரிசை எண் (Serial No)")}</label>
+                <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={mandatoryFieldClass(form.serialNumber)} />
               </div>
 
               {/* Receipt No */}
@@ -285,10 +307,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
               </div>
 
-              {/* Name */}
+              {/* Name — MANDATORY */}
               <div className="col-span-2">
-                <label className={labelClass}>பெயர் (Name)</label>
-                <input name="name" value={form.name} onChange={handleChange} className={fieldClass} />
+                <label className={labelClass}>{reqLabel("பெயர் (Name)")}</label>
+                <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
               </div>
 
               {/* Parent Name */}
@@ -314,10 +336,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 <textarea name="address" value={form.address} onChange={handleChange} rows={2} className={fieldClass} />
               </div>
 
-              {/* Contact */}
+              {/* Contact — MANDATORY */}
               <div>
-                <label className={labelClass}>தொடர்பு எண் (Contact)</label>
-                <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={fieldClass} />
+                <label className={labelClass}>{reqLabel("தொடர்பு எண் (Contact)")}</label>
+                <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
               </div>
 
               {/* Year Joined */}
@@ -340,10 +362,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 )}
               </div>
 
-              {/* Constituency */}
+              {/* Constituency — MANDATORY */}
               <div>
-                <label className={labelClass}>தொகுதி (Constituency)</label>
-                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={fieldClass}>
+                <label className={labelClass}>{reqLabel("தொகுதி (Constituency)")}</label>
+                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={mandatoryFieldClass(form.constituencyId)}>
                   <option value="">-- Select --</option>
                   {filteredConstituencies.map((c) => (
                     <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish})</option>
@@ -354,10 +376,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 )}
               </div>
 
-              {/* Party Position */}
+              {/* Party Position — MANDATORY */}
               <div>
-                <label className={labelClass}>பொறுப்பு நிலை (Party Position)</label>
-                <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={fieldClass} />
+                <label className={labelClass}>{reqLabel("பொறுப்பு நிலை (Party Position)")}</label>
+                <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
               </div>
 
               {/* Entry Date */}
@@ -370,6 +392,12 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               <div className="col-span-2">
                 <label className={labelClass}>இடம் (Place)</label>
                 <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
+              </div>
+
+              {/* For Thalaivar — MANDATORY */}
+              <div className="col-span-2">
+                <label className={labelClass}>{reqLabel("தலைவருக்காக (For Thalaivar)")}</label>
+                <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={mandatoryFieldClass(form.forThalaivar)} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
               </div>
 
             </div>

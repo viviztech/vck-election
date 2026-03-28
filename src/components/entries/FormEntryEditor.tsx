@@ -31,6 +31,7 @@ interface FormEntry {
   entryPlace?: string | null;
   applicationGivenBy?: string | null;
   applicationGivenTo?: string | null;
+  forThalaivar?: string | null;
   districtId?: string | null;
   constituencyId?: string | null;
   rawDistrictText?: string | null;
@@ -64,6 +65,7 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
     entryPlace: entry.entryPlace ?? "",
     applicationGivenBy: entry.applicationGivenBy ?? "",
     applicationGivenTo: entry.applicationGivenTo ?? "",
+    forThalaivar: entry.forThalaivar ?? "",
     districtId: entry.districtId ?? "",
     constituencyId: entry.constituencyId ?? "",
   });
@@ -265,6 +267,11 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
         <div>
           <label className={labelClass}>விண்ணப்பம் பெற்றவர் (Application Given To)</label>
           <input name="applicationGivenTo" value={form.applicationGivenTo} onChange={handleChange} className={fieldClass} placeholder="பெயர் உள்ளிடவும்" />
+        </div>
+
+        <div>
+          <label className={labelClass}>தலைவருக்காக (For Thalaivar) <span className="text-red-500">*</span></label>
+          <input name="forThalaivar" value={form.forThalaivar} onChange={handleChange} className={fieldClass} placeholder="தலைவருக்காக என்ன செய்கிறார்" />
         </div>
       </div>
 

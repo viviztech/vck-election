@@ -9,6 +9,7 @@ const adminNavItems = [
   { href: "/dashboard", label: "Overview", icon: "📊" },
   { href: "/upload", label: "Upload Form", icon: "📤" },
   { href: "/admin/entries", label: "All Entries", icon: "📁" },
+  { href: "/report", label: "Report (PDF)", icon: "📄" },
   { href: "/export", label: "Export Data", icon: "⬇️" },
   { href: "/admin/users", label: "Users", icon: "👥" },
   { href: "/admin/dashboard", label: "System Stats", icon: "🔧" },
@@ -18,6 +19,7 @@ const adminNavItems = [
 const userNavItems = [
   { href: "/dashboard", label: "My Dashboard", icon: "📊" },
   { href: "/entries", label: "Review Queue", icon: "📋" },
+  { href: "/report", label: "Report (PDF)", icon: "📄" },
 ];
 
 export function Sidebar() {

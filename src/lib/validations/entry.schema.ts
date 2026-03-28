@@ -16,6 +16,7 @@ export const UpdateEntrySchema = z.object({
   entryPlace: nullableString,
   applicationGivenBy: nullableString,
   applicationGivenTo: nullableString,
+  forThalaivar: nullableString,
   districtId: nullableString,
   constituencyId: nullableString,
   rawDistrictText: nullableString,
