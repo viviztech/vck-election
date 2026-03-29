@@ -80,6 +80,7 @@ const ALL_CONSTITUENCIES: Array<{
   { districtCode: "CHN", code: "CHN013", nameEnglish: "Saidapet", nameTamil: "சைதாப்பேட்டை" },
   { districtCode: "CHN", code: "CHN014", nameEnglish: "Shozhinganallur", nameTamil: "சோழிங்கநல்லூர்" },
   { districtCode: "CHN", code: "CHN015", nameEnglish: "Alandur", nameTamil: "அலந்தூர்" },
+  { districtCode: "CHN", code: "CHN016", nameEnglish: "Madhavaram", nameTamil: "மாதவரம்" },
 
   // Chengalpattu (12)
   { districtCode: "CGT", code: "CGT001", nameEnglish: "Chengalpattu", nameTamil: "செங்கல்பட்டு" },
