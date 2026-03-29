@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { VoiceInput } from "@/components/shared/VoiceInput";
 
 interface District {
   id: string;
@@ -129,6 +130,10 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
     "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 tamil-text";
   const labelClass = "block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide";
 
+  function voiceSet(field: keyof typeof form) {
+    return (text: string) => setForm((prev) => ({ ...prev, [field]: text }));
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -151,17 +156,26 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className={labelClass}>வரிசை எண் (Serial No)</label>
-          <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("serialNumber")} />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>கட்டண ரசீது எண் (Receipt No)</label>
-          <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("feeReceiptNumber")} />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>பெயர் (Name)</label>
-          <input name="name" value={form.name} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="name" value={form.name} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("name")} />
+          </div>
         </div>
 
         <div>
@@ -182,23 +196,30 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
               onChange={handleChange}
               className={`flex-1 ${fieldClass}`}
             />
+            <VoiceInput onResult={voiceSet("parentName")} />
           </div>
         </div>
 
         <div className="md:col-span-2">
           <label className={labelClass}>முகவரி (Address)</label>
-          <textarea
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            rows={3}
-            className={fieldClass}
-          />
+          <div className="flex gap-1.5 items-start">
+            <textarea
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              rows={3}
+              className={fieldClass}
+            />
+            <VoiceInput onResult={voiceSet("address")} />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>தொடர்பு எண் (Contact)</label>
-          <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("contactNumber")} lang="en-IN" />
+          </div>
         </div>
 
         <div>
@@ -233,20 +254,26 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
 
         <div>
           <label className={labelClass}>கட்சியில் சேர்ந்த ஆண்டு (Year Joined)</label>
-          <input
-            name="yearJoinedParty"
-            type="number"
-            min="1900"
-            max="2100"
-            value={form.yearJoinedParty}
-            onChange={handleChange}
-            className={fieldClass}
-          />
+          <div className="flex gap-1.5">
+            <input
+              name="yearJoinedParty"
+              type="number"
+              min="1900"
+              max="2100"
+              value={form.yearJoinedParty}
+              onChange={handleChange}
+              className={fieldClass}
+            />
+            <VoiceInput onResult={voiceSet("yearJoinedParty")} lang="en-IN" />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>கட்சியில் பொறுப்பு நிலை (Party Position)</label>
-          <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("partyPosition")} />
+          </div>
         </div>
 
         <div>
@@ -262,17 +289,26 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
 
         <div>
           <label className={labelClass}>இடம் (Place)</label>
-          <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
+          <div className="flex gap-1.5">
+            <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
+            <VoiceInput onResult={voiceSet("entryPlace")} />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>விண்ணப்பம் கொடுத்தவர் (Application Given By)</label>
-          <input name="applicationGivenBy" value={form.applicationGivenBy} onChange={handleChange} className={fieldClass} placeholder="பெயர் உள்ளிடவும்" />
+          <div className="flex gap-1.5">
+            <input name="applicationGivenBy" value={form.applicationGivenBy} onChange={handleChange} className={fieldClass} placeholder="பெயர் உள்ளிடவும்" />
+            <VoiceInput onResult={voiceSet("applicationGivenBy")} />
+          </div>
         </div>
 
         <div>
           <label className={labelClass}>விண்ணப்பம் பெற்றவர் (Application Given To)</label>
-          <input name="applicationGivenTo" value={form.applicationGivenTo} onChange={handleChange} className={fieldClass} placeholder="பெயர் உள்ளிடவும்" />
+          <div className="flex gap-1.5">
+            <input name="applicationGivenTo" value={form.applicationGivenTo} onChange={handleChange} className={fieldClass} placeholder="பெயர் உள்ளிடவும்" />
+            <VoiceInput onResult={voiceSet("applicationGivenTo")} />
+          </div>
         </div>
 
         <div>
