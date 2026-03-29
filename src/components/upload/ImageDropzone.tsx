@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 interface Props {
@@ -113,7 +113,7 @@ export function ImageDropzone({ onFileSelected, disabled }: Props) {
     return { x, y, width, height };
   }
 
-  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (!cropImageRef.current || !capturedUrl) return;
 
     const bounds = cropImageRef.current.getBoundingClientRect();
@@ -123,7 +123,7 @@ export function ImageDropzone({ onFileSelected, disabled }: Props) {
     setDragStart({ x, y });
   }
 
-  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (!isDraggingCrop || !dragStart || !cropImageRef.current) return;
 
     const bounds = cropImageRef.current.getBoundingClientRect();
