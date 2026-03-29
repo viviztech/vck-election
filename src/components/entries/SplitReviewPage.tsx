@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { VoiceInput } from "@/components/shared/VoiceInput";
 
 interface District {
   id: string;
@@ -110,6 +111,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
       setForm((prev) => ({ ...prev, [name]: value }));
     }
     setSaved(false);
+  }
+
+  function voiceSet(field: keyof typeof form) {
+    return (text: string) => { setForm((prev) => ({ ...prev, [field]: text })); setSaved(false); };
   }
 
   const mandatoryErrors = [
@@ -304,13 +309,19 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               {/* Serial No */}
               <div>
                 <label className={labelClass}>{reqLabel("வரிசை எண் (Serial No)")}</label>
-                <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={mandatoryFieldClass(form.serialNumber)} />
+                <div className="flex gap-1.5">
+                  <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={mandatoryFieldClass(form.serialNumber)} />
+                  <VoiceInput onResult={voiceSet("serialNumber")} />
+                </div>
               </div>
 
               {/* Contact */}
               <div>
                 <label className={labelClass}>{reqLabel("தொடர்பு எண் (Contact)")}</label>
-                <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
+                <div className="flex gap-1.5">
+                  <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
+                  <VoiceInput onResult={voiceSet("contactNumber")} lang="en-IN" />
+                </div>
               </div>
 
               {/* District */}
@@ -344,13 +355,19 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               {/* Name */}
               <div className="col-span-2">
                 <label className={labelClass}>{reqLabel("பெயர் (Name)")}</label>
-                <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
+                <div className="flex gap-1.5">
+                  <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
+                  <VoiceInput onResult={voiceSet("name")} />
+                </div>
               </div>
 
               {/* Party Position */}
               <div className="col-span-2">
                 <label className={labelClass}>{reqLabel("பொறுப்பு நிலை (Party Position)")}</label>
-                <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
+                <div className="flex gap-1.5">
+                  <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
+                  <VoiceInput onResult={voiceSet("partyPosition")} />
+                </div>
               </div>
 
               {/* For Thalaivar — checkbox */}
@@ -397,13 +414,19 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               {/* Receipt No */}
               <div>
                 <label className={labelClass}>கட்டண ரசீது எண் (Receipt No)</label>
-                <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
+                <div className="flex gap-1.5">
+                  <input name="feeReceiptNumber" value={form.feeReceiptNumber} onChange={handleChange} className={fieldClass} />
+                  <VoiceInput onResult={voiceSet("feeReceiptNumber")} />
+                </div>
               </div>
 
               {/* Year Joined */}
               <div>
                 <label className={labelClass}>சேர்ந்த ஆண்டு (Year Joined)</label>
-                <input name="yearJoinedParty" type="number" min="1900" max="2100" value={form.yearJoinedParty} onChange={handleChange} className={fieldClass} />
+                <div className="flex gap-1.5">
+                  <input name="yearJoinedParty" type="number" min="1900" max="2100" value={form.yearJoinedParty} onChange={handleChange} className={fieldClass} />
+                  <VoiceInput onResult={voiceSet("yearJoinedParty")} lang="en-IN" />
+                </div>
               </div>
 
               {/* Parent Name */}
@@ -415,13 +438,17 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                     <option value="MOTHER">Mother</option>
                   </select>
                   <input name="parentName" value={form.parentName} onChange={handleChange} className={`flex-1 ${fieldClass}`} />
+                  <VoiceInput onResult={voiceSet("parentName")} />
                 </div>
               </div>
 
               {/* Address */}
               <div className="col-span-2">
                 <label className={labelClass}>முகவரி (Address)</label>
-                <textarea name="address" value={form.address} onChange={handleChange} rows={2} className={fieldClass} />
+                <div className="flex gap-1.5 items-start">
+                  <textarea name="address" value={form.address} onChange={handleChange} rows={2} className={fieldClass} />
+                  <VoiceInput onResult={voiceSet("address")} />
+                </div>
               </div>
 
               {/* Entry Date */}
@@ -433,7 +460,10 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               {/* Place */}
               <div>
                 <label className={labelClass}>இடம் (Place)</label>
-                <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
+                <div className="flex gap-1.5">
+                  <input name="entryPlace" value={form.entryPlace} onChange={handleChange} className={fieldClass} />
+                  <VoiceInput onResult={voiceSet("entryPlace")} />
+                </div>
               </div>
 
             </div>
