@@ -58,41 +58,42 @@ const ALL_CONSTITUENCIES: Array<{
   nameEnglish: string;
   nameTamil: string;
 }> = [
-  // Thiruvallur (6)
+  // Thiruvallur (10)
   { districtCode: "TVL", code: "TVL001", nameEnglish: "Gummidipoondi", nameTamil: "குமிடிப்பூண்டி" },
   { districtCode: "TVL", code: "TVL002", nameEnglish: "Ponneri", nameTamil: "பொன்னேரி" },
   { districtCode: "TVL", code: "TVL003", nameEnglish: "Tiruttani", nameTamil: "திருத்தணி" },
   { districtCode: "TVL", code: "TVL004", nameEnglish: "Thiruvallur", nameTamil: "திருவள்ளூர்" },
   { districtCode: "TVL", code: "TVL005", nameEnglish: "Poonamallee", nameTamil: "பூந்தமல்லி" },
   { districtCode: "TVL", code: "TVL006", nameEnglish: "Avadi", nameTamil: "அவாடி" },
+  { districtCode: "TVL", code: "TVL007", nameEnglish: "Maduravoyal", nameTamil: "மாடுரவோயல்" },
+  { districtCode: "TVL", code: "TVL008", nameEnglish: "Ambattur", nameTamil: "அம்பத்தூர்" },
+  { districtCode: "TVL", code: "TVL009", nameEnglish: "Madhavaram", nameTamil: "மாதவரம்" },
+  { districtCode: "TVL", code: "TVL010", nameEnglish: "Thiruvottiyur", nameTamil: "திருவொற்றியூர்" },
 
-  // Chennai (22)
-  { districtCode: "CHN", code: "CHN001", nameEnglish: "Maduravoyal", nameTamil: "மாடுரவோயல்" },
-  { districtCode: "CHN", code: "CHN002", nameEnglish: "Ambattur", nameTamil: "அம்பத்தூர்" },
-  { districtCode: "CHN", code: "CHN003", nameEnglish: "Madhavaram", nameTamil: "மாதவரம்" },
-  { districtCode: "CHN", code: "CHN004", nameEnglish: "Thiruvottiyur", nameTamil: "திருவொற்றியூர்" },
-  { districtCode: "CHN", code: "CHN005", nameEnglish: "Dr. Radhakrishnan Nagar", nameTamil: "டாக்டர் ராதாகிருஷ்ணன் நகர்" },
-  { districtCode: "CHN", code: "CHN006", nameEnglish: "Perambur", nameTamil: "பெரம்பூர்" },
-  { districtCode: "CHN", code: "CHN007", nameEnglish: "Kolathur", nameTamil: "கொளத்தூர்" },
-  { districtCode: "CHN", code: "CHN008", nameEnglish: "Villivakkam", nameTamil: "விள்ளிவாக்கம்" },
-  { districtCode: "CHN", code: "CHN009", nameEnglish: "Thiru-Vi-Ka-Nagar", nameTamil: "திரு வி.க. நகர்" },
-  { districtCode: "CHN", code: "CHN010", nameEnglish: "Egmore", nameTamil: "எழும்பூர்" },
-  { districtCode: "CHN", code: "CHN011", nameEnglish: "Royapuram", nameTamil: "ராயபுரம்" },
-  { districtCode: "CHN", code: "CHN012", nameEnglish: "Harbour", nameTamil: "துறைமுகம்" },
-  { districtCode: "CHN", code: "CHN013", nameEnglish: "Chepauk-Thiruvallikeni", nameTamil: "சேப்பாக்கம்-திருவல்லிக்கேணி" },
-  { districtCode: "CHN", code: "CHN014", nameEnglish: "Thousand Lights", nameTamil: "ஆயிரம் விளக்கு" },
-  { districtCode: "CHN", code: "CHN015", nameEnglish: "Anna Nagar", nameTamil: "அண்ணாநகர்" },
-  { districtCode: "CHN", code: "CHN016", nameEnglish: "Virugambakkam", nameTamil: "விருகம்பாக்கம்" },
-  { districtCode: "CHN", code: "CHN017", nameEnglish: "Saidapet", nameTamil: "சைதாப்பேட்டை" },
-  { districtCode: "CHN", code: "CHN018", nameEnglish: "Thiyagarayanagar", nameTamil: "தியாகராயநகர்" },
-  { districtCode: "CHN", code: "CHN019", nameEnglish: "Mylapore", nameTamil: "மயிலாப்பூர்" },
-  { districtCode: "CHN", code: "CHN020", nameEnglish: "Velachery", nameTamil: "வேளச்சேரி" },
-  { districtCode: "CHN", code: "CHN021", nameEnglish: "Sholinganallur", nameTamil: "சோழிங்கநல்லூர்" },
-  { districtCode: "CHN", code: "CHN022", nameEnglish: "Alandur", nameTamil: "அலந்தூர்" },
+  // Chennai (18)
+  { districtCode: "CHN", code: "CHN001", nameEnglish: "Dr. Radhakrishnan Nagar", nameTamil: "டாக்டர் ராதாகிருஷ்ணன் நகர்" },
+  { districtCode: "CHN", code: "CHN002", nameEnglish: "Perambur", nameTamil: "பெரம்பூர்" },
+  { districtCode: "CHN", code: "CHN003", nameEnglish: "Kolathur", nameTamil: "கொளத்தூர்" },
+  { districtCode: "CHN", code: "CHN004", nameEnglish: "Villivakkam", nameTamil: "விள்ளிவாக்கம்" },
+  { districtCode: "CHN", code: "CHN005", nameEnglish: "Thiru-Vi-Ka-Nagar", nameTamil: "திரு வி.க. நகர்" },
+  { districtCode: "CHN", code: "CHN006", nameEnglish: "Egmore", nameTamil: "எழும்பூர்" },
+  { districtCode: "CHN", code: "CHN007", nameEnglish: "Royapuram", nameTamil: "ராயபுரம்" },
+  { districtCode: "CHN", code: "CHN008", nameEnglish: "Harbour", nameTamil: "துறைமுகம்" },
+  { districtCode: "CHN", code: "CHN009", nameEnglish: "Chepauk-Thiruvallikeni", nameTamil: "சேப்பாக்கம்-திருவல்லிக்கேணி" },
+  { districtCode: "CHN", code: "CHN010", nameEnglish: "Thousand Lights", nameTamil: "ஆயிரம் விளக்கு" },
+  { districtCode: "CHN", code: "CHN011", nameEnglish: "Anna Nagar", nameTamil: "அண்ணாநகர்" },
+  { districtCode: "CHN", code: "CHN012", nameEnglish: "Virugambakkam", nameTamil: "விருகம்பாக்கம்" },
+  { districtCode: "CHN", code: "CHN013", nameEnglish: "Saidapet", nameTamil: "சைதாப்பேட்டை" },
+  { districtCode: "CHN", code: "CHN014", nameEnglish: "Thiyagarayanagar", nameTamil: "தியாகராயநகர்" },
+  { districtCode: "CHN", code: "CHN015", nameEnglish: "Mylapore", nameTamil: "மயிலாப்பூர்" },
+  { districtCode: "CHN", code: "CHN016", nameEnglish: "Velachery", nameTamil: "வேளச்சேரி" },
+  { districtCode: "CHN", code: "CHN017", nameEnglish: "Sholinganallur", nameTamil: "சோழிங்கநல்லூர்" },
+  { districtCode: "CHN", code: "CHN018", nameEnglish: "Alandur", nameTamil: "அலந்தூர்" },
 
-  // Kancheepuram (2)
+  // Kancheepuram (3)
   { districtCode: "KAN", code: "KAN001", nameEnglish: "Sriperumbudur", nameTamil: "ஸ்ரீபெரும்புதூர்" },
   { districtCode: "KAN", code: "KAN002", nameEnglish: "Kancheepuram", nameTamil: "காஞ்சிபுரம்" },
+  { districtCode: "KAN", code: "KAN003", nameEnglish: "Uthiramerur", nameTamil: "உத்தரமேரூர்" },
 
   // Chengalpattu (6)
   { districtCode: "CGT", code: "CGT001", nameEnglish: "Pallavaram", nameTamil: "பல்லாவரம்" },
@@ -102,12 +103,11 @@ const ALL_CONSTITUENCIES: Array<{
   { districtCode: "CGT", code: "CGT005", nameEnglish: "Cheyyur", nameTamil: "செய்யூர்" },
   { districtCode: "CGT", code: "CGT006", nameEnglish: "Madurantakam", nameTamil: "மதுராந்தகம்" },
 
-  // Ranipet (5)
+  // Ranipet (4)
   { districtCode: "RAN", code: "RAN001", nameEnglish: "Arakkonam", nameTamil: "ஆரக்கோணம்" },
   { districtCode: "RAN", code: "RAN002", nameEnglish: "Sholingur", nameTamil: "சோழிங்கர்" },
   { districtCode: "RAN", code: "RAN003", nameEnglish: "Ranipet", nameTamil: "ராணிப்பேட்டை" },
   { districtCode: "RAN", code: "RAN004", nameEnglish: "Arcot", nameTamil: "ஆற்காடு" },
-  { districtCode: "RAN", code: "RAN005", nameEnglish: "Walajah", nameTamil: "வாலாஜா" },
 
   // Vellore (5)
   { districtCode: "VEL", code: "VEL001", nameEnglish: "Katpadi", nameTamil: "காட்பாடி" },
@@ -183,25 +183,25 @@ const ALL_CONSTITUENCIES: Array<{
   { districtCode: "NMK", code: "NMK005", nameEnglish: "Tiruchengode", nameTamil: "திருச்செங்கோடு" },
   { districtCode: "NMK", code: "NMK006", nameEnglish: "Kumarapalayam", nameTamil: "குமாரபாளையம்" },
 
-  // Erode (3)
+  // Erode (8)
   { districtCode: "EDE", code: "EDE001", nameEnglish: "Erode East", nameTamil: "ஈரோடு கிழக்கு" },
   { districtCode: "EDE", code: "EDE002", nameEnglish: "Erode West", nameTamil: "ஈரோடு மேற்கு" },
   { districtCode: "EDE", code: "EDE003", nameEnglish: "Modakkurichi", nameTamil: "மொடக்குறிச்சி" },
+  { districtCode: "EDE", code: "EDE004", nameEnglish: "Perundurai", nameTamil: "பெருந்துறை" },
+  { districtCode: "EDE", code: "EDE005", nameEnglish: "Bhavani", nameTamil: "பவானி" },
+  { districtCode: "EDE", code: "EDE006", nameEnglish: "Anthiyur", nameTamil: "அந்தியூர்" },
+  { districtCode: "EDE", code: "EDE007", nameEnglish: "Gobichettipalayam", nameTamil: "கோபிசெட்டிபாளையம்" },
+  { districtCode: "EDE", code: "EDE008", nameEnglish: "Bhavanisagar", nameTamil: "பவானிசாகர்" },
 
-  // Tirupur (13)
+  // Tirupur (8)
   { districtCode: "TRV", code: "TRV001", nameEnglish: "Dharapuram", nameTamil: "தாரபுரம்" },
   { districtCode: "TRV", code: "TRV002", nameEnglish: "Kangeyam", nameTamil: "காங்கேயம்" },
-  { districtCode: "TRV", code: "TRV003", nameEnglish: "Perundurai", nameTamil: "பெருந்துறை" },
-  { districtCode: "TRV", code: "TRV004", nameEnglish: "Bhavani", nameTamil: "பவானி" },
-  { districtCode: "TRV", code: "TRV005", nameEnglish: "Anthiyur", nameTamil: "அந்தியூர்" },
-  { districtCode: "TRV", code: "TRV006", nameEnglish: "Gobichettipalayam", nameTamil: "கோபிசெட்டிபாளையம்" },
-  { districtCode: "TRV", code: "TRV007", nameEnglish: "Bhavanisagar", nameTamil: "பவானிசாகர்" },
-  { districtCode: "TRV", code: "TRV008", nameEnglish: "Avinashi", nameTamil: "அவிநாசி" },
-  { districtCode: "TRV", code: "TRV009", nameEnglish: "Tirupur North", nameTamil: "திருப்பூர் வடக்கு" },
-  { districtCode: "TRV", code: "TRV010", nameEnglish: "Tirupur South", nameTamil: "திருப்பூர் தெற்கு" },
-  { districtCode: "TRV", code: "TRV011", nameEnglish: "Palladam", nameTamil: "பல்லடம்" },
-  { districtCode: "TRV", code: "TRV012", nameEnglish: "Udumalpet", nameTamil: "உடுமலைப்பேட்டை" },
-  { districtCode: "TRV", code: "TRV013", nameEnglish: "Madathukulam", nameTamil: "மடத்துக்குளம்" },
+  { districtCode: "TRV", code: "TRV003", nameEnglish: "Avinashi", nameTamil: "அவிநாசி" },
+  { districtCode: "TRV", code: "TRV004", nameEnglish: "Tirupur North", nameTamil: "திருப்பூர் வடக்கு" },
+  { districtCode: "TRV", code: "TRV005", nameEnglish: "Tirupur South", nameTamil: "திருப்பூர் தெற்கு" },
+  { districtCode: "TRV", code: "TRV006", nameEnglish: "Palladam", nameTamil: "பல்லடம்" },
+  { districtCode: "TRV", code: "TRV007", nameEnglish: "Udumalpet", nameTamil: "உடுமலைப்பேட்டை" },
+  { districtCode: "TRV", code: "TRV008", nameEnglish: "Madathukulam", nameTamil: "மடத்துக்குளம்" },
 
   // Nilgiris (3)
   { districtCode: "NLR", code: "NLR001", nameEnglish: "Udhagamandalam", nameTamil: "உதகமண்டலம்" },
