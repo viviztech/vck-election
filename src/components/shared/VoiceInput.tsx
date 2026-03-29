@@ -7,16 +7,10 @@ interface Props {
   lang?: string;
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
-}
-
 export function VoiceInput({ onResult, lang = "ta-IN" }: Props) {
   const [listening, setListening] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
 
   function toggle() {
     if (listening) {
@@ -25,7 +19,9 @@ export function VoiceInput({ onResult, lang = "ta-IN" }: Props) {
       return;
     }
 
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!SR) {
       alert("Voice input is not supported in this browser. Please use Chrome.");
       return;
@@ -36,7 +32,8 @@ export function VoiceInput({ onResult, lang = "ta-IN" }: Props) {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       onResult(transcript);
     };
