@@ -10,6 +10,7 @@ const adminNavItems = [
   { href: "/dashboard", label: "Overview", icon: "📊" },
   { href: "/upload", label: "Upload Form", icon: "📤" },
   { href: "/admin/entries", label: "All Entries", icon: "📁" },
+  { href: "/constituencies", label: "Constituencies", icon: "🗺️" },
   { href: "/report", label: "Report (PDF)", icon: "📄" },
   { href: "/export", label: "Export Data", icon: "⬇️" },
   { href: "/admin/users", label: "Users", icon: "👥" },
@@ -20,6 +21,7 @@ const adminNavItems = [
 const userNavItems = [
   { href: "/dashboard", label: "My Dashboard", icon: "📊" },
   { href: "/entries", label: "Review Queue", icon: "📋" },
+  { href: "/constituencies", label: "Constituencies", icon: "🗺️" },
   { href: "/report", label: "Report (PDF)", icon: "📄" },
 ];
 
