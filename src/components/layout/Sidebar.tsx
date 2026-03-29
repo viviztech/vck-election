@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 // Admin nav — focuses on uploading and managing
 const adminNavItems = [
@@ -25,18 +26,22 @@ const userNavItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [open, setOpen] = useState(false);
   const isAdmin = session?.user.role === "ADMIN" || session?.user.role === "SUPER_ADMIN";
   const navItems = isAdmin ? adminNavItems : userNavItems;
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === href;
     return pathname.startsWith(href);
   }
 
-  return (
-    <aside className="w-60 bg-slate-900 text-white flex flex-col min-h-screen shrink-0">
-      {/* Brand */}
-      <div className="px-5 py-5 border-b border-slate-700">
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      <div className="px-5 py-5 border-b border-slate-700 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-white">
             <img src="/logo.png" alt="VCK" className="w-full h-full object-contain" />
@@ -48,9 +53,16 @@ export function Sidebar() {
             </p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="md:hidden text-slate-300 hover:text-white"
+          aria-label="Close navigation menu"
+        >
+          ×
+        </button>
       </div>
 
-      {/* Role badge */}
       <div className="px-5 pt-4 pb-1">
         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
           isAdmin ? "bg-orange-500/20 text-orange-400" : "bg-blue-500/20 text-blue-400"
@@ -59,7 +71,6 @@ export function Sidebar() {
         </span>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-3 space-y-0.5">
         {navItems.map((item) => (
           <Link
@@ -77,7 +88,6 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* User info + sign out */}
       <div className="px-3 pb-4 pt-3 border-t border-slate-700 space-y-2">
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-sm font-semibold shrink-0">
@@ -95,6 +105,30 @@ export function Sidebar() {
           Sign out →
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg ring-1 ring-white/15"
+        aria-label="Open navigation menu"
+      >
+        <span className="text-lg">☰</span>
+      </button>
+
+      <div className={`fixed inset-0 z-40 md:hidden ${open ? "block" : "hidden"}`}>
+        <div onClick={() => setOpen(false)} className="absolute inset-0 bg-slate-900/70" />
+        <aside className="relative z-50 h-full w-72 max-w-full overflow-y-auto bg-slate-900 text-white shadow-xl">
+          {sidebarContent}
+        </aside>
+      </div>
+
+      <aside className="hidden md:flex w-60 bg-slate-900 text-white flex-col min-h-screen shrink-0">
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

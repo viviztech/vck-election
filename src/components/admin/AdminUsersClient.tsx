@@ -47,62 +47,64 @@ export function AdminUsersClient({ users, total, page, limit, canChangeRoles }: 
         <h2 className="text-xl font-bold text-gray-900">Users ({total})</h2>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="text-left px-4 py-3 font-semibold text-gray-700">Name</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-700">Email</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-700">Role</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-700">Entries</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-700">Joined</th>
-              {canChangeRoles && (
-                <th className="text-left px-4 py-3 font-semibold text-gray-700">Actions</th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-900">
-                  {user.name ?? "—"}
-                </td>
-                <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      user.role === "SUPER_ADMIN"
-                        ? "bg-purple-100 text-purple-700"
-                        : user.role === "ADMIN"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-600">{user._count.formEntries}</td>
-                <td className="px-4 py-3 text-gray-400 text-xs">
-                  {new Date(user.createdAt).toLocaleDateString("en-IN")}
-                </td>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-max text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="text-left px-4 py-3 font-semibold text-gray-700">Name</th>
+                <th className="text-left px-4 py-3 font-semibold text-gray-700">Email</th>
+                <th className="text-left px-4 py-3 font-semibold text-gray-700">Role</th>
+                <th className="text-left px-4 py-3 font-semibold text-gray-700">Entries</th>
+                <th className="text-left px-4 py-3 font-semibold text-gray-700">Joined</th>
                 {canChangeRoles && (
-                  <td className="px-4 py-3">
-                    <select
-                      value={user.role}
-                      onChange={(e) => changeRole(user.id, e.target.value)}
-                      disabled={updating === user.id}
-                      className="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none disabled:opacity-50"
-                    >
-                      <option value="USER">USER</option>
-                      <option value="ADMIN">ADMIN</option>
-                      <option value="SUPER_ADMIN">SUPER_ADMIN</option>
-                    </select>
-                  </td>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-700">Actions</th>
                 )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-900 wrap-break-word">
+                    {user.name ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 wrap-break-word">{user.email}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        user.role === "SUPER_ADMIN"
+                          ? "bg-purple-100 text-purple-700"
+                          : user.role === "ADMIN"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">{user._count.formEntries}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">
+                    {new Date(user.createdAt).toLocaleDateString("en-IN")}
+                  </td>
+                  {canChangeRoles && (
+                    <td className="px-4 py-3">
+                      <select
+                        value={user.role}
+                        onChange={(e) => changeRole(user.id, e.target.value)}
+                        disabled={updating === user.id}
+                        className="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none disabled:opacity-50"
+                      >
+                        <option value="USER">USER</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                      </select>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {totalPages > 1 && (
