@@ -28,7 +28,7 @@ export default async function ConstituenciesPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">தொகுதிகள் (Constituencies)</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {districts.length} மாவட்டங்கள் &middot; {districts.reduce((s, d) => s + d.constituencies.length, 0)} தொகுதிகள் &middot; Source: EC PSLIST 19-12-2025
+          {sortedDistricts.length} மாவட்டங்கள் &middot; {sortedDistricts.reduce((s, d) => s + d.constituencies.length, 0)} தொகுதிகள் &middot; Source: EC PSLIST 19-12-2025
         </p>
       </div>
 
