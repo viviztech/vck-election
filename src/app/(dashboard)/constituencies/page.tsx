@@ -17,13 +17,6 @@ export default async function ConstituenciesPage() {
     include: { constituencies: true },
   });
 
-  const districtMap = Object.fromEntries(districts.map((d) => [d.id, d]));
-
-  // All constituencies sorted by AC number
-  const allConstituencies = districts
-    .flatMap((d) => d.constituencies.map((c) => ({ ...c, district: d })))
-    .sort((a, b) => parseInt(a.code.replace("AC", ""), 10) - parseInt(b.code.replace("AC", ""), 10));
-
   // Districts sorted by official EC order
   const sortedDistricts = [...districts].sort(
     (a, b) => (DISTRICT_ORDER[a.code] ?? 99) - (DISTRICT_ORDER[b.code] ?? 99)
@@ -35,46 +28,10 @@ export default async function ConstituenciesPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">தொகுதிகள் (Constituencies)</h1>
         <p className="text-sm text-gray-500 mt-1">
-          {districts.length} மாவட்டங்கள் &middot; {allConstituencies.length} தொகுதிகள் &middot; Source: EC PSLIST 19-12-2025
+          {districts.length} மாவட்டங்கள் &middot; {districts.reduce((s, d) => s + d.constituencies.length, 0)} தொகுதிகள் &middot; Source: EC PSLIST 19-12-2025
         </p>
       </div>
 
-      {/* ── Full list sorted by AC number ── */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-8">
-        <div className="flex items-center justify-between px-5 py-3 bg-slate-700 text-white">
-          <span className="font-bold text-base">அனைத்து தொகுதிகளும் — AC எண் வரிசையில்</span>
-          <span className="text-xs bg-white/20 px-2.5 py-1 rounded-full font-semibold">
-            {allConstituencies.length} தொகுதிகள்
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wide">
-                <th className="px-4 py-2 text-left w-16">AC No</th>
-                <th className="px-4 py-2 text-left">தமிழ் பெயர்</th>
-                <th className="px-4 py-2 text-left">English Name</th>
-                <th className="px-4 py-2 text-left">District</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allConstituencies.map((c, idx) => (
-                <tr key={c.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-2 font-mono font-semibold text-sm text-gray-700 whitespace-nowrap">
-                    {parseInt(c.code.replace("AC", ""), 10)}
-                  </td>
-                  <td className="px-4 py-2 font-medium text-gray-800 tamil-text">{c.nameTamil}</td>
-                  <td className="px-4 py-2 text-gray-600">{c.nameEnglish}</td>
-                  <td className="px-4 py-2 text-gray-400 text-xs">{c.district.nameEnglish}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ── District-wise grouped tables ── */}
-      <h2 className="text-lg font-bold text-gray-800 mb-4">மாவட்டம் வாரியாக (District-wise)</h2>
       <div className="space-y-5">
         {sortedDistricts.map((district) => {
           const distNo = DISTRICT_ORDER[district.code];
