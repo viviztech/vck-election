@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { runSarvamOcr, runSarvamOcrFromLocalFile, extractFullText } from "@/lib/sarvam";
+import { runGeminiOcr, extractFullText } from "@/lib/gemini";
 import { parseOcrTextToFields } from "@/lib/ocr-parser";
 import { matchDistrict, matchConstituency } from "@/lib/fuzzy-match";
 
@@ -35,15 +35,11 @@ export async function POST(req: NextRequest) {
 
     let ocrResponse;
     try {
-      if (hasAwsCredentials()) {
-        // S3 mode: generate presigned read URL for Sarvam
-        const { getPresignedReadUrl } = await import("@/lib/s3");
-        const imageUrl = await getPresignedReadUrl(entry.imageKey);
-        ocrResponse = await runSarvamOcr(imageUrl);
-      } else {
-        // Local mode: read file from disk, zip it, and send to Sarvam
-        ocrResponse = await runSarvamOcrFromLocalFile(entry.imageKey, entry.imageMimeType ?? "image/jpeg");
-      }
+      const { getPresignedReadUrl } = await import("@/lib/s3");
+      const imageUrl = hasAwsCredentials()
+        ? await getPresignedReadUrl(entry.imageKey)
+        : `/uploads/${entry.imageKey}`;
+      ocrResponse = await runGeminiOcr(imageUrl);
     } catch (err) {
       await prisma.formEntry.update({
         where: { id: entryId },
