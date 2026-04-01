@@ -44,6 +44,8 @@ interface Member {
   telegram?: string | null;
   order: number;
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   postingType: PostingType;
   constituency: { id: string; nameEnglish: string; nameTamil: string; district: { nameEnglish: string; nameTamil: string } };
 }
@@ -273,12 +275,7 @@ export function ConstituencyMembersClient({
                   <select
                     className={inputClass}
                     value={allConstituencies.find((c) => c.id === form.constituencyId)?.districtId ?? ""}
-                    onChange={(e) => setForm((f) => ({ ...f, constituencyId: "" }))}
-                    onClick={(e) => {
-                      const distId = (e.target as HTMLSelectElement).value;
-                      setForm((f) => ({ ...f, constituencyId: "" }));
-                      // handled by onChange on district select below
-                    }}
+                    onChange={() => setForm((f) => ({ ...f, constituencyId: "" }))}
                   >
                     <option value="">Select District</option>
                     {districts.map((d) => <option key={d.id} value={d.id}>{d.nameEnglish}</option>)}

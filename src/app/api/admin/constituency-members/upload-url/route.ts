@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getPresignedUploadUrl, BUCKET_NAME } from "@/lib/s3";
+import { getPresignedUploadUrl } from "@/lib/s3";
 import { randomUUID } from "crypto";
 
 function isAdmin(role: string) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const ext = filename?.split(".").pop() ?? "jpg";
   const key = `members/${randomUUID()}.${ext}`;
 
-  const uploadUrl = await getPresignedUploadUrl(key, contentType ?? "image/jpeg", BUCKET_NAME);
+  const uploadUrl = await getPresignedUploadUrl(key, contentType ?? "image/jpeg");
 
   return NextResponse.json({ uploadUrl, key });
 }
