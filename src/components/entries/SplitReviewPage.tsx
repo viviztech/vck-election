@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { VoiceInput } from "@/components/shared/VoiceInput";
@@ -64,6 +64,22 @@ interface Props {
 export function SplitReviewPage({ entry, districts, constituencies, currentUserRole, prevId, nextId }: Props) {
   const router = useRouter();
   const isAdmin = currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN";
+
+  // Acquire lock on mount, heartbeat every 2 min, release on unmount
+  useEffect(() => {
+    if (entry.isVerified) return;
+
+    fetch(`/api/entries/${entry.id}/lock`, { method: "POST" });
+
+    const interval = setInterval(() => {
+      fetch(`/api/entries/${entry.id}/lock`, { method: "PATCH" });
+    }, 2 * 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+      fetch(`/api/entries/${entry.id}/lock`, { method: "DELETE", keepalive: true });
+    };
+  }, [entry.id, entry.isVerified]);
   const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
 
   const [form, setForm] = useState({

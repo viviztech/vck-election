@@ -144,6 +144,9 @@ model FormEntry {
   verifiedById String?
   lastEditedAt DateTime?
 
+  reviewingById String?
+  reviewingAt   DateTime?
+
   submittedById String
   submittedBy   User      @relation(fields: [submittedById], references: [id])
   createdAt     DateTime  @default(now())

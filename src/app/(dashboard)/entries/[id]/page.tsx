@@ -1,9 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPresignedReadUrl } from "@/lib/s3";
 import { SplitReviewPage } from "@/components/entries/SplitReviewPage";
+
+const LOCK_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+function isLockExpired(reviewingAt: Date | null) {
+  if (!reviewingAt) return true;
+  return Date.now() - reviewingAt.getTime() > LOCK_TTL_MS;
+}
 
 export default async function EntryDetailPage({
   params,
@@ -14,6 +21,7 @@ export default async function EntryDetailPage({
   if (!session) return notFound();
 
   const { id } = await params;
+  const userId = session.user.id;
 
   const [entry, districts, constituencies] = await Promise.all([
     prisma.formEntry.findUnique({
@@ -35,6 +43,35 @@ export default async function EntryDetailPage({
 
   if (!entry) return notFound();
 
+  // If entry is unverified and locked by someone else (lock not expired), skip to next
+  if (
+    !entry.isVerified &&
+    entry.reviewingById &&
+    entry.reviewingById !== userId &&
+    !isLockExpired(entry.reviewingAt)
+  ) {
+    // Find next unlocked unverified entry after this one
+    const nextUnlocked = await prisma.formEntry.findFirst({
+      where: {
+        createdAt: { gt: entry.createdAt },
+        isVerified: false,
+        OR: [
+          { reviewingById: null },
+          { reviewingById: userId },
+          { reviewingAt: { lt: new Date(Date.now() - LOCK_TTL_MS) } },
+        ],
+      },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    });
+
+    if (nextUnlocked) {
+      redirect(`/entries/${nextUnlocked.id}`);
+    } else {
+      redirect("/entries");
+    }
+  }
+
   // Fetch prev/next entry IDs ordered by createdAt
   const [prevEntry, nextEntry] = await Promise.all([
     prisma.formEntry.findFirst({
@@ -49,9 +86,6 @@ export default async function EntryDetailPage({
     }),
   ]);
 
-  // Users can view all entries (they are reviewers)
-  // but can only edit — access based on role handled in editor
-
   const serializedEntry = {
     ...entry,
     imageUrl: await getPresignedReadUrl(entry.imageKey),
@@ -62,6 +96,7 @@ export default async function EntryDetailPage({
     verifiedAt: entry.verifiedAt?.toISOString() ?? null,
     lastEditedAt: entry.lastEditedAt?.toISOString() ?? null,
     ocrRawResponse: null,
+    reviewingAt: entry.reviewingAt?.toISOString() ?? null,
     auditLogs: entry.auditLogs.map((log) => ({
       ...log,
       createdAt: log.createdAt.toISOString(),
