@@ -36,7 +36,7 @@ export default async function ConstituenciesPage() {
         {sortedDistricts.map((district) => {
           const distNo = DISTRICT_ORDER[district.code];
           const constituencies = [...district.constituencies].sort(
-            (a, b) => parseInt(a.code.replace("AC", ""), 10) - parseInt(b.code.replace("AC", ""), 10)
+            (a, b) => a.nameEnglish.localeCompare(b.nameEnglish)
           );
           return (
             <div key={district.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -58,7 +58,7 @@ export default async function ConstituenciesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wide">
-                      <th className="px-4 py-2 text-left w-20">AC No</th>
+                      <th className="px-4 py-2 text-left w-20">#</th>
                       <th className="px-4 py-2 text-left">தமிழ் பெயர்</th>
                       <th className="px-4 py-2 text-left">English Name</th>
                     </tr>
@@ -67,7 +67,7 @@ export default async function ConstituenciesPage() {
                     {constituencies.map((c, idx) => (
                       <tr key={c.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                         <td className="px-4 py-2 font-mono font-semibold text-sm text-gray-700 whitespace-nowrap">
-                          {parseInt(c.code.replace("AC", ""), 10)}
+                          {idx + 1}
                         </td>
                         <td className="px-4 py-2 font-medium text-gray-800 tamil-text">{c.nameTamil}</td>
                         <td className="px-4 py-2 text-gray-600">{c.nameEnglish}</td>
