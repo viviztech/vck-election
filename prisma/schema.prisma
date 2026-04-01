@@ -194,7 +194,7 @@ model ConstituencyMember {
   address           String?   @db.Text
   age               Int?
   gender            Gender?
-  contact           String
+  contact           String?
   alternateContact  String?
   email             String?
   partyMembershipId String?

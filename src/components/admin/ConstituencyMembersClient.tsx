@@ -29,7 +29,7 @@ interface Member {
   address?: string | null;
   age?: number | null;
   gender?: Gender | null;
-  contact: string;
+  contact?: string | null;
   alternateContact?: string | null;
   email?: string | null;
   partyMembershipId?: string | null;
@@ -146,7 +146,7 @@ export function ConstituencyMembersClient({
       address: m.address ?? "",
       age: m.age?.toString() ?? "",
       gender: m.gender ?? "",
-      contact: m.contact,
+      contact: m.contact ?? "",
       alternateContact: m.alternateContact ?? "",
       email: m.email ?? "",
       partyMembershipId: m.partyMembershipId ?? "",

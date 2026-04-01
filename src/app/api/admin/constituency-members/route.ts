@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
     facebook, instagram, x, whatsapp, youtube, linkedin, telegram, order,
   } = body;
 
-  if (!constituencyId || !postingTypeId || !name || !contact) {
+  if (!constituencyId || !postingTypeId) {
     return NextResponse.json(
-      { error: "constituencyId, postingTypeId, name, contact are required" },
+      { error: "constituencyId and postingTypeId are required" },
       { status: 400 }
     );
   }
