@@ -57,9 +57,11 @@ interface Props {
   districts: District[];
   constituencies: Constituency[];
   currentUserRole: string;
+  prevId?: string | null;
+  nextId?: string | null;
 }
 
-export function SplitReviewPage({ entry, districts, constituencies, currentUserRole }: Props) {
+export function SplitReviewPage({ entry, districts, constituencies, currentUserRole, prevId, nextId }: Props) {
   const router = useRouter();
   const isAdmin = currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN";
   const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
@@ -184,6 +186,23 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
         <Link href="/entries" className="text-sm text-gray-400 hover:text-gray-700 transition">
           ← Back
         </Link>
+        <div className="h-4 w-px bg-gray-200" />
+        {prevId && (
+          <Link
+            href={`/entries/${prevId}`}
+            className="text-xs px-2.5 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition"
+          >
+            ← Prev
+          </Link>
+        )}
+        {nextId && (
+          <Link
+            href={`/entries/${nextId}`}
+            className="text-xs px-2.5 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition"
+          >
+            Next →
+          </Link>
+        )}
         <div className="h-4 w-px bg-gray-200" />
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-gray-800">

@@ -35,6 +35,20 @@ export default async function EntryDetailPage({
 
   if (!entry) return notFound();
 
+  // Fetch prev/next entry IDs ordered by createdAt
+  const [prevEntry, nextEntry] = await Promise.all([
+    prisma.formEntry.findFirst({
+      where: { createdAt: { lt: entry.createdAt } },
+      orderBy: { createdAt: "desc" },
+      select: { id: true },
+    }),
+    prisma.formEntry.findFirst({
+      where: { createdAt: { gt: entry.createdAt } },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    }),
+  ]);
+
   // Users can view all entries (they are reviewers)
   // but can only edit — access based on role handled in editor
 
@@ -60,6 +74,8 @@ export default async function EntryDetailPage({
       districts={districts}
       constituencies={constituencies}
       currentUserRole={session.user.role}
+      prevId={prevEntry?.id ?? null}
+      nextId={nextEntry?.id ?? null}
     />
   );
 }
