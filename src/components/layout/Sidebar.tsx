@@ -13,6 +13,8 @@ const adminNavItems = [
   { href: "/constituencies", label: "Constituencies", icon: "🗺️" },
   { href: "/report", label: "Report (PDF)", icon: "📄" },
   { href: "/export", label: "Export Data", icon: "⬇️" },
+  { href: "/admin/constituency-members", label: "Constituency Members", icon: "🏛️" },
+  { href: "/admin/postings", label: "Posting Types", icon: "📌" },
   { href: "/admin/users", label: "Users", icon: "👥" },
   { href: "/admin/dashboard", label: "System Stats", icon: "🔧" },
 ];

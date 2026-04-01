@@ -90,6 +90,7 @@ model Constituency {
   districtId  String
   district    District    @relation(fields: [districtId], references: [id])
   formEntries FormEntry[]
+  members     ConstituencyMember[]
 
   @@unique([nameTamil, districtId])
   @@index([districtId])
@@ -164,6 +165,59 @@ model FormEntry {
   @@map("form_entries")
 }
 
+// ─── CONSTITUENCY POSTINGS ──────────────────────────────────────
+
+model PostingType {
+  id          String   @id @default(cuid())
+  nameTamil   String
+  nameEnglish String
+  bodyType    BodyType @default(MAIN_BODY)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members ConstituencyMember[]
+
+  @@index([bodyType])
+  @@map("posting_types")
+}
+
+model ConstituencyMember {
+  id             String      @id @default(cuid())
+  constituencyId String
+  constituency   Constituency @relation(fields: [constituencyId], references: [id])
+  postingTypeId  String
+  postingType    PostingType @relation(fields: [postingTypeId], references: [id])
+
+  name              String
+  address           String?   @db.Text
+  age               Int?
+  gender            Gender?
+  contact           String
+  alternateContact  String?
+  email             String?
+  partyMembershipId String?
+  photoKey          String?
+
+  facebook   String?
+  instagram  String?
+  x          String?
+  whatsapp   String?
+  youtube    String?
+  linkedin   String?
+  telegram   String?
+
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([constituencyId])
+  @@index([postingTypeId])
+  @@map("constituency_members")
+}
+
 model AuditLog {
   id        String    @id @default(cuid())
   entryId   String
@@ -196,4 +250,15 @@ enum OcrStatus {
 enum ParentType {
   FATHER
   MOTHER
+}
+
+enum BodyType {
+  MAIN_BODY
+  SUB_BODY
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
