@@ -14,14 +14,13 @@ export default function UploadPage() {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
-  const [entryId, setEntryId] = useState<string | null>(null);
 
   const handleFileSelected = useCallback((f: File) => {
     setFile(f);
     setStatus("idle");
     setProgress(0);
     setMessage("");
-    setEntryId(null);
+
   }, []);
 
   async function handleUpload() {
@@ -107,7 +106,7 @@ export default function UploadPage() {
       });
       if (!confirmRes.ok) throw new Error("Failed to confirm upload");
       const { entryId: id } = await confirmRes.json();
-      setEntryId(id);
+
 
       setProgress(100);
       setStatus("done");
@@ -136,7 +135,7 @@ export default function UploadPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-5">
           <ImageDropzone
             onFileSelected={handleFileSelected}
-            disabled={status === "uploading" || status === "processing"}
+            disabled={status === "uploading"}
           />
 
           {file && status === "idle" && (
