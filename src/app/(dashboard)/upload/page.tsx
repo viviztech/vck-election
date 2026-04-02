@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { ImageDropzone } from "@/components/upload/ImageDropzone";
 import { UploadProgressBar } from "@/components/upload/UploadProgressBar";
 
-type UploadStatus = "idle" | "uploading" | "processing" | "done" | "error";
+type UploadStatus = "idle" | "uploading" | "done" | "error";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -91,7 +91,7 @@ export default function UploadPage() {
         });
       }
 
-      setProgress(82);
+      setProgress(90);
       setMessage("Confirming upload...");
 
       // Step 3: Confirm upload, create FormEntry
@@ -109,29 +109,13 @@ export default function UploadPage() {
       const { entryId: id } = await confirmRes.json();
       setEntryId(id);
 
-      setProgress(85);
-      setStatus("processing");
-      setMessage("Running Gemini AI Tamil OCR...");
-
-      // Step 4: Trigger OCR
-      const ocrRes = await fetch("/api/ocr/trigger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entryId: id }),
-      });
-
-      if (!ocrRes.ok) {
-        const err = await ocrRes.json();
-        throw new Error(err.error ?? "OCR failed");
-      }
-
       setProgress(100);
       setStatus("done");
-      setMessage("OCR complete! Redirecting to verify...");
+      setMessage("Upload complete! Redirecting...");
 
       setTimeout(() => {
         router.push(`/entries/${id}`);
-      }, 1500);
+      }, 1000);
     } catch (err) {
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "An error occurred");
@@ -145,7 +129,7 @@ export default function UploadPage() {
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900">Upload a VCK Application Form</h2>
           <p className="text-gray-500 text-sm mt-1">
-            Upload the scanned form — Gemini AI will automatically extract Tamil text and populate the fields for verification.
+            Upload the scanned form — the team will manually enter the details for verification.
           </p>
         </div>
 
@@ -174,9 +158,8 @@ export default function UploadPage() {
             disabled={!file || status === "uploading" || status === "processing" || status === "done"}
             className="w-full py-3 px-4 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
           >
-            {status === "idle" && "Start OCR Processing"}
+            {status === "idle" && "Upload Form"}
             {status === "uploading" && "Uploading..."}
-            {status === "processing" && "Processing OCR..."}
             {status === "done" && "Done! Redirecting..."}
             {status === "error" && "Retry"}
           </button>
@@ -195,9 +178,8 @@ export default function UploadPage() {
           <p className="font-semibold mb-2">How it works:</p>
           <ol className="space-y-1 list-decimal list-inside text-blue-700">
             <li>Upload the form image (JPEG, PNG, or PDF)</li>
-            <li>Gemini AI extracts Tamil text using OCR</li>
-            <li>Fields are auto-populated from the form</li>
-            <li>You review, correct if needed, and verify</li>
+            <li>Team manually enters the details from the form</li>
+            <li>Review and verify the entry</li>
           </ol>
         </div>
       </div>

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         imageMimeType: mimeType,
         imageSizeBytes: sizeBytes,
         submittedById: session.user.id,
-        ocrStatus: "PENDING",
+        ocrStatus: "MANUAL",
       },
     });
 

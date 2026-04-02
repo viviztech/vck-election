@@ -135,20 +135,7 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
     return (text: string) => { setForm((prev) => ({ ...prev, [field]: text })); setSaved(false); };
   }
 
-  const mandatoryErrors = [
-    !form.serialNumber && "வரிசை எண் (Serial No)",
-    !form.constituencyId && "தொகுதி (Constituency)",
-    !form.name && "பெயர் (Name)",
-    !form.partyPosition && "பொறுப்பு நிலை (Party Position)",
-    !form.contactNumber && "தொடர்பு எண் (Contact)",
-    !form.paymentMode && "கட்டண முறை (Payment Mode)",
-  ].filter(Boolean) as string[];
-
   async function handleSave(verify = false) {
-    if (mandatoryErrors.length > 0) {
-      setError(`தேவையான தகவல்கள் நிரப்பப்படவில்லை: ${mandatoryErrors.join(", ")}`);
-      return;
-    }
     setSaving(true);
     setError("");
     setSaved(false);
@@ -179,13 +166,6 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
   const fieldClass =
     "w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white tamil-text";
   const labelClass = "block text-xs font-semibold text-gray-500 mb-0.5 uppercase tracking-wide";
-  const mandatoryFieldClass = (val: string) =>
-    `w-full px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white tamil-text ${
-      !val ? "border-red-400 bg-red-50" : "border-gray-300"
-    }`;
-  const reqLabel = (label: string) => (
-    <span>{label} <span className="text-red-500">*</span></span>
-  );
 
   const ocrStatusColor = {
     COMPLETED: "bg-green-100 text-green-700",
@@ -337,24 +317,22 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
               </div>
             )}
 
-            {/* ── MANDATORY FIELDS ── */}
-            <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-2">தேவையான தகவல்கள் <span className="text-red-500">*</span></p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5">
 
               {/* Serial No */}
               <div>
-                <label className={labelClass}>{reqLabel("வரிசை எண் (Serial No)")}</label>
+                <label className={labelClass}>வரிசை எண் (Serial No)</label>
                 <div className="flex gap-1.5">
-                  <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={mandatoryFieldClass(form.serialNumber)} />
+                  <input name="serialNumber" value={form.serialNumber} onChange={handleChange} className={fieldClass} />
                   <VoiceInput onResult={voiceSet("serialNumber")} />
                 </div>
               </div>
 
               {/* Contact */}
               <div>
-                <label className={labelClass}>{reqLabel("தொடர்பு எண் (Contact)")}</label>
+                <label className={labelClass}>தொடர்பு எண் (Contact)</label>
                 <div className="flex gap-1.5">
-                  <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={mandatoryFieldClass(form.contactNumber)} />
+                  <input name="contactNumber" value={form.contactNumber} onChange={handleChange} className={fieldClass} />
                   <VoiceInput onResult={voiceSet("contactNumber")} lang="en-IN" />
                 </div>
               </div>
@@ -368,39 +346,33 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                     <option key={d.id} value={d.id}>{d.nameTamil} ({d.nameEnglish})</option>
                   ))}
                 </select>
-                {entry.rawDistrictText && (
-                  <p className="text-xs text-orange-500 mt-0.5">OCR: &quot;{entry.rawDistrictText}&quot;</p>
-                )}
               </div>
 
               {/* Constituency */}
               <div>
-                <label className={labelClass}>{reqLabel("தொகுதி (Constituency)")}</label>
-                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={mandatoryFieldClass(form.constituencyId)}>
+                <label className={labelClass}>தொகுதி (Constituency)</label>
+                <select name="constituencyId" value={form.constituencyId} onChange={handleChange} className={fieldClass}>
                   <option value="">-- Select --</option>
                   {filteredConstituencies.map((c) => (
                     <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish})</option>
                   ))}
                 </select>
-                {entry.rawConstituencyText && (
-                  <p className="text-xs text-orange-500 mt-0.5">OCR: &quot;{entry.rawConstituencyText}&quot;</p>
-                )}
               </div>
 
               {/* Name */}
               <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("பெயர் (Name)")}</label>
+                <label className={labelClass}>பெயர் (Name)</label>
                 <div className="flex gap-1.5">
-                  <input name="name" value={form.name} onChange={handleChange} className={mandatoryFieldClass(form.name)} />
+                  <input name="name" value={form.name} onChange={handleChange} className={fieldClass} />
                   <VoiceInput onResult={voiceSet("name")} />
                 </div>
               </div>
 
               {/* Party Position */}
               <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("பொறுப்பு நிலை (Party Position)")}</label>
+                <label className={labelClass}>பொறுப்பு நிலை (Party Position)</label>
                 <div className="flex gap-1.5">
-                  <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={mandatoryFieldClass(form.partyPosition)} />
+                  <input name="partyPosition" value={form.partyPosition} onChange={handleChange} className={fieldClass} />
                   <VoiceInput onResult={voiceSet("partyPosition")} />
                 </div>
               </div>
@@ -419,9 +391,9 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                 </label>
               </div>
 
-              {/* Payment Mode — MANDATORY */}
+              {/* Payment Mode */}
               <div className="col-span-2">
-                <label className={labelClass}>{reqLabel("கட்டண முறை (Payment Mode)")}</label>
+                <label className={labelClass}>கட்டண முறை (Payment Mode)</label>
                 <div className="flex gap-3">
                   {["Cash", "DD", "Online"].map((mode) => (
                     <label key={mode} className="flex items-center gap-2 cursor-pointer">
@@ -437,7 +409,6 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
                     </label>
                   ))}
                 </div>
-                {!form.paymentMode && <p className="text-xs text-red-500 mt-1">கட்டண முறை தேர்வு செய்யவும்</p>}
               </div>
 
             </div>
@@ -521,17 +492,6 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
 
           {/* Action bar — sticky bottom */}
           <div className="shrink-0 px-5 py-3 border-t border-gray-100 bg-gray-50 flex gap-3">
-            {isAdmin && entry.ocrStatus === "FAILED" && (
-              <button
-                onClick={async () => {
-                  await fetch(`/api/entries/${entry.id}/reprocess`, { method: "POST" });
-                  router.refresh();
-                }}
-                className="px-3 py-2 text-xs text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition font-medium"
-              >
-                Re-run OCR
-              </button>
-            )}
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
