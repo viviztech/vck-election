@@ -19,7 +19,7 @@ export function UploadProgressBar({ progress, status, message }: Props) {
 
   const statusLabels = {
     uploading: "Uploading image...",
-    processing: "Running Tamil OCR (Sarvam AI)...",
+    processing: "Running Tamil OCR (Gemini AI)...",
     done: "OCR complete!",
     error: "Error occurred",
     idle: "",

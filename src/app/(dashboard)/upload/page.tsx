@@ -111,7 +111,7 @@ export default function UploadPage() {
 
       setProgress(85);
       setStatus("processing");
-      setMessage("Running Sarvam AI Tamil OCR...");
+      setMessage("Running Gemini AI Tamil OCR...");
 
       // Step 4: Trigger OCR
       const ocrRes = await fetch("/api/ocr/trigger", {
@@ -145,7 +145,7 @@ export default function UploadPage() {
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900">Upload a VCK Application Form</h2>
           <p className="text-gray-500 text-sm mt-1">
-            Upload the scanned form — Sarvam AI will automatically extract Tamil text and populate the fields for verification.
+            Upload the scanned form — Gemini AI will automatically extract Tamil text and populate the fields for verification.
           </p>
         </div>
 
@@ -195,7 +195,7 @@ export default function UploadPage() {
           <p className="font-semibold mb-2">How it works:</p>
           <ol className="space-y-1 list-decimal list-inside text-blue-700">
             <li>Upload the form image (JPEG, PNG, or PDF)</li>
-            <li>Sarvam AI extracts Tamil text using OCR</li>
+            <li>Gemini AI extracts Tamil text using OCR</li>
             <li>Fields are auto-populated from the form</li>
             <li>You review, correct if needed, and verify</li>
           </ol>
