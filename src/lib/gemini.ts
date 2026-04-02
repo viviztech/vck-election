@@ -25,16 +25,20 @@ export async function runGeminiOcr(imageUrl: string): Promise<OcrResponse> {
 
   // Fetch image and convert to base64
   const imgRes = await fetch(imageUrl);
-  if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status}`);
+  if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status} ${imgRes.statusText}`);
   const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
   const base64 = imgBuffer.toString("base64");
-  const mimeType = imgRes.headers.get("content-type") ?? "image/jpeg";
+  const rawContentType = imgRes.headers.get("content-type") ?? "";
+  // Normalize to a Gemini-supported image MIME type
+  let mimeType: "image/jpeg" | "image/png" | "image/webp" = "image/jpeg";
+  if (rawContentType.includes("image/png")) mimeType = "image/png";
+  else if (rawContentType.includes("image/webp")) mimeType = "image/webp";
 
   const result = await model.generateContent([
     PROMPT,
     {
       inlineData: {
-        mimeType: mimeType as "image/jpeg" | "image/png" | "image/webp",
+        mimeType,
         data: base64,
       },
     },
