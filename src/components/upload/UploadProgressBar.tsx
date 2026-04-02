@@ -2,7 +2,7 @@
 
 interface Props {
   progress: number;
-  status: "idle" | "uploading" | "processing" | "done" | "error";
+  status: "idle" | "uploading" | "done" | "error";
   message?: string;
 }
 
@@ -11,7 +11,6 @@ export function UploadProgressBar({ progress, status, message }: Props) {
 
   const statusColors = {
     uploading: "bg-blue-600",
-    processing: "bg-yellow-500",
     done: "bg-green-600",
     error: "bg-red-500",
     idle: "bg-gray-300",
@@ -19,7 +18,6 @@ export function UploadProgressBar({ progress, status, message }: Props) {
 
   const statusLabels = {
     uploading: "Uploading image...",
-    processing: "Running Tamil OCR (Gemini AI)...",
     done: "OCR complete!",
     error: "Error occurred",
     idle: "",

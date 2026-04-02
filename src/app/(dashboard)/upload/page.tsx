@@ -155,7 +155,7 @@ export default function UploadPage() {
 
           <button
             onClick={handleUpload}
-            disabled={!file || status === "uploading" || status === "processing" || status === "done"}
+            disabled={!file || status === "uploading" || status === "done"}
             className="w-full py-3 px-4 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
           >
             {status === "idle" && "Upload Form"}
