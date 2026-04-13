@@ -29,6 +29,7 @@ export default async function EntriesPage({
   if (verified !== "") where.isVerified = verified === "true";
   if (search) {
     where.OR = [
+      { id: { contains: search } },
       { name: { contains: search, mode: "insensitive" } },
       { serialNumber: { contains: search } },
       { contactNumber: { contains: search } },

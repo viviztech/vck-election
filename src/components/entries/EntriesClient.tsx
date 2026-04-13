@@ -88,7 +88,7 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Search name, serial…"
+              placeholder="Search ID, name, serial…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && applyFilters({ search })}
@@ -189,7 +189,7 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
         <div className="flex flex-wrap gap-3">
           <input
             type="text"
-            placeholder="Search name, serial, phone…"
+            placeholder="Search ID, name, serial, phone…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && applyFilters({ search })}
