@@ -365,22 +365,56 @@ function Pagination({
   pathname: string;
   filters: Filters;
 }) {
-  const pages = Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1);
+  function pageHref(p: number) {
+    return `${pathname}?${new URLSearchParams({ ...filters, page: String(p) })}`;
+  }
+
+  // Build page number list with ellipsis markers
+  const delta = 2;
+  const range: (number | "…")[] = [];
+  const left = Math.max(2, page - delta);
+  const right = Math.min(totalPages - 1, page + delta);
+
+  range.push(1);
+  if (left > 2) range.push("…");
+  for (let i = left; i <= right; i++) range.push(i);
+  if (right < totalPages - 1) range.push("…");
+  if (totalPages > 1) range.push(totalPages);
+
+  const btnBase = "h-8 flex items-center justify-center rounded-lg text-sm font-medium transition px-2 min-w-[2rem]";
+  const btnActive = "bg-slate-900 text-white";
+  const btnInactive = "border border-gray-300 text-gray-600 hover:bg-gray-50";
+  const btnDisabled = "border border-gray-200 text-gray-300 cursor-not-allowed";
+
   return (
-    <div className="flex items-center justify-center gap-2 pt-2">
-      {pages.map((p) => (
-        <Link
-          key={p}
-          href={`${pathname}?${new URLSearchParams({ ...filters, page: String(p) })}`}
-          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition ${
-            p === page
-              ? "bg-slate-900 text-white"
-              : "border border-gray-300 text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          {p}
-        </Link>
-      ))}
+    <div className="flex items-center justify-center gap-1 pt-2 flex-wrap">
+      {/* Prev */}
+      {page > 1 ? (
+        <Link href={pageHref(page - 1)} className={`${btnBase} ${btnInactive}`}>‹ Prev</Link>
+      ) : (
+        <span className={`${btnBase} ${btnDisabled}`}>‹ Prev</span>
+      )}
+
+      {range.map((p, i) =>
+        p === "…" ? (
+          <span key={`ellipsis-${i}`} className={`${btnBase} text-gray-400`}>…</span>
+        ) : (
+          <Link
+            key={p}
+            href={pageHref(p)}
+            className={`${btnBase} ${p === page ? btnActive : btnInactive}`}
+          >
+            {p}
+          </Link>
+        )
+      )}
+
+      {/* Next */}
+      {page < totalPages ? (
+        <Link href={pageHref(page + 1)} className={`${btnBase} ${btnInactive}`}>Next ›</Link>
+      ) : (
+        <span className={`${btnBase} ${btnDisabled}`}>Next ›</span>
+      )}
     </div>
   );
 }
