@@ -59,9 +59,10 @@ interface Props {
   currentUserRole: string;
   prevId?: string | null;
   nextId?: string | null;
+  rowNumber?: number;
 }
 
-export function SplitReviewPage({ entry, districts, constituencies, currentUserRole, prevId, nextId }: Props) {
+export function SplitReviewPage({ entry, districts, constituencies, currentUserRole, prevId, nextId, rowNumber }: Props) {
   const router = useRouter();
   const isAdmin = currentUserRole === "ADMIN" || currentUserRole === "SUPER_ADMIN";
 
@@ -201,6 +202,11 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
         )}
         <div className="h-4 w-px bg-gray-200" />
         <div className="flex items-center gap-2">
+          {rowNumber && (
+            <span className="text-xs font-bold text-white bg-gray-700 rounded px-1.5 py-0.5 font-mono">
+              #{rowNumber}
+            </span>
+          )}
           <span className="text-sm font-semibold text-gray-800">
             {entry.name ? (
               <span className="tamil-text">{entry.name}</span>
@@ -209,7 +215,7 @@ export function SplitReviewPage({ entry, districts, constituencies, currentUserR
             )}
           </span>
           {entry.serialNumber && (
-            <span className="text-xs text-gray-400 font-mono">#{entry.serialNumber}</span>
+            <span className="text-xs text-gray-400 font-mono">Serial: {entry.serialNumber}</span>
           )}
         </div>
         <div className="flex items-center gap-2 ml-2">

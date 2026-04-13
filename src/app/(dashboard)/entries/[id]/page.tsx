@@ -72,8 +72,8 @@ export default async function EntryDetailPage({
     }
   }
 
-  // Fetch prev/next entry IDs ordered by createdAt
-  const [prevEntry, nextEntry] = await Promise.all([
+  // Fetch prev/next entry IDs ordered by createdAt, and row number
+  const [prevEntry, nextEntry, rowNumber] = await Promise.all([
     prisma.formEntry.findFirst({
       where: { createdAt: { lt: entry.createdAt } },
       orderBy: { createdAt: "desc" },
@@ -84,6 +84,7 @@ export default async function EntryDetailPage({
       orderBy: { createdAt: "asc" },
       select: { id: true },
     }),
+    prisma.formEntry.count({ where: { createdAt: { lte: entry.createdAt } } }),
   ]);
 
   const serializedEntry = {
@@ -111,6 +112,7 @@ export default async function EntryDetailPage({
       currentUserRole={session.user.role}
       prevId={prevEntry?.id ?? null}
       nextId={nextEntry?.id ?? null}
+      rowNumber={rowNumber}
     />
   );
 }
