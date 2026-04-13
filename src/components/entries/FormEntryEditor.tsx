@@ -154,6 +154,11 @@ export function FormEntryEditor({ entry, districts, constituencies, onSaved }: P
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="md:col-span-2">
+          <label className={labelClass}>ID</label>
+          <input value={entry.id} readOnly className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 font-mono cursor-default" />
+        </div>
+
         <div>
           <label className={labelClass}>வரிசை எண் (Serial No)</label>
           <div className="flex gap-1.5">
