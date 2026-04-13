@@ -250,6 +250,7 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600 w-8">#</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600 w-8"></th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Serial #</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Name</th>
@@ -264,8 +265,11 @@ export function EntriesClient({ entries, districts, total, page, limit, filters,
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {entries.map((entry) => (
+                {entries.map((entry, idx) => (
                   <tr key={entry.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-xs font-mono text-gray-400 text-right">
+                      {(page - 1) * limit + idx + 1}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="w-8 h-10 bg-gray-100 rounded overflow-hidden">
                         <img src={entry.imageUrl} alt="" className="w-full h-full object-cover" />
