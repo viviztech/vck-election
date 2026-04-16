@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 function isAdmin(role: string) {
   return role === "ADMIN" || role === "SUPER_ADMIN";
@@ -48,34 +47,54 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Only JPEG, PNG, or WebP images are supported" }, { status: 400 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY ?? "";
+  const apiKey = process.env.GROQ_API_KEY ?? "";
   if (!apiKey) {
-    return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
+    return NextResponse.json({ error: "GROQ_API_KEY not configured" }, { status: 500 });
   }
 
   // Convert file to base64
   const buffer = Buffer.from(await file.arrayBuffer());
   const base64 = buffer.toString("base64");
+  const dataUrl = `data:${mimeType};base64,${base64}`;
 
-  // Call Gemini
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  // Call Groq (OpenAI-compatible API)
+  const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: EXTRACT_PROMPT },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ],
+      temperature: 0,
+    }),
+  });
 
-  const result = await model.generateContent([
-    EXTRACT_PROMPT,
-    { inlineData: { mimeType, data: base64 } },
-  ]);
+  if (!groqRes.ok) {
+    const errText = await groqRes.text();
+    return NextResponse.json({ error: `Groq API error ${groqRes.status}: ${errText}` }, { status: 502 });
+  }
 
-  const raw = result.response.text().trim();
+  const groqData = await groqRes.json();
+  const raw: string = groqData.choices?.[0]?.message?.content?.trim() ?? "";
 
-  // Strip markdown code fences if Gemini wraps in ```json ... ```
+  // Strip markdown code fences if model wraps in ```json ... ```
   const jsonText = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
 
   let parsed: { constituencyName?: string; members: { postingNameTamil: string; name: string }[] };
   try {
     parsed = JSON.parse(jsonText);
   } catch {
-    return NextResponse.json({ error: "Failed to parse Gemini response", raw }, { status: 422 });
+    return NextResponse.json({ error: "Failed to parse model response", raw }, { status: 422 });
   }
 
   // Load all posting types and constituencies from DB for matching
