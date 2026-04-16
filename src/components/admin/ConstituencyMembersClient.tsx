@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 
 type BodyType = "MAIN_BODY" | "SUB_BODY";
 type Gender = "MALE" | "FEMALE" | "OTHER";
@@ -50,6 +50,32 @@ interface Member {
   constituency: { id: string; nameEnglish: string; nameTamil: string; district: { nameEnglish: string; nameTamil: string } };
 }
 
+// ── Import types ────────────────────────────────────────────────
+interface ImportedMemberRow {
+  idx: number;
+  name: string;
+  postingNameTamil: string;
+  postingTypeId: string | null;
+  postingTypeNameTamil: string | null;
+  postingTypeNameEnglish: string | null;
+  constituencyId: string | null;
+  order: number;
+}
+
+interface ImportPostingType {
+  id: string;
+  nameTamil: string;
+  nameEnglish: string;
+}
+
+interface ImportConstituency {
+  id: string;
+  nameTamil: string;
+  nameEnglish: string;
+  districtNameEnglish: string;
+  districtNameTamil: string;
+}
+
 const emptyForm = {
   constituencyId: "",
   postingTypeId: "",
@@ -92,6 +118,20 @@ export function ConstituencyMembersClient({
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Image import state ───────────────────────────────────────
+  const [showImport, setShowImport] = useState(false);
+  const [importImage, setImportImage] = useState<File | null>(null);
+  const [importPreviewUrl, setImportPreviewUrl] = useState<string | null>(null);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importRows, setImportRows] = useState<ImportedMemberRow[]>([]);
+  const [importPostingTypes, setImportPostingTypes] = useState<ImportPostingType[]>([]);
+  const [importConstituencies, setImportConstituencies] = useState<ImportConstituency[]>([]);
+  const [importConstituencyName, setImportConstituencyName] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importSuccess, setImportSuccess] = useState("");
+  const importFileRef = useRef<HTMLInputElement>(null);
 
   const allConstituencies = districts.flatMap((d) =>
     d.constituencies.map((c) => ({ ...c, districtId: d.id, districtName: d.nameEnglish, districtTamil: d.nameTamil }))
@@ -216,6 +256,101 @@ export function ConstituencyMembersClient({
     if (res.ok) setMembers((prev) => prev.filter((x) => x.id !== m.id));
   }
 
+  // ── Import handlers ──────────────────────────────────────────
+  function openImport() {
+    setShowImport(true);
+    setImportImage(null);
+    setImportPreviewUrl(null);
+    setImportRows([]);
+    setImportError("");
+    setImportSuccess("");
+  }
+
+  function closeImport() {
+    setShowImport(false);
+    setImportImage(null);
+    setImportPreviewUrl(null);
+    setImportRows([]);
+    setImportError("");
+    setImportSuccess("");
+  }
+
+  const handleImportFileChange = useCallback((file: File) => {
+    setImportImage(file);
+    setImportPreviewUrl(URL.createObjectURL(file));
+    setImportRows([]);
+    setImportError("");
+    setImportSuccess("");
+  }, []);
+
+  async function extractFromImage() {
+    if (!importImage) return;
+    setImportLoading(true);
+    setImportError("");
+    setImportRows([]);
+    setImportSuccess("");
+
+    const fd = new FormData();
+    fd.append("image", importImage);
+
+    const res = await fetch("/api/admin/constituency-members/import-image", { method: "POST", body: fd });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setImportError(data.error ?? "Extraction failed");
+      setImportLoading(false);
+      return;
+    }
+
+    setImportConstituencyName(data.constituencyName ?? "");
+    setImportPostingTypes(data.postingTypes ?? []);
+    setImportConstituencies(data.constituencies ?? []);
+    setImportRows(
+      (data.members as ImportedMemberRow[]).map((m) => ({ ...m, constituencyId: null }))
+    );
+    setImportLoading(false);
+  }
+
+  function updateImportRow(idx: number, patch: Partial<ImportedMemberRow>) {
+    setImportRows((prev) => prev.map((r) => r.idx === idx ? { ...r, ...patch } : r));
+  }
+
+  async function handleBulkInsert() {
+    const invalid = importRows.filter((r) => !r.constituencyId || !r.postingTypeId || !r.name.trim());
+    if (invalid.length > 0) {
+      setImportError(`Fix ${invalid.length} row(s) missing constituency or posting type before importing.`);
+      return;
+    }
+    setImporting(true);
+    setImportError("");
+
+    const res = await fetch("/api/admin/constituency-members/bulk-insert", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        members: importRows.map((r) => ({
+          name: r.name,
+          constituencyId: r.constituencyId,
+          postingTypeId: r.postingTypeId,
+          order: r.order,
+        })),
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setImportError(data.error ?? "Import failed");
+      setImporting(false);
+      return;
+    }
+
+    setImportSuccess(`${data.inserted} members imported successfully!`);
+    setImporting(false);
+    // Refresh members list from server
+    const refreshed = await fetch("/api/admin/constituency-members").then((r) => r.json());
+    setMembers(refreshed);
+  }
+
   const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
   const labelClass = "block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide";
 
@@ -226,12 +361,20 @@ export function ConstituencyMembersClient({
           <h1 className="text-2xl font-bold text-gray-900">Constituency Members</h1>
           <p className="text-sm text-gray-500 mt-1">{members.length} members across all constituencies</p>
         </div>
-        <button
-          onClick={startAdd}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700"
-        >
-          + Add Member
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={openImport}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-400 transition"
+          >
+            Import from Image
+          </button>
+          <button
+            onClick={startAdd}
+            className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700"
+          >
+            + Add Member
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -257,6 +400,169 @@ export function ConstituencyMembersClient({
           ))}
         </select>
       </div>
+
+      {/* ── Import from Image modal ───────────────────────────── */}
+      {showImport && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center overflow-y-auto py-8 px-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h2 className="font-semibold text-gray-800 text-lg">Import Members from Image</h2>
+              <button onClick={closeImport} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">&times;</button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Step 1: Upload image */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Step 1 — Upload the document image</p>
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-orange-400 transition"
+                  onClick={() => importFileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) handleImportFileChange(file);
+                  }}
+                >
+                  <input
+                    ref={importFileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImportFileChange(file);
+                    }}
+                  />
+                  {importPreviewUrl ? (
+                    <img src={importPreviewUrl} alt="preview" className="max-h-64 mx-auto rounded-lg shadow" />
+                  ) : (
+                    <div className="text-gray-400">
+                      <p className="text-3xl mb-2">📄</p>
+                      <p className="text-sm font-medium">Click or drag & drop an image here</p>
+                      <p className="text-xs mt-1">JPEG, PNG, WebP supported</p>
+                    </div>
+                  )}
+                </div>
+                {importImage && importRows.length === 0 && (
+                  <button
+                    onClick={extractFromImage}
+                    disabled={importLoading}
+                    className="mt-3 px-5 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-400 disabled:opacity-50 transition"
+                  >
+                    {importLoading ? "Extracting with AI…" : "Extract Data from Image"}
+                  </button>
+                )}
+              </div>
+
+              {importError && (
+                <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">{importError}</p>
+              )}
+              {importSuccess && (
+                <p className="text-sm text-green-700 bg-green-50 px-4 py-2 rounded-lg font-medium">{importSuccess}</p>
+              )}
+
+              {/* Step 2: Review & fix extracted data */}
+              {importRows.length > 0 && !importSuccess && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Step 2 — Review extracted data & assign constituency
+                  </p>
+                  {importConstituencyName && (
+                    <p className="text-sm text-gray-500 mb-3">
+                      Detected area: <span className="font-semibold tamil-text text-gray-800">{importConstituencyName}</span>
+                    </p>
+                  )}
+                  <div className="overflow-x-auto rounded-xl border border-gray-200">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">#</th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Name</th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Posting Type</th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Constituency *</th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {importRows.map((row, i) => {
+                          const ready = !!row.constituencyId && !!row.postingTypeId && !!row.name.trim();
+                          return (
+                            <tr key={row.idx} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                              <td className="px-3 py-2 text-gray-400 text-xs">{i + 1}</td>
+                              <td className="px-3 py-2">
+                                <input
+                                  className="w-full px-2 py-1 border border-gray-200 rounded text-sm tamil-text focus:outline-none focus:ring-1 focus:ring-orange-400"
+                                  value={row.name}
+                                  onChange={(e) => updateImportRow(row.idx, { name: e.target.value })}
+                                />
+                              </td>
+                              <td className="px-3 py-2">
+                                <select
+                                  className="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+                                  value={row.postingTypeId ?? ""}
+                                  onChange={(e) => updateImportRow(row.idx, { postingTypeId: e.target.value || null })}
+                                >
+                                  <option value="">— select —</option>
+                                  {importPostingTypes.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.nameTamil} — {p.nameEnglish}</option>
+                                  ))}
+                                </select>
+                                {row.postingNameTamil && row.postingTypeId && (
+                                  <p className="text-xs text-gray-400 mt-0.5 tamil-text">Detected: {row.postingNameTamil}</p>
+                                )}
+                                {row.postingNameTamil && !row.postingTypeId && (
+                                  <p className="text-xs text-orange-500 mt-0.5 tamil-text">No match: {row.postingNameTamil}</p>
+                                )}
+                              </td>
+                              <td className="px-3 py-2">
+                                <select
+                                  className="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+                                  value={row.constituencyId ?? ""}
+                                  onChange={(e) => updateImportRow(row.idx, { constituencyId: e.target.value || null })}
+                                >
+                                  <option value="">— select —</option>
+                                  {importConstituencies.map((c) => (
+                                    <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish}) — {c.districtNameEnglish}</option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-3 py-2">
+                                {ready
+                                  ? <span className="text-xs text-green-600 font-semibold">✓ Ready</span>
+                                  : <span className="text-xs text-orange-500 font-semibold">Fix needed</span>}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-3">
+                    <button
+                      onClick={handleBulkInsert}
+                      disabled={importing}
+                      className="px-5 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition"
+                    >
+                      {importing ? "Importing…" : `Import ${importRows.length} Members`}
+                    </button>
+                    <button
+                      onClick={() => { setImportRows([]); setImportImage(null); setImportPreviewUrl(null); }}
+                      className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+                    >
+                      Re-upload
+                    </button>
+                    <span className="text-xs text-gray-400 ml-auto">
+                      {importRows.filter((r) => r.constituencyId && r.postingTypeId).length}/{importRows.length} ready
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit form modal */}
       {showForm && (
