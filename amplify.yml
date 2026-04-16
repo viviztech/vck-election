@@ -6,7 +6,7 @@ frontend:
         - NODE_ENV=development npm ci
     build:
       commands:
-        - env | grep -E "DATABASE_URL|NEXTAUTH|S3_|GEMINI|NODE_ENV" >> .env.production
+        - env | grep -E "DATABASE_URL|NEXTAUTH|S3_|GEMINI|GROQ|NODE_ENV" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
