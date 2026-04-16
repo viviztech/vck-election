@@ -13,7 +13,7 @@ export const s3 = new S3Client({
   },
 });
 
-export const BUCKET_NAME = process.env.S3_BUCKET_NAME ?? process.env.AWS_S3_BUCKET_NAME ?? "vck-forms";
+export const BUCKET_NAME = process.env.S3_BUCKET_NAME ?? process.env.AWS_S3_BUCKET_NAME ?? "vck-forms-app";
 
 export function generateImageKey(userId: string, filename: string): string {
   const ext = filename.split(".").pop() ?? "jpg";
@@ -37,7 +37,7 @@ export async function getPresignedUploadUrl(
 export async function getPresignedReadUrl(key: string): Promise<string> {
   const { GetObjectCommand } = await import("@aws-sdk/client-s3");
   const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: key });
-  return getSignedUrl(s3, command, { expiresIn: 900 }); // 15 min for OCR
+  return getSignedUrl(s3, command, { expiresIn: 3600 }); // 1 hour
 }
 
 export function getPublicUrl(key: string): string {
