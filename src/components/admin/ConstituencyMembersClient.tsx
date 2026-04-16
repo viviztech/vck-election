@@ -290,24 +290,43 @@ export function ConstituencyMembersClient({
     setImportRows([]);
     setImportSuccess("");
 
-    const fd = new FormData();
-    fd.append("image", importImage);
+    try {
+      const fd = new FormData();
+      fd.append("image", importImage);
 
-    const res = await fetch("/api/admin/constituency-members/import-image", { method: "POST", body: fd });
-    const data = await res.json();
+      const res = await fetch("/api/admin/constituency-members/import-image", { method: "POST", body: fd });
 
-    if (!res.ok) {
-      setImportError(data.error ?? "Extraction failed");
-      setImportLoading(false);
-      return;
+      let data: Record<string, unknown>;
+      try {
+        data = await res.json();
+      } catch {
+        setImportError(`Server error (HTTP ${res.status}): response was not JSON`);
+        setImportLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setImportError(`Error ${res.status}: ${(data.error as string) ?? "Extraction failed"}`);
+        setImportLoading(false);
+        return;
+      }
+
+      if (!data.members || (data.members as unknown[]).length === 0) {
+        setImportError("No members could be extracted from the image. Make sure the image is clear and contains a table.");
+        setImportLoading(false);
+        return;
+      }
+
+      setImportConstituencyName((data.constituencyName as string) ?? "");
+      setImportPostingTypes((data.postingTypes as ImportPostingType[]) ?? []);
+      setImportConstituencies((data.constituencies as ImportConstituency[]) ?? []);
+      setImportRows(
+        (data.members as ImportedMemberRow[]).map((m) => ({ ...m, constituencyId: null }))
+      );
+    } catch (err) {
+      setImportError(`Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
     }
 
-    setImportConstituencyName(data.constituencyName ?? "");
-    setImportPostingTypes(data.postingTypes ?? []);
-    setImportConstituencies(data.constituencies ?? []);
-    setImportRows(
-      (data.members as ImportedMemberRow[]).map((m) => ({ ...m, constituencyId: null }))
-    );
     setImportLoading(false);
   }
 
