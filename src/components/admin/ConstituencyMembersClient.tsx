@@ -317,11 +317,32 @@ export function ConstituencyMembersClient({
         return;
       }
 
-      setImportConstituencyName((data.constituencyName as string) ?? "");
+      const detectedName: string = (data.constituencyName as string) ?? "";
+      const constituencies = (data.constituencies as ImportConstituency[]) ?? [];
+
+      // Auto-match detected constituency name against DB list
+      let autoConstituencyId: string | null = null;
+      if (detectedName) {
+        const lower = detectedName.trim().toLowerCase();
+        const exact = constituencies.find(
+          (c) => c.nameTamil === detectedName.trim() || c.nameEnglish.toLowerCase() === lower
+        );
+        if (exact) {
+          autoConstituencyId = exact.id;
+        } else {
+          // Partial match: find constituency whose Tamil name shares at least 4 chars
+          const partial = constituencies.find(
+            (c) => c.nameTamil.includes(detectedName.slice(0, 4)) || detectedName.includes(c.nameTamil.slice(0, 4))
+          );
+          autoConstituencyId = partial?.id ?? null;
+        }
+      }
+
+      setImportConstituencyName(detectedName);
       setImportPostingTypes((data.postingTypes as ImportPostingType[]) ?? []);
-      setImportConstituencies((data.constituencies as ImportConstituency[]) ?? []);
+      setImportConstituencies(constituencies);
       setImportRows(
-        (data.members as ImportedMemberRow[]).map((m) => ({ ...m, constituencyId: null }))
+        (data.members as ImportedMemberRow[]).map((m) => ({ ...m, constituencyId: autoConstituencyId }))
       );
     } catch (err) {
       setImportError(`Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
@@ -487,11 +508,32 @@ export function ConstituencyMembersClient({
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
                     Step 2 — Review extracted data & assign constituency
                   </p>
-                  {importConstituencyName && (
-                    <p className="text-sm text-gray-500 mb-3">
-                      Detected area: <span className="font-semibold tamil-text text-gray-800">{importConstituencyName}</span>
-                    </p>
-                  )}
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    {importConstituencyName && (
+                      <p className="text-sm text-gray-500">
+                        Detected: <span className="font-semibold tamil-text text-gray-800">{importConstituencyName}</span>
+                        {importRows[0]?.constituencyId
+                          ? <span className="ml-2 text-green-600 text-xs font-semibold">✓ Auto-matched</span>
+                          : <span className="ml-2 text-orange-500 text-xs font-semibold">No match — select below</span>}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 ml-auto">
+                      <span className="text-xs text-gray-500 font-semibold">Apply constituency to all:</span>
+                      <select
+                        className="px-2 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        value={importRows[0]?.constituencyId ?? ""}
+                        onChange={(e) => {
+                          const id = e.target.value || null;
+                          setImportRows((prev) => prev.map((r) => ({ ...r, constituencyId: id })));
+                        }}
+                      >
+                        <option value="">— select —</option>
+                        {importConstituencies.map((c) => (
+                          <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish}) — {c.districtNameEnglish}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                   <div className="overflow-x-auto rounded-xl border border-gray-200">
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50 border-b border-gray-200">
