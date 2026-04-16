@@ -580,13 +580,22 @@ export function ConstituencyMembersClient({
                                 <select
                                   className="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
                                   value={row.constituencyId ?? ""}
-                                  onChange={(e) => updateImportRow(row.idx, { constituencyId: e.target.value || null })}
+                                  onChange={(e) => {
+                                    const id = e.target.value || null;
+                                    if (i === 0) {
+                                      // First row — apply to all
+                                      setImportRows((prev) => prev.map((r) => ({ ...r, constituencyId: id })));
+                                    } else {
+                                      updateImportRow(row.idx, { constituencyId: id });
+                                    }
+                                  }}
                                 >
                                   <option value="">— select —</option>
                                   {importConstituencies.map((c) => (
                                     <option key={c.id} value={c.id}>{c.nameTamil} ({c.nameEnglish}) — {c.districtNameEnglish}</option>
                                   ))}
                                 </select>
+                                {i === 0 && <p className="text-xs text-gray-400 mt-0.5">Selecting here applies to all rows</p>}
                               </td>
                               <td className="px-3 py-2">
                                 {ready
