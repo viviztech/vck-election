@@ -66,6 +66,4 @@ export const authOptions: NextAuthOptions = {
     error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Force public URL — Amplify SSR containers see internal localhost, not the public domain
-  url: process.env.NEXTAUTH_URL ?? "https://main.d38gppm8yah8zy.amplifyapp.com",
 };
