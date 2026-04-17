@@ -133,19 +133,23 @@ export default async function DashboardPage() {
   }
 
   // ── USER / REVIEWER DASHBOARD ─────────────────────────────────
-  const [totalPending, totalVerifiedByMe, allPendingEntries] = await Promise.all([
+  const [totalPending, totalVerifiedByMe, rawPendingEntries] = await Promise.all([
     prisma.formEntry.count({ where: { isVerified: false, ocrStatus: "COMPLETED" } }),
     prisma.formEntry.count({ where: { isVerified: true, verifiedById: session?.user.id } }),
     prisma.formEntry.findMany({
       where: { isVerified: false, ocrStatus: "COMPLETED" },
       take: 8,
-      orderBy: { createdAt: "asc" }, // oldest first — review in order
+      orderBy: { createdAt: "asc" },
       include: {
         district: { select: { nameEnglish: true, nameTamil: true } },
         constituency: { select: { nameEnglish: true, nameTamil: true } },
       },
     }),
   ]);
+
+  const allPendingEntries = await Promise.all(
+    rawPendingEntries.map(async (e) => ({ ...e, imageUrl: await getPresignedReadUrl(e.imageKey) }))
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
