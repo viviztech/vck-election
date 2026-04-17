@@ -7,8 +7,12 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL environment variable is not set");
   }
   const isProduction = process.env.NODE_ENV === "production";
+  // RDS uses a self-signed cert chain — must disable verification and force SSL mode
+  const url = isProduction
+    ? connectionString.replace("sslmode=require", "sslmode=no-verify")
+    : connectionString;
   const adapter = new PrismaPg({
-    connectionString,
+    connectionString: url,
     ssl: isProduction ? { rejectUnauthorized: false } : undefined,
   });
   return new PrismaClient({
