@@ -7,6 +7,7 @@ frontend:
     build:
       commands:
         - env | grep -E "DATABASE_URL|NEXTAUTH|S3_|GEMINI|GROQ|NODE_ENV" >> .env.production
+        - cat .env.production
         - npm run build
   artifacts:
     baseDirectory: .next

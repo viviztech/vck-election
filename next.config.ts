@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Expose env vars to SSR runtime on Amplify WEB_COMPUTE
+  // Hardcode production URL so NextAuth never falls back to localhost
   env: {
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "https://main.d38gppm8yah8zy.amplifyapp.com",
     DATABASE_URL: process.env.DATABASE_URL ?? "",
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "",
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? "",
     S3_REGION: process.env.S3_REGION ?? "ap-south-1",
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME ?? "vck-forms-app",
