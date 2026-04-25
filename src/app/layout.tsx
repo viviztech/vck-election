@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Noto_Serif_Tamil } from "next/font/google";
+import { Mukta_Malar, Baloo_Thambi_2 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const muktaMalar = Mukta_Malar({
+  variable: "--font-body",
+  subsets: ["tamil"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
-const notoSerifTamil = Noto_Serif_Tamil({
-  variable: "--font-tamil",
+const balooThambi2 = Baloo_Thambi_2({
+  variable: "--font-heading",
   subsets: ["tamil"],
-  weight: ["400", "600", "700", "900"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ta" className={`${geistSans.variable} ${notoSerifTamil.variable} h-full antialiased`}>
+    <html lang="ta" className={`${muktaMalar.variable} ${balooThambi2.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-gray-50">
         <Providers>{children}</Providers>
       </body>
