@@ -262,3 +262,74 @@ enum Gender {
   FEMALE
   OTHER
 }
+
+// ─── PUBLIC SITE CONTENT ────────────────────────────────────────
+
+model Leader {
+  id              String   @id @default(cuid())
+  name            String
+  nameTA          String?
+  designation     String
+  designationTA   String?
+  bio             String?
+  photoUrl        String?
+  order           Int      @default(0)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("leaders")
+}
+
+model ElectedMember {
+  id           String   @id @default(cuid())
+  name         String
+  nameTA       String?
+  constituency String
+  role         String
+  photoUrl     String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("elected_members")
+}
+
+model PartyWing {
+  id          String   @id @default(cuid())
+  name        String
+  nameTA      String?
+  description String?
+  leaderName  String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("party_wings")
+}
+
+model NewsArticle {
+  id          String   @id @default(cuid())
+  title       String
+  titleTA     String?
+  body        String
+  category    String
+  thumbnail   String?
+  publishedAt DateTime @default(now())
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("news_articles")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
