@@ -13,6 +13,7 @@ import HistoryTeaser from "@/components/public/home/HistoryTeaser";
 import NewsTeaserSection from "@/components/public/home/NewsTeaserSection";
 import JoinCTA from "@/components/public/home/JoinCTA";
 import LeadersSection from "@/components/public/home/LeadersSection";
+import SocialFeedsSection from "@/components/public/home/SocialFeedsSection";
 
 const REVEAL_SENTENCES: string[] = [
   "நாங்கள் சாதி ஒழிப்புக்காக போராடுகிறோம்.",
@@ -61,7 +62,10 @@ export default async function Home() {
       {/* 10 — News */}
       <NewsTeaserSection />
 
-      {/* 11 — Join CTA */}
+      {/* 11 — Social feeds */}
+      <SocialFeedsSection />
+
+      {/* 12 — Join CTA */}
       <JoinCTA />
     </main>
   );
