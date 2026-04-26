@@ -25,6 +25,11 @@ model User {
   formEntries FormEntry[]
   auditLogs   AuditLog[]
 
+  userPermissions   UserPermission[]
+  adminActivityLogs AdminActivityLog[]
+  suspendedAt       DateTime?
+  suspendedReason   String?
+
   @@index([email])
   @@map("users")
 }
@@ -231,6 +236,63 @@ model AuditLog {
   @@index([entryId])
   @@index([userId])
   @@map("audit_logs")
+}
+
+// ─── PERMISSION SYSTEM ──────────────────────────────────────────
+
+model Permission {
+  id          String   @id @default(cuid())
+  resource    String   // e.g. "users", "entries", "roles", "stats", "exports"
+  action      String   // e.g. "create", "read", "update", "delete", "export"
+  description String?
+  createdAt   DateTime @default(now())
+
+  rolePermissions     RolePermission[]
+  userPermissions     UserPermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  role         Role
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  granted      Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, permissionId])
+  @@map("user_permissions")
+}
+
+model AdminActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  resource   String
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("admin_activity_logs")
 }
 
 enum Role {

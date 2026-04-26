@@ -6,5 +6,5 @@
     "esModuleInterop": true,
     "outDir": ".seed-build"
   },
-  "include": ["prisma/seed.ts"]
+  "include": ["prisma/seed.ts", "prisma/seed-permissions.ts", "prisma/seed-public.ts"]
 }
