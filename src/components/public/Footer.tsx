@@ -55,12 +55,20 @@ export default function Footer() {
               </div>
 
               {/* Description */}
-              <p className="text-sm text-white/60 leading-relaxed max-w-sm">
-                விடுதலைச் சிறுத்தைகள் கட்சி — தமிழ்நாட்டின் ஒடுக்கப்பட்ட
-                மக்களின் உரிமைகளுக்காகவும் மரியாதைக்காகவும் 1992 முதல்
-                இடைவிடாது போராடி வருகிறோம். தெருவிலிருந்து
-                பாராளுமன்றம் வரை — இது ஒரு இயக்கம்.
-              </p>
+              <div className="flex flex-col gap-3 max-w-sm">
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#C41E1E]"
+                  style={{ fontFamily: "var(--font-body)" }}>
+                  விசிக பற்றி
+                </p>
+                <p className="text-sm text-white/60 leading-relaxed"
+                  style={{ fontFamily: "var(--font-body)" }}>
+                  விசிக தமிழ்நாட்டில் மறுக்க முடியாத அரசியல் இயக்கமாக இருந்து வருகிறது. இது சாதி ஒழிப்பு, சமூக நீதி, மதச்சார்பின்மை ஆகிய தளங்களில் உழைக்கும் மக்களின் விடுதலைக்காகவும் அவர்களின் சமூக பொருளாதார மற்றும் அரசியல் உரிமைகளுக்காக அர்ப்பணித்து இயங்கி வருகிறது.
+                </p>
+                <p className="text-sm text-white/40 leading-relaxed"
+                  style={{ fontFamily: "var(--font-body)" }}>
+                  ஒடுக்கப்பட்ட தலித் மற்றும் விளிம்பு நிலை மக்கள் அரசியல் நீரோட்டத்தில் பங்குபெறச் செய்து அனைத்து மக்களையும் ஒன்றிணைத்து அவர்களை சமூக அதிகாரம் உள்ள மக்களாக மாற்ற பாடுபட்டு வருகிறது.
+                </p>
+              </div>
 
               {/* Social icons */}
               <div className="flex items-center gap-5 mt-1">
