@@ -57,7 +57,7 @@ const STATS: Stat[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// Animated counter
+// Animated counter — all motion logic preserved exactly
 // ---------------------------------------------------------------------------
 
 function Counter({ target, suffix, label }: Stat) {
@@ -76,18 +76,27 @@ function Counter({ target, suffix, label }: Stat) {
   }, [inView, motionVal, target])
 
   return (
-    <div ref={ref} className="flex flex-col items-center gap-2">
+    <div
+      ref={ref}
+      className="bg-white rounded-2xl shadow-sm p-8 flex flex-col items-center gap-2"
+    >
       <div className="flex items-end">
-        <motion.span className="text-6xl font-black text-[#C41E1E] tabular-nums leading-none">
+        <motion.span
+          className="text-6xl font-black text-[#C41E1E] tabular-nums leading-none"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           {display}
         </motion.span>
         {suffix && (
-          <span className="text-6xl font-black text-[#C41E1E] leading-none">
+          <span
+            className="text-6xl font-black text-[#C41E1E] leading-none"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
             {suffix}
           </span>
         )}
       </div>
-      <p className="text-sm text-gray-500 text-center max-w-[12ch]">{label}</p>
+      <p className="text-sm text-gray-500 text-center">{label}</p>
     </div>
   )
 }
@@ -101,25 +110,50 @@ export default function SupportersSection() {
     <section className="bg-[#F5F0E8] py-24 overflow-hidden" aria-label="Supporters">
       {/* Heading */}
       <div className="text-center px-6 mb-16">
-        <h2 className="text-4xl md:text-6xl font-black text-[#0A1628] mb-4">
+        <span
+          className="text-[#C41E1E] text-xs uppercase tracking-widest font-semibold block mb-3 text-center"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          இயக்கத்தின் வலிமை
+        </span>
+        <h2
+          className="text-4xl lg:text-5xl font-black text-[#0A1628] mb-4"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           இயக்கத்தின் குரல்கள்
         </h2>
-        <p className="text-lg text-gray-500">
+        <p className="text-base text-gray-400">
           தமிழ்நாடு முழுவதும் உள்ள ஆதரவாளர்கள்
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="flex flex-wrap justify-center gap-12 md:gap-20 px-6 mb-20">
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto mb-20 px-6">
         {STATS.map((stat) => (
           <Counter key={stat.label} {...stat} />
         ))}
       </div>
 
       {/* Marquee rows */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col">
+        {/* Row 1 label */}
+        <p
+          className="text-center text-xs text-gray-400 uppercase tracking-widest mb-4 px-6"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          முழக்கங்கள்
+        </p>
+
         {/* Row 1 — slogans, left direction, speed 35 */}
         <InfiniteMarquee items={SLOGANS} direction="left" speed={35} />
+
+        {/* Row 2 label */}
+        <p
+          className="text-center text-xs text-gray-400 uppercase tracking-widest mt-6 mb-4 px-6"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          மாவட்டங்கள்
+        </p>
 
         {/* Row 2 — districts, right direction, speed 45 */}
         <InfiniteMarquee items={DISTRICTS} direction="right" speed={45} />

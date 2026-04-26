@@ -29,6 +29,12 @@ const item = {
   },
 }
 
+const stats: { n: string; label: string }[] = [
+  { n: "1990", label: "கட்சி தொடங்கப்பட்டது" },
+  { n: "2024", label: "மாநிலக் கட்சி அங்கீகாரம்" },
+  { n: "31+", label: "கட்சி அணிகள்" },
+]
+
 export default function SpotlightHero() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -39,7 +45,7 @@ export default function SpotlightHero() {
   const gradientBg = useTransform(
     [springX, springY],
     ([x, y]: number[]) =>
-      `radial-gradient(600px circle at ${x}px ${y}px, rgba(196,30,30,0.15), transparent 80%)`
+      `radial-gradient(700px circle at ${x}px ${y}px, rgba(196,30,30,0.13), transparent 75%)`
   )
 
   function handleMouseMove(e: MouseEvent<HTMLElement>) {
@@ -49,80 +55,151 @@ export default function SpotlightHero() {
 
   return (
     <section
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A1628]"
+      className="relative flex min-h-screen bg-[#0A1628] overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      {/* Spotlight overlay */}
+      {/* Grid texture layer */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      {/* Spotlight layer */}
       <motion.div
-        className="pointer-events-none absolute inset-0 z-0"
+        aria-hidden="true"
+        className="absolute inset-0 z-[1] pointer-events-none"
         style={{ background: gradientBg }}
       />
 
-      {/* Content */}
-      <motion.div
-        className="relative z-10 flex flex-col items-center px-6 text-center"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
-        {/* Label */}
-        <motion.span
-          variants={item}
-          className="mb-6 tracking-widest text-xs font-semibold uppercase text-[#C41E1E]"
-        >
-          விடுதலைச் சிறுத்தைகள் கட்சி
-        </motion.span>
+      {/* Main content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full flex flex-col justify-center min-h-screen py-32">
 
-        {/* Headline */}
-        <motion.h1
-          variants={item}
-          className="leading-none font-black text-white"
-          style={{ fontSize: "clamp(3rem,10vw,9rem)" }}
-        >
-          34 ஆண்டுகள்
-        </motion.h1>
-        <motion.h1
-          variants={item}
-          className="leading-none font-black text-[#C41E1E]"
-          style={{ fontSize: "clamp(3rem,10vw,9rem)" }}
-        >
-          போராட்டம்.
-        </motion.h1>
+        {/* Two-col on lg */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center">
 
-        {/* Sub-heading */}
-        <motion.p
-          variants={item}
-          className="mt-6 text-xl text-white/60"
-        >
-          தெருவிலிருந்து பாராளுமன்றம் வரை
-        </motion.p>
+          {/* LEFT content */}
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="max-w-3xl"
+          >
+            {/* Label */}
+            <motion.div variants={item} className="flex items-center gap-3 mb-8">
+              <span className="h-px w-8 bg-[#C41E1E]" />
+              <span
+                className="text-[#C41E1E] text-xs font-semibold uppercase tracking-[0.25em]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                விடுதலைச் சிறுத்தைகள் கட்சி
+              </span>
+            </motion.div>
 
-        {/* CTAs */}
+            {/* Headline */}
+            <motion.h1
+              variants={item}
+              className="font-black text-white leading-[0.9] mb-2"
+              style={{
+                fontSize: "clamp(3.5rem, 9vw, 9rem)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              34 ஆண்டுகள்
+            </motion.h1>
+            <motion.h1
+              variants={item}
+              className="font-black text-[#C41E1E] leading-[0.9] mb-8"
+              style={{
+                fontSize: "clamp(3.5rem, 9vw, 9rem)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              போராட்டம்.
+            </motion.h1>
+
+            {/* Divider */}
+            <motion.div variants={item} className="h-px w-16 bg-white/20 mb-8" />
+
+            {/* Sub */}
+            <motion.p
+              variants={item}
+              className="text-white/50 leading-relaxed mb-10 max-w-lg"
+              style={{
+                fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              தெருவிலிருந்து பாராளுமன்றம் வரை — இது ஒரு இயக்கம்.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div variants={item} className="flex flex-wrap gap-4">
+              <MagneticButton href="/join" variant="primary">விசிக-வில் இணைய</MagneticButton>
+              <MagneticButton href="/donate" variant="secondary">நன்கொடை</MagneticButton>
+            </motion.div>
+          </motion.div>
+
+          {/* RIGHT — decorative (hidden on mobile) */}
+          <div className="hidden lg:flex items-center justify-center">
+            <div className="relative w-64 h-64 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border border-white/5" />
+              <div className="absolute inset-6 rounded-full border border-white/5" />
+              <div className="absolute inset-12 rounded-full border border-[#C41E1E]/20" />
+              <span
+                aria-hidden="true"
+                className="text-white/[0.04] font-black select-none"
+                style={{ fontSize: "5rem", fontFamily: "var(--font-heading)" }}
+              >
+                VCK
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom stats strip */}
         <motion.div
           variants={item}
-          className="mt-10 flex flex-wrap items-center justify-center gap-4"
+          initial="hidden"
+          animate="show"
+          className="absolute bottom-12 left-6 lg:left-12 right-6 flex gap-8 lg:gap-16"
         >
-          <MagneticButton href="/join" variant="primary">
-            விசிக-வில் இணைய
-          </MagneticButton>
-          <MagneticButton href="/donate" variant="secondary">
-            நன்கொடை
-          </MagneticButton>
+          {stats.map(({ n, label }) => (
+            <div key={n} className="flex flex-col gap-1">
+              <span
+                className="text-white font-black text-xl"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                {n}
+              </span>
+              <span
+                className="text-white/30 text-xs"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {label}
+              </span>
+            </div>
+          ))}
         </motion.div>
-      </motion.div>
 
-      {/* Scroll indicator */}
+      </div>
+
+      {/* Scroll chevron */}
       <motion.div
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-8 right-8 z-10"
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
       >
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="rgba(255,255,255,0.5)"
+          stroke="rgba(255,255,255,0.3)"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -131,6 +208,7 @@ export default function SpotlightHero() {
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </motion.div>
+
     </section>
   )
 }

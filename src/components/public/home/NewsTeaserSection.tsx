@@ -1,56 +1,110 @@
 import Link from "next/link";
 
-type NewsCard = { title: string; category: string; date: string };
+interface NewsItem {
+  title: string;
+  category: string;
+  date: string;
+}
 
-const NEWS: NewsCard[] = [
+const NEWS: NewsItem[] = [
   {
-    title: "தொகுதி மறு சீரமைப்பு மசோதா: தமிழ்நாடு உள்ளிட்ட தென் மாநிலங்களை வஞ்சிக்கும் சதி!",
+    title:
+      "தொகுதி மறு சீரமைப்பு மசோதா: தமிழ்நாடு உள்ளிட்ட தென் மாநிலங்களை வஞ்சிக்கும் சதி!",
     category: "அறிக்கை",
-    date: "18 ஏப்ரல் 2025",
+    date: "18 ஏப்ரல் 2026",
   },
   {
     title: "வி.சி.க கொள்கை அறிக்கை",
     category: "கொள்கை",
-    date: "10 ஏப்ரல் 2025",
+    date: "10 ஏப்ரல் 2026",
   },
   {
     title: "விடுதலைச் சிறுத்தைகள் கட்சி புதுச்சேரி மாநிலத்தில் தனித்துப் போட்டி!",
     category: "செய்தி",
-    date: "3 ஏப்ரல் 2025",
+    date: "3 ஏப்ரல் 2026",
   },
 ];
 
-function NewsCard({ item }: { item: NewsCard }) {
-  return (
-    <article className="bg-white rounded-xl p-6 border border-[#e0d9ce] shadow-sm flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-bold uppercase tracking-wide bg-[#C41E1E] text-white px-2 py-0.5 rounded">
-          {item.category}
-        </span>
-        <time className="text-xs text-gray-400">{item.date}</time>
-      </div>
-      <p className="font-semibold text-[#0A1628] leading-snug">{item.title}</p>
-    </article>
-  );
-}
-
 export default function NewsTeaserSection() {
+  const [featured, ...rest] = NEWS;
+
   return (
-    <section className="bg-[#F5F0E8] py-20 px-6">
+    <section className="bg-[#F5F0E8] py-24 px-6">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-[#0A1628] text-center mb-14">
-          களத்திலிருந்து
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {NEWS.map((item) => <NewsCard key={item.title} item={item} />)}
-        </div>
-        <div className="text-center">
+        {/* Top row */}
+        <div className="flex justify-between items-end mb-10">
+          <div>
+            <p className="text-[#C41E1E] text-xs font-semibold uppercase tracking-widest mb-2">
+              களத்திலிருந்து
+            </p>
+            <h2
+              className="font-black text-4xl text-[#0A1628]"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              களத்திலிருந்து
+            </h2>
+          </div>
           <Link
             href="/news"
-            className="inline-block px-8 py-3 bg-[#C41E1E] text-white rounded font-semibold hover:bg-[#a31919] transition-colors"
+            className="text-[#C41E1E] text-sm font-semibold hover:underline shrink-0"
           >
             அனைத்து செய்திகளும் →
           </Link>
+        </div>
+
+        {/* Featured card */}
+        <article className="bg-white rounded-2xl p-7 flex flex-col sm:flex-row gap-6 items-start mb-4 shadow-sm">
+          <div className="flex-1">
+            <span className="inline-block bg-[#C41E1E] text-white text-xs px-3 py-1 rounded-full font-bold">
+              {featured.category}
+            </span>
+            <h3
+              className="font-black text-xl text-[#0A1628] mt-3 leading-snug"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              {featured.title}
+            </h3>
+            <time
+              className="block text-gray-400 text-xs mt-2"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              {featured.date}
+            </time>
+            <Link
+              href="/news"
+              className="inline-block text-[#C41E1E] text-sm font-semibold mt-4 hover:underline"
+            >
+              மேலும் படியுங்கள் →
+            </Link>
+          </div>
+          {/* Placeholder image */}
+          <div className="w-full sm:w-44 h-28 sm:h-auto shrink-0 bg-[#E8E0D0] rounded-xl" aria-hidden="true" />
+        </article>
+
+        {/* Two smaller cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {rest.map((item) => (
+            <article
+              key={item.title}
+              className="bg-white rounded-2xl p-6 border border-[#E8E0D0]"
+            >
+              <span className="inline-block bg-[#C41E1E] text-white text-xs px-3 py-1 rounded-full font-bold">
+                {item.category}
+              </span>
+              <h3
+                className="font-bold text-[#0A1628] text-base mt-2 leading-snug"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                {item.title}
+              </h3>
+              <time
+                className="block text-gray-400 text-xs mt-1"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {item.date}
+              </time>
+            </article>
+          ))}
         </div>
       </div>
     </section>

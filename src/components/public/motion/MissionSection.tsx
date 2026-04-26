@@ -83,31 +83,66 @@ export default function MissionSection() {
         {PANELS.map((panel) => (
           <div
             key={panel.number}
-            className="relative flex items-center justify-center p-16"
+            className="relative flex items-center bg-[#0A1628]"
             style={{ width: "100vw", flexShrink: 0, minHeight: "100vh" }}
           >
-            {/* Faded panel number — absolutely positioned top-right */}
+            {/* Massive faded panel number — absolutely behind content */}
             <span
               aria-hidden="true"
-              className="absolute top-8 right-10 text-[#C41E1E] font-black select-none pointer-events-none"
-              style={{ fontSize: "clamp(6rem, 18vw, 18rem)", opacity: 0.15, lineHeight: 1 }}
+              className="absolute top-1/2 left-6 -translate-y-1/2 text-[#C41E1E] font-black select-none pointer-events-none z-0"
+              style={{
+                fontSize: "clamp(8rem, 20vw, 22rem)",
+                opacity: 0.2,
+                lineHeight: 1,
+              }}
             >
               {panel.number}
             </span>
 
-            {/* Content */}
-            <div className="relative z-10 max-w-2xl">
-              <p
-                className="text-[#C41E1E] text-sm font-bold tracking-[0.3em] uppercase mb-6"
-              >
-                {panel.number}
-              </p>
-              <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
-                {panel.heading}
-              </h2>
-              <p className="text-lg md:text-xl text-white/70 leading-relaxed max-w-prose">
-                {panel.body}
-              </p>
+            {/* Inner grid */}
+            <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-16 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* LEFT: content */}
+              <div>
+                <p
+                  className="text-white/30 text-sm tracking-widest mb-4"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  {panel.number} / 04
+                </p>
+                <h2
+                  className="text-4xl lg:text-6xl font-black text-white leading-tight mb-6"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  {panel.heading}
+                </h2>
+                <p
+                  className="text-lg text-white/60 leading-relaxed max-w-prose"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  {panel.body}
+                </p>
+                <div className="w-12 h-1 bg-[#C41E1E] mt-8" />
+              </div>
+
+              {/* RIGHT: decorative circle (lg only) */}
+              <div className="hidden lg:flex items-center justify-center">
+                <div className="relative flex items-center justify-center w-72 h-72 rounded-full border-2 border-dashed border-white/10">
+                  {/* Inner ring */}
+                  <div className="absolute w-52 h-52 rounded-full border border-white/5" />
+                  <span
+                    aria-hidden="true"
+                    className="text-[#C41E1E] font-black select-none"
+                    style={{
+                      fontFamily: "var(--font-heading)",
+                      fontSize: "clamp(4rem, 8vw, 7rem)",
+                      opacity: 0.3,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {panel.number}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         ))}

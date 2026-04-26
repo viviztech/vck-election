@@ -13,8 +13,21 @@ interface CandidateCard3DProps {
 
 const SPRING = { stiffness: 200, damping: 25 }
 
+function PinIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-3 h-3 shrink-0"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
+    </svg>
+  )
+}
+
 export default function CandidateCard3D({
-  name,
   nameTA,
   role,
   constituency,
@@ -39,36 +52,48 @@ export default function CandidateCard3D({
     rotateY.set(0)
   }
 
+  // Initials from first 2 chars of nameTA
+  const initials = nameTA.slice(0, 2)
+
   return (
     <motion.div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformPerspective: 1000 }}
-      className="rounded-2xl shadow-2xl cursor-pointer w-full"
+      className="w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl cursor-pointer border-t-2 border-[#C41E1E]/60"
     >
-      {/* Gradient top */}
-      <div className={`relative h-40 rounded-t-2xl ${gradient}`}>
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none rounded-t-2xl" />
+      {/* Top 60% — gradient bg with initials avatar */}
+      <div className={`relative h-[60%] ${gradient} flex items-center justify-center`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+        <div
+          className="w-20 h-20 rounded-full bg-white/10 backdrop-blur flex items-center justify-center text-white text-2xl font-black select-none z-10"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
+          {initials}
+        </div>
       </div>
 
-      {/* Content bottom */}
-      <div className="bg-white rounded-b-2xl p-5">
-        <p className="font-heading text-xl font-bold text-[#0A1628]">{nameTA}</p>
-        <p className="text-sm text-gray-400 mt-0.5">{name}</p>
-        <span className="inline-block mt-2 bg-[#C41E1E]/10 text-[#C41E1E] text-xs px-3 py-1 rounded-full">
+      {/* Bottom 40% — info */}
+      <div className="h-[40%] bg-black/40 backdrop-blur-sm px-5 py-4 flex flex-col justify-center">
+        <p
+          className="text-white font-bold text-lg leading-tight"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
+          {nameTA}
+        </p>
+        <p
+          className="text-white/60 text-sm mt-0.5"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
           {role}
-        </span>
-        <div className="flex items-center gap-1 mt-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-3.5 h-3.5 text-gray-400 shrink-0"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-          </svg>
-          <span className="text-sm text-gray-500">{constituency}</span>
+        </p>
+        <div
+          className="flex items-center gap-1 text-[#C41E1E] text-xs font-semibold tracking-wide mt-1"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          <PinIcon />
+          <span>{constituency}</span>
         </div>
       </div>
     </motion.div>

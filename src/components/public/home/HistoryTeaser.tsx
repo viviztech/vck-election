@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
-const MILESTONES = [
+interface Milestone {
+  year: string;
+  title: string;
+  desc: string;
+}
+
+const MILESTONES: Milestone[] = [
   {
     year: "1990",
     title: "DPI இயக்கம் விடுதலைச் சிறுத்தைகள் ஆனது",
@@ -22,34 +28,92 @@ const MILESTONES = [
   },
 ];
 
-export default function HistoryTeaser() {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.15 });
+function MilestoneNode({
+  milestone,
+  index,
+}: {
+  milestone: Milestone;
+  index: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
 
   return (
-    <section className="bg-[#0A1628] text-white py-20 px-6">
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 28 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay: index * 0.15, ease: "easeOut" }}
+      className="flex flex-col items-center text-center gap-4 relative z-10"
+    >
+      {/* Circle node */}
+      <div className="w-12 h-12 rounded-full bg-[#C41E1E] border-4 border-[#0A1628] shadow-lg shadow-red-900/50 flex items-center justify-center">
+        <span className="text-white text-[9px] font-black leading-none">
+          {milestone.year}
+        </span>
+      </div>
+
+      {/* Year */}
+      <span
+        className="text-[#C41E1E] text-3xl font-black"
+        style={{ fontFamily: "var(--font-heading)" }}
+      >
+        {milestone.year}
+      </span>
+
+      {/* Title */}
+      <h3
+        className="text-white font-bold text-sm mt-1"
+        style={{ fontFamily: "var(--font-heading)" }}
+      >
+        {milestone.title}
+      </h3>
+
+      {/* Description */}
+      <p
+        className="text-white/40 text-xs leading-relaxed max-w-[180px]"
+        style={{ fontFamily: "var(--font-body)" }}
+      >
+        {milestone.desc}
+      </p>
+    </motion.div>
+  );
+}
+
+export default function HistoryTeaser() {
+  return (
+    <section className="bg-[#0A1628] py-24 px-6">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-14">
+        {/* Section label */}
+        <p className="text-[#C41E1E] text-xs font-semibold uppercase tracking-widest text-center mb-4">
+          வரலாறு
+        </p>
+
+        {/* Heading */}
+        <h2
+          className="text-white font-black text-4xl lg:text-5xl text-center mb-16"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           பல தசாப்தங்களாக கட்டமைக்கப்பட்ட இயக்கம்
         </h2>
-        <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {MILESTONES.map((m, i) => (
-            <motion.div
-              key={m.year}
-              initial={{ opacity: 0, y: 24 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="bg-white/5 rounded-xl p-6 border border-white/10"
-            >
-              <span className="block text-5xl font-black text-[#C41E1E] mb-3">{m.year}</span>
-              <h3 className="font-bold text-white mb-2">{m.title}</h3>
-              <p className="text-sm text-white/70 leading-relaxed">{m.desc}</p>
-            </motion.div>
-          ))}
+
+        {/* Timeline */}
+        <div className="max-w-4xl mx-auto relative">
+          {/* Desktop horizontal connector line */}
+          <div className="hidden md:block absolute top-6 left-0 right-0 h-px bg-white/10" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0">
+            {MILESTONES.map((m, i) => (
+              <MilestoneNode key={m.year} milestone={m} index={i} />
+            ))}
+          </div>
         </div>
-        <div className="text-center">
+
+        {/* CTA */}
+        <div className="text-center mt-16">
           <Link
             href="/history"
-            className="inline-block px-8 py-3 border-2 border-[#F5F0E8] text-[#F5F0E8] rounded font-semibold hover:bg-[#F5F0E8] hover:text-[#0A1628] transition-colors"
+            className="inline-block border border-white/20 text-white/70 hover:text-white hover:border-white/50 rounded-lg px-7 py-3 text-sm font-semibold transition-colors duration-200"
           >
             முழு வரலாற்றை அறியுங்கள் →
           </Link>
