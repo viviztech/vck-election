@@ -19,33 +19,41 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     group: "முகப்பு",
-    links: [
-      { href: "/", label: "முகப்பு" },
-    ],
+    links: [{ href: "/", label: "முகப்பு" }],
   },
   {
-    group: "கட்சி",
+    group: "இயக்கம்",
     links: [
+      { href: "/history", label: "இயக்க வரலாறு" },
       { href: "/ideology", label: "கொள்கைகள்" },
-      { href: "/history", label: "வரலாற்று மைல்கற்கள்" },
-      { href: "/leadership", label: "கட்சியின் அமைப்பு" },
-      { href: "/elected-members", label: "மக்கள் பிரதிநிதிகள்" },
-      { href: "/party-wings", label: "கட்சியின் உட்பிரிவுகள்" },
+      { href: "/flag", label: "கொடி விளக்கம்" },
+      { href: "/conferences", label: "மாநாடுகள்" },
+      { href: "/elections", label: "தேர்தல்கள்" },
     ],
   },
   {
-    group: "செய்திகள்",
+    group: "இயக்க அமைப்பு",
     links: [
-      { href: "/news", label: "அனைத்து செய்திகளும்" },
-      { href: "/news/press-release", label: "அறிக்கைகள்" },
-      { href: "/news/events", label: "நிகழ்வுகள்" },
-      { href: "/news/interviews", label: "நேர்காணல்கள்" },
+      { href: "/leadership", label: "தலைமை" },
+      { href: "/state-admin", label: "மாநில நிர்வாகம்" },
+      { href: "/district-admin", label: "மாவட்ட நிர்வாகம்" },
+      { href: "/party-wings", label: "அணிகள்" },
     ],
   },
   {
-    group: "தொடர்புக்கு",
+    group: "மக்கள் பிரதிநிதிகள்",
     links: [
-      { href: "/contact", label: "தொடர்புக்கு" },
+      { href: "/elected-members/mp", label: "நாடாளுமன்ற உறுப்பினர்கள்" },
+      { href: "/elected-members/mla", label: "சட்டமன்ற உறுப்பினர்கள்" },
+      { href: "/elected-members/local", label: "உள்ளாட்சி பிரதிநிதிகள்" },
+    ],
+  },
+  {
+    group: "வெளியீடுகள்",
+    links: [
+      { href: "/publications/tamilmann", label: "நமது தமிழ்மண்" },
+      { href: "/publications/songs", label: "கொள்கைப் பாடல்கள்" },
+      { href: "/publications/photos", label: "புகைப்படம்" },
     ],
   },
 ];
@@ -281,13 +289,15 @@ export default function Navbar() {
               >
                 {NAV_GROUPS.map(({ group, links }) => (
                   <motion.div key={group} variants={linkItem}>
-                    {/* Group label */}
-                    <p
-                      className="text-[#C41E1E] text-xs uppercase tracking-widest font-semibold mb-2"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {group}
-                    </p>
+                    {/* Group label — hidden when group has only one link */}
+                    {links.length > 1 && (
+                      <p
+                        className="text-[#C41E1E] text-xs uppercase tracking-widest font-semibold mb-2"
+                        style={{ fontFamily: "var(--font-body)" }}
+                      >
+                        {group}
+                      </p>
+                    )}
                     {/* Group links */}
                     {links.map(({ href, label }) => (
                       <Link
