@@ -132,13 +132,12 @@ export default function Navbar() {
               className="rounded-full object-cover"
               priority
             />
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col leading-tight">
               <span
-                className="text-white text-lg tracking-tight"
+                className="text-white text-sm font-black"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
-                <span className="font-black">விசி</span>
-                <span className="font-light opacity-80">கட்சி</span>
+                விடுதலைச் சிறுத்தைகள் கட்சி
               </span>
               <span className="text-white/40 text-[10px] tracking-widest uppercase font-medium">
                 VCK

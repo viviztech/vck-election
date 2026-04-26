@@ -52,13 +52,13 @@ export default function Footer() {
                   className="rounded-full object-cover"
                 />
                 <div className="flex flex-col leading-tight">
-                  <span className="text-white/50 text-[10px] font-medium tracking-widest uppercase">
-                    விடுதலைச் சிறுத்தைகள்
-                  </span>
                   <span
-                    className="text-white text-2xl font-black tracking-widest"
+                    className="text-white font-black text-base"
                     style={{ fontFamily: "var(--font-heading)" }}
                   >
+                    விடுதலைச் சிறுத்தைகள் கட்சி
+                  </span>
+                  <span className="text-white/40 text-[10px] tracking-widest uppercase font-medium mt-0.5">
                     VCK
                   </span>
                 </div>
