@@ -7,6 +7,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion"
+import Image from "next/image"
 import MagneticButton from "./MagneticButton"
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -143,20 +144,24 @@ export default function SpotlightHero() {
             </motion.div>
           </motion.div>
 
-          {/* RIGHT — decorative (hidden on mobile) */}
+          {/* RIGHT — official logo (hidden on mobile) */}
           <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-64 h-64 flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-white/5" />
-              <div className="absolute inset-6 rounded-full border border-white/5" />
-              <div className="absolute inset-12 rounded-full border border-[#C41E1E]/20" />
-              <span
-                aria-hidden="true"
-                className="text-white/[0.04] font-black select-none"
-                style={{ fontSize: "5rem", fontFamily: "var(--font-heading)" }}
-              >
-                VCK
-              </span>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+              className="relative w-72 h-72"
+            >
+              {/* Soft glow ring */}
+              <div className="absolute inset-0 rounded-full bg-[#C41E1E]/10 blur-2xl scale-110" />
+              <Image
+                src="/logo.png"
+                alt="விடுதலைச் சிறுத்தைகள் கட்சி"
+                fill
+                className="object-contain drop-shadow-2xl"
+                priority
+              />
+            </motion.div>
           </div>
 
         </div>

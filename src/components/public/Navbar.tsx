@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -77,28 +78,6 @@ const linkItem = {
   },
 };
 
-function PantherIcon() {
-  return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 28 28"
-      fill="none"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      {/* Geometric panther silhouette */}
-      <path
-        d="M14 2L18 6L22 5L20 10L24 14L20 16L22 22L17 20L14 24L11 20L6 22L8 16L4 14L8 10L6 5L10 6L14 2Z"
-        fill="#C41E1E"
-        opacity="0.9"
-      />
-      <circle cx="14" cy="13" r="4" fill="#0A1628" />
-      <circle cx="12.5" cy="12" r="1.2" fill="white" />
-      <circle cx="15.5" cy="12" r="1.2" fill="white" />
-    </svg>
-  );
-}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -145,7 +124,14 @@ export default function Navbar() {
             className="flex items-center gap-2.5 shrink-0 group"
             aria-label="VCK முகப்பு"
           >
-            <PantherIcon />
+            <Image
+              src="/logo.png"
+              alt="விடுதலைச் சிறுத்தைகள் கட்சி"
+              width={36}
+              height={36}
+              className="rounded-full object-cover"
+              priority
+            />
             <div className="flex flex-col leading-none">
               <span
                 className="text-white text-lg tracking-tight"

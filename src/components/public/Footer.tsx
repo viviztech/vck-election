@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const PARTY_LINKS = [
   { href: "/leadership", label: "கட்சியின் அமைப்பு" },
@@ -42,16 +43,25 @@ export default function Footer() {
             {/* Left: Brand + description + social */}
             <div className="flex flex-col gap-5">
               {/* Logo */}
-              <div>
-                <p className="text-white/50 text-xs font-medium tracking-widest uppercase mb-1">
-                  விடுதலைச் சிறுத்தைகள்
-                </p>
-                <p
-                  className="text-3xl font-black tracking-widest text-white"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
-                  VCK
-                </p>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/logo.png"
+                  alt="விடுதலைச் சிறுத்தைகள் கட்சி"
+                  width={56}
+                  height={56}
+                  className="rounded-full object-cover"
+                />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-white/50 text-[10px] font-medium tracking-widest uppercase">
+                    விடுதலைச் சிறுத்தைகள்
+                  </span>
+                  <span
+                    className="text-white text-2xl font-black tracking-widest"
+                    style={{ fontFamily: "var(--font-heading)" }}
+                  >
+                    VCK
+                  </span>
+                </div>
               </div>
 
               {/* Description */}
