@@ -9,7 +9,7 @@ export default function PublicLayout({
 }) {
   return (
     <LenisProvider>
-      <div lang="en" className="flex flex-col min-h-screen">
+      <div lang="ta" className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
