@@ -5,14 +5,48 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const NAV_LINKS = [
-  { href: "/ideology", label: "கொள்கைகள்" },
-  { href: "/history", label: "வரலாற்று மைல்கற்கள்" },
-  { href: "/leadership", label: "கட்சியின் அமைப்பு" },
-  { href: "/elected-members", label: "மக்கள் பிரதிநிதிகள்" },
-  { href: "/party-wings", label: "கட்சியின் உட்பிரிவுகள்" },
-  { href: "/news", label: "செய்திகள்" },
-  { href: "/contact", label: "தொடர்புக்கு" },
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+interface NavGroup {
+  group: string;
+  links: NavLink[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    group: "முகப்பு",
+    links: [
+      { href: "/", label: "முகப்பு" },
+    ],
+  },
+  {
+    group: "கட்சி",
+    links: [
+      { href: "/ideology", label: "கொள்கைகள்" },
+      { href: "/history", label: "வரலாற்று மைல்கற்கள்" },
+      { href: "/leadership", label: "கட்சியின் அமைப்பு" },
+      { href: "/elected-members", label: "மக்கள் பிரதிநிதிகள்" },
+      { href: "/party-wings", label: "கட்சியின் உட்பிரிவுகள்" },
+    ],
+  },
+  {
+    group: "செய்திகள்",
+    links: [
+      { href: "/news", label: "அனைத்து செய்திகளும்" },
+      { href: "/news/press-release", label: "அறிக்கைகள்" },
+      { href: "/news/events", label: "நிகழ்வுகள்" },
+      { href: "/news/interviews", label: "நேர்காணல்கள்" },
+    ],
+  },
+  {
+    group: "தொடர்புக்கு",
+    links: [
+      { href: "/contact", label: "தொடர்புக்கு" },
+    ],
+  },
 ];
 
 const menuOverlayVariants = {
@@ -70,6 +104,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   useEffect(() => {
     function onScroll() {
@@ -125,29 +160,77 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop nav — visible only at xl+ */}
+          {/* Desktop nav — grouped with dropdowns */}
           <div className="hidden xl:flex items-center gap-1">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`relative px-3 py-1.5 text-sm transition-colors duration-200 group ${
-                  isActive(href)
-                    ? "text-white"
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                {label}
-                {/* Active indicator */}
-                {isActive(href) && (
-                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#C41E1E] rounded-full" />
-                )}
-                {/* Hover underline slide */}
-                {!isActive(href) && (
-                  <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#C41E1E]/60 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
-                )}
-              </Link>
-            ))}
+            {NAV_GROUPS.map(({ group, links }) => {
+              const isSingle = links.length === 1;
+              const isGroupActive = links.some((l) => isActive(l.href));
+
+              if (isSingle) {
+                const { href, label } = links[0];
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`relative px-3 py-1.5 text-sm transition-colors duration-200 group ${
+                      isActive(href) ? "text-white" : "text-white/70 hover:text-white"
+                    }`}
+                  >
+                    {label}
+                    <span className={`absolute bottom-0 left-3 right-3 h-0.5 bg-[#C41E1E] rounded-full transition-transform duration-200 origin-left ${isActive(href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                  </Link>
+                );
+              }
+
+              return (
+                <div
+                  key={group}
+                  className="relative"
+                  onMouseEnter={() => setOpenGroup(group)}
+                  onMouseLeave={() => setOpenGroup(null)}
+                >
+                  <button
+                    className={`relative flex items-center gap-1 px-3 py-1.5 text-sm transition-colors duration-200 group ${
+                      isGroupActive ? "text-white" : "text-white/70 hover:text-white"
+                    }`}
+                  >
+                    {group}
+                    <svg className={`w-3 h-3 transition-transform duration-200 ${openGroup === group ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <span className={`absolute bottom-0 left-3 right-3 h-0.5 bg-[#C41E1E] rounded-full transition-transform duration-200 origin-left ${isGroupActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {openGroup === group && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="absolute top-full left-0 mt-1 min-w-[200px] bg-[#0A1628] border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+                      >
+                        {links.map(({ href, label }) => (
+                          <Link
+                            key={href}
+                            href={href}
+                            className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors duration-150 border-b border-white/5 last:border-b-0 ${
+                              isActive(href)
+                                ? "text-[#C41E1E] bg-white/5"
+                                : "text-white/70 hover:text-white hover:bg-white/5"
+                            }`}
+                            style={{ fontFamily: "var(--font-body)" }}
+                          >
+                            {isActive(href) && <span className="w-1.5 h-1.5 rounded-full bg-[#C41E1E] shrink-0" />}
+                            {label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
 
           {/* Right side */}
@@ -204,25 +287,36 @@ export default function Navbar() {
             <div className="h-14 shrink-0" />
 
             <div className="flex-1 overflow-y-auto px-6 pt-8 pb-12 flex flex-col justify-between">
-              {/* Nav links */}
+              {/* Nav links — grouped */}
               <motion.nav
                 variants={linkStagger}
                 initial="hidden"
                 animate="visible"
-                className="flex flex-col gap-0"
+                className="flex flex-col gap-6"
               >
-                {NAV_LINKS.map(({ href, label }) => (
-                  <motion.div key={href} variants={linkItem}>
-                    <Link
-                      href={href}
-                      onClick={() => setMenuOpen(false)}
-                      className={`block py-4 text-2xl font-bold border-b border-white/10 transition-colors duration-200 ${
-                        isActive(href) ? "text-[#C41E1E]" : "text-white hover:text-[#C41E1E]"
-                      }`}
-                      style={{ fontFamily: "var(--font-heading)" }}
+                {NAV_GROUPS.map(({ group, links }) => (
+                  <motion.div key={group} variants={linkItem}>
+                    {/* Group label */}
+                    <p
+                      className="text-[#C41E1E] text-xs uppercase tracking-widest font-semibold mb-2"
+                      style={{ fontFamily: "var(--font-body)" }}
                     >
-                      {label}
-                    </Link>
+                      {group}
+                    </p>
+                    {/* Group links */}
+                    {links.map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setMenuOpen(false)}
+                        className={`block py-3 text-xl font-bold border-b border-white/10 transition-colors duration-200 ${
+                          isActive(href) ? "text-[#C41E1E]" : "text-white hover:text-[#C41E1E]"
+                        }`}
+                        style={{ fontFamily: "var(--font-heading)" }}
+                      >
+                        {label}
+                      </Link>
+                    ))}
                   </motion.div>
                 ))}
               </motion.nav>
