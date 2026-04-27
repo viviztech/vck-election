@@ -15,6 +15,7 @@ const adminNavItems = [
   { href: "/export", label: "Export Data", icon: "⬇️" },
   { href: "/admin/constituency-members", label: "Constituency Members", icon: "🏛️" },
   { href: "/admin/postings", label: "Posting Types", icon: "📌" },
+  { href: "/admin/it-wing-volunteers", label: "IT Wing Volunteers", icon: "💻" },
   { href: "/admin/users", label: "Users", icon: "👥" },
   { href: "/admin/roles", label: "Roles & Permissions", icon: "🛡️" },
   { href: "/admin/activity", label: "Activity Log", icon: "🕐" },
