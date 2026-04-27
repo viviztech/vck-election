@@ -395,3 +395,20 @@ model ContactMessage {
 
   @@map("contact_messages")
 }
+
+model ItWingVolunteer {
+  id             String   @id @default(cuid())
+  name           String?
+  age            Int?
+  phone          String
+  education      String
+  district       String
+  constituency   String
+  itKnowledge    Boolean
+  videoCreation  Boolean
+  imageCreation  Boolean
+  joinReason     String   @db.Text
+  createdAt      DateTime @default(now())
+
+  @@map("it_wing_volunteers")
+}
