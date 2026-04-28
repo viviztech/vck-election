@@ -398,16 +398,59 @@ model ContactMessage {
 
 model ItWingVolunteer {
   id             String   @id @default(cuid())
-  name           String?
+
+  // Identity
+  name           String
   age            Int?
+  dob            String?
+  gender         Gender?
   phone          String
+  whatsapp       String?
+  email          String?
+  voterId        String?
+
+  // Location
+  town           String?
+  pincode        String?
+  address        String?  @db.Text
+
+  // Education & Occupation
   education      String
+  occupation     String?
   district       String
   constituency   String
+
+  // IT Skills — boolean flags
   itKnowledge    Boolean
   videoCreation  Boolean
   imageCreation  Boolean
+
+  // IT Skills — detailed
+  itSkills       String[] // multi-select: Graphic Design, Video Editing, etc.
+  softwareTools  String?
+  yearsExp       Int?
+  primaryDevice  String?
+
+  // Social Media
+  facebook       String?
+  youtube        String?
+  instagram      String?
+  twitterX       String?
+  followers      String?
+
+  // Availability & Party
+  availability   String?
+  languages      String[]
+  canTravel      Boolean?
+  vckMember      Boolean?
+  priorExperience String? @db.Text
+  hearAboutUs    String?
+
+  // Deployment
   joinReason     String   @db.Text
+  emergencyName  String?
+  emergencyPhone String?
+
   createdAt      DateTime @default(now())
 
   @@map("it_wing_volunteers")

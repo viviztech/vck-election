@@ -4,16 +4,42 @@ import { useCallback, useEffect, useState } from "react";
 
 interface Volunteer {
   id: string;
-  name: string | null;
+  name: string;
   age: number | null;
+  dob: string | null;
+  gender: string | null;
   phone: string;
+  whatsapp: string | null;
+  email: string | null;
+  voterId: string | null;
+  town: string | null;
+  pincode: string | null;
+  address: string | null;
   education: string;
+  occupation: string | null;
   district: string;
   constituency: string;
   itKnowledge: boolean;
   videoCreation: boolean;
   imageCreation: boolean;
+  itSkills: string[];
+  softwareTools: string | null;
+  yearsExp: number | null;
+  primaryDevice: string | null;
+  facebook: string | null;
+  youtube: string | null;
+  instagram: string | null;
+  twitterX: string | null;
+  followers: string | null;
+  availability: string | null;
+  languages: string[];
+  canTravel: boolean | null;
+  vckMember: boolean | null;
+  priorExperience: string | null;
+  hearAboutUs: string | null;
   joinReason: string;
+  emergencyName: string | null;
+  emergencyPhone: string | null;
   createdAt: string;
 }
 
@@ -31,6 +57,11 @@ function Badge({ yes }: { yes: boolean }) {
   );
 }
 
+function NullBadge({ value }: { value: boolean | null }) {
+  if (value === null) return <span className="text-gray-300 text-xs">—</span>;
+  return <Badge yes={value} />;
+}
+
 function SkeletonRow() {
   return (
     <tr className="animate-pulse">
@@ -40,6 +71,16 @@ function SkeletonRow() {
         </td>
       ))}
     </tr>
+  );
+}
+
+function DetailItem({ label, value }: { label: string; value?: string | null | React.ReactNode }) {
+  if (!value && value !== false) return null;
+  return (
+    <div>
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">{label}</p>
+      <p className="text-sm text-gray-800">{value}</p>
+    </div>
   );
 }
 
@@ -82,6 +123,13 @@ export function ItWingVolunteersClient() {
     window.location.href = `/api/admin/it-wing-volunteers?${params}`;
   }
 
+  const availabilityLabel: Record<string, string> = {
+    full_time: "முழு நேரம்",
+    part_time: "பகுதி நேரம்",
+    weekends: "வார இறுதி மட்டும்",
+    campaigns: "தேர்தல் காலம் மட்டும்",
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -91,7 +139,7 @@ export function ItWingVolunteersClient() {
             type="text"
             value={draftSearch}
             onChange={(e) => setDraftSearch(e.target.value)}
-            placeholder="பெயர், தொலைபேசி, மாவட்டம்..."
+            placeholder="பெயர், தொலைபேசி, மாவட்டம், மின்னஞ்சல்..."
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-72"
           />
           <button
@@ -162,10 +210,17 @@ export function ItWingVolunteersClient() {
                         {(page - 1) * PAGE_SIZE + idx + 1}
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900">
-                        <div>{v.name ?? <span className="text-gray-400 italic">—</span>}</div>
-                        {v.age && <div className="text-xs text-gray-400">வயது: {v.age}</div>}
+                        <div>{v.name}</div>
+                        <div className="text-xs text-gray-400 space-x-1">
+                          {v.gender && <span>{v.gender === "MALE" ? "ஆண்" : v.gender === "FEMALE" ? "பெண்" : "பிற"}</span>}
+                          {v.age && <span>• வயது {v.age}</span>}
+                          {v.town && <span>• {v.town}</span>}
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">{v.phone}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        <div>{v.phone}</div>
+                        {v.whatsapp && <div className="text-xs text-gray-400">WA: {v.whatsapp}</div>}
+                      </td>
                       <td className="px-4 py-3 text-gray-700">{v.district}</td>
                       <td className="px-4 py-3 text-gray-700">{v.constituency}</td>
                       <td className="px-4 py-3"><Badge yes={v.itKnowledge} /></td>
@@ -175,18 +230,88 @@ export function ItWingVolunteersClient() {
                         {new Date(v.createdAt).toLocaleDateString("ta-IN")}
                       </td>
                     </tr>
+
                     {expanded === v.id && (
                       <tr key={`${v.id}-detail`} className="bg-blue-50">
-                        <td colSpan={9} className="px-6 py-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <td colSpan={9} className="px-6 py-5">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                            {/* Contact */}
+                            <DetailItem label="மின்னஞ்சல்" value={v.email} />
+                            <DetailItem label="வாட்ஸ்அப்" value={v.whatsapp} />
+                            <DetailItem label="வாக்காளர் அடையாள எண்" value={v.voterId} />
+
+                            {/* Location */}
+                            <DetailItem label="ஊர்" value={v.town} />
+                            <DetailItem label="பின்கோடு" value={v.pincode} />
+                            <DetailItem label="முகவரி" value={v.address} />
+
+                            {/* Education & Job */}
+                            <DetailItem label="கல்வித்தகுதி" value={v.education} />
+                            <DetailItem label="தொழில்" value={v.occupation} />
+                            <DetailItem label="பிறந்த தேதி" value={v.dob} />
+
+                            {/* IT Skills */}
+                            {v.itSkills.length > 0 && (
+                              <div className="sm:col-span-2">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">IT திறன்கள்</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {v.itSkills.map((s) => (
+                                    <span key={s} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{s}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            <DetailItem label="மென்பொருள் கருவிகள்" value={v.softwareTools} />
+                            <DetailItem label="IT அனுபவம்" value={v.yearsExp !== null ? `${v.yearsExp} ஆண்டுகள்` : null} />
+                            <DetailItem label="முதன்மை சாதனம்" value={v.primaryDevice} />
+
+                            {/* Social Media */}
+                            <DetailItem label="Facebook" value={v.facebook} />
+                            <DetailItem label="YouTube" value={v.youtube} />
+                            <DetailItem label="Instagram" value={v.instagram} />
+                            <DetailItem label="Twitter / X" value={v.twitterX} />
+                            <DetailItem label="பின்தொடர்பவர்கள்" value={v.followers} />
+
+                            {/* Availability */}
+                            <DetailItem label="கிடைக்கும் நேரம்" value={v.availability ? (availabilityLabel[v.availability] ?? v.availability) : null} />
+                            {v.languages.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">மொழிகள்</p>
+                                <p className="text-sm text-gray-800">{v.languages.join(", ")}</p>
+                              </div>
+                            )}
                             <div>
-                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">கல்வித்தகுதி</p>
-                              <p className="text-sm text-gray-800">{v.education}</p>
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">பயணிக்க முடியுமா?</p>
+                              <NullBadge value={v.canTravel} />
                             </div>
                             <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">VCK உறுப்பினரா?</p>
+                              <NullBadge value={v.vckMember} />
+                            </div>
+                            <DetailItem label="எப்படி அறிந்தீர்கள்" value={v.hearAboutUs} />
+
+                            {/* Motivation */}
+                            {v.priorExperience && (
+                              <div className="sm:col-span-2 lg:col-span-3">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">முன்னர் தன்னார்வ அனுபவம்</p>
+                                <p className="text-sm text-gray-800 whitespace-pre-wrap">{v.priorExperience}</p>
+                              </div>
+                            )}
+                            <div className="sm:col-span-2 lg:col-span-3">
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">இணைய காரணம்</p>
                               <p className="text-sm text-gray-800 whitespace-pre-wrap">{v.joinReason}</p>
                             </div>
+
+                            {/* Emergency */}
+                            {(v.emergencyName || v.emergencyPhone) && (
+                              <div className="sm:col-span-2 lg:col-span-3">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">அவசர தொடர்பு</p>
+                                <p className="text-sm text-gray-800">
+                                  {[v.emergencyName, v.emergencyPhone].filter(Boolean).join(" — ")}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
