@@ -56,7 +56,8 @@ export default function SpotlightHero() {
 
   return (
     <section
-      className="relative flex min-h-screen bg-[#0A1628] overflow-hidden"
+      className="relative flex bg-[#0A1628] overflow-hidden"
+      style={{ height: "calc(100vh - 3.5rem)" }}
       onMouseMove={handleMouseMove}
     >
       {/* Grid texture layer */}
@@ -77,7 +78,7 @@ export default function SpotlightHero() {
       />
 
       {/* Main content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full flex flex-col justify-center min-h-screen py-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 w-full flex flex-col justify-center py-16">
 
         {/* Two-col on lg */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-center">
