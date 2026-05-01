@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 
-type BodyType = "MAIN_BODY" | "SUB_BODY";
+type BodyType = "MAIN_BODY" | "SUB_BODY" | "LOCAL";
 type Gender = "MALE" | "FEMALE" | "OTHER";
 
 interface District {

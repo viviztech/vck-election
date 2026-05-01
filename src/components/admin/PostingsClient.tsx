@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type BodyType = "MAIN_BODY" | "SUB_BODY";
+type BodyType = "MAIN_BODY" | "SUB_BODY" | "LOCAL";
 
 interface PostingType {
   id: string;
