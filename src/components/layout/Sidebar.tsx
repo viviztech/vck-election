@@ -5,24 +5,56 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-// Admin nav — focuses on uploading and managing
-const adminNavItems = [
-  { href: "/dashboard", label: "Overview", icon: "📊" },
-  { href: "/upload", label: "Upload Form", icon: "📤" },
-  { href: "/admin/entries", label: "All Entries", icon: "📁" },
-  { href: "/constituencies", label: "Constituencies", icon: "🗺️" },
-  { href: "/report", label: "Report (PDF)", icon: "📄" },
-  { href: "/export", label: "Export Data", icon: "⬇️" },
-  { href: "/admin/constituency-members", label: "Constituency Members", icon: "🏛️" },
-  { href: "/admin/org/state", label: "State Postings", icon: "🏴" },
-  { href: "/admin/org/zone", label: "Zone Postings", icon: "🗺️" },
-  { href: "/admin/org/district", label: "District Postings", icon: "📍" },
-  { href: "/admin/postings", label: "Posting Types", icon: "📌" },
-  { href: "/admin/it-wing-volunteers", label: "IT Wing Volunteers", icon: "💻" },
-  { href: "/admin/users", label: "Users", icon: "👥" },
-  { href: "/admin/roles", label: "Roles & Permissions", icon: "🛡️" },
-  { href: "/admin/activity", label: "Activity Log", icon: "🕐" },
-  { href: "/admin/dashboard", label: "System Stats", icon: "🔧" },
+interface NavItem { href: string; label: string; icon: string }
+interface NavGroup { group: string; items: NavItem[] }
+
+const adminNavGroups: NavGroup[] = [
+  {
+    group: "",
+    items: [
+      { href: "/dashboard",       label: "Overview",       icon: "📊" },
+    ],
+  },
+  {
+    group: "Elections",
+    items: [
+      { href: "/upload",            label: "Upload Form",        icon: "📤" },
+      { href: "/admin/entries",     label: "All Entries",        icon: "📁" },
+      { href: "/constituencies",    label: "Constituencies",     icon: "🗺️" },
+      { href: "/report",            label: "Report (PDF)",       icon: "📄" },
+      { href: "/export",            label: "Export Data",        icon: "⬇️" },
+    ],
+  },
+  {
+    group: "Postings",
+    items: [
+      { href: "/admin/constituency-members", label: "Constituency",   icon: "🏛️" },
+      { href: "/admin/org/state",            label: "State",          icon: "🏴" },
+      { href: "/admin/org/zone",             label: "Zone",           icon: "🗺️" },
+      { href: "/admin/org/district",         label: "District",       icon: "📍" },
+      { href: "/admin/postings",             label: "Posting Types",  icon: "📌" },
+    ],
+  },
+  {
+    group: "Party Wings",
+    items: [
+      { href: "/admin/it-wing-volunteers", label: "IT Wing Volunteers", icon: "💻" },
+    ],
+  },
+  {
+    group: "User Management",
+    items: [
+      { href: "/admin/users", label: "Users",              icon: "👥" },
+      { href: "/admin/roles", label: "Roles & Permissions", icon: "🛡️" },
+    ],
+  },
+  {
+    group: "Settings",
+    items: [
+      { href: "/admin/activity",  label: "Activity Log", icon: "🕐" },
+      { href: "/admin/dashboard", label: "System Stats", icon: "🔧" },
+    ],
+  },
 ];
 
 // User nav — focuses on reviewing assigned entries
@@ -38,7 +70,6 @@ export function Sidebar() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const isAdmin = session?.user.role === "ADMIN" || session?.user.role === "SUPER_ADMIN";
-  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   useEffect(() => {
     setOpen(false);
@@ -47,6 +78,22 @@ export function Sidebar() {
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === href;
     return pathname.startsWith(href);
+  }
+
+  function NavLink({ item }: { item: NavItem }) {
+    return (
+      <Link
+        href={item.href}
+        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+          isActive(item.href)
+            ? "bg-white text-slate-900"
+            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+        }`}
+      >
+        <span className="text-sm">{item.icon}</span>
+        {item.label}
+      </Link>
+    );
   }
 
   const sidebarContent = (
@@ -81,21 +128,29 @@ export function Sidebar() {
         </span>
       </div>
 
-      <nav className="flex-1 px-3 py-3 space-y-0.5">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-              isActive(item.href)
-                ? "bg-white text-slate-900"
-                : "text-slate-300 hover:bg-slate-800 hover:text-white"
-            }`}
-          >
-            <span className="text-base">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
+      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+        {isAdmin ? (
+          adminNavGroups.map((group) => (
+            <div key={group.group || "__top"} className={group.group ? "mt-4" : ""}>
+              {group.group && (
+                <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+                  {group.group}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavLink key={item.href} item={item} />
+                ))}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="space-y-0.5">
+            {userNavItems.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
+          </div>
+        )}
       </nav>
 
       <div className="px-3 pb-4 pt-3 border-t border-slate-700 space-y-2">
