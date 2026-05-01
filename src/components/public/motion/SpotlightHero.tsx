@@ -135,7 +135,7 @@ export default function SpotlightHero() {
                 fontFamily: "var(--font-body)",
               }}
             >
-              தெருவிலிருந்து பாராளுமன்றம் வரை — இது ஒரு இயக்கம்.
+              சாதி ஒழிப்பும் சமூக நீதியும் — விடுதலைச் சிறுத்தைகள் கட்சியின் அடித்தளம்.
             </motion.p>
 
             {/* CTAs */}

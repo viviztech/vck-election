@@ -44,7 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
     group: "மக்கள் பிரதிநிதிகள்",
     links: [
       { href: "/elected-members/mp", label: "நாடாளுமன்ற உறுப்பினர்கள்" },
-      { href: "/elected-members/mla", label: "சட்டமன்ற உறுப்பினர்கள்" },
+      { href: "/elected-members/mla", label: "முன்னாள் சட்டமன்ற உறுப்பினர்கள்" },
       { href: "/elected-members/local", label: "உள்ளாட்சி பிரதிநிதிகள்" },
     ],
   },
@@ -229,7 +229,7 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center gap-3">
             <Link
-              href="/join"
+              href="/it-wing-volunteer"
               className="hidden sm:inline-flex items-center px-5 py-2 bg-[#C41E1E] text-white text-sm font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200 whitespace-nowrap"
               style={{ fontFamily: "var(--font-heading)" }}
             >
@@ -324,7 +324,7 @@ export default function Navbar() {
                 className="mt-10"
               >
                 <Link
-                  href="/join"
+                  href="/it-wing-volunteer"
                   onClick={() => setMenuOpen(false)}
                   className="flex justify-center items-center w-full py-4 bg-[#C41E1E] text-white text-lg font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200"
                   style={{ fontFamily: "var(--font-heading)" }}

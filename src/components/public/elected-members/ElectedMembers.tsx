@@ -9,10 +9,10 @@ const mps = [
 ];
 
 const mlas = [
-  { name: "சிந்தனைச் செல்வன்", constituency: "காட்டுமன்னார்கோவில் தொகுதி", designation: "சட்டமன்ற உறுப்பினர்" },
-  { name: "ஆளூர் ஷாநவாஸ்", constituency: "நாகப்பட்டினம் தொகுதி", designation: "சட்டமன்ற உறுப்பினர்" },
-  { name: "பனையூர் மு. பாபு", constituency: "செய்யூர் தொகுதி", designation: "சட்டமன்ற உறுப்பினர்" },
-  { name: "எஸ்.எஸ். பாலாஜி", constituency: "திருப்போரூர் தொகுதி", designation: "சட்டமன்ற உறுப்பினர்" },
+  { name: "சிந்தனைச் செல்வன்", constituency: "காட்டுமன்னார்கோவில் தொகுதி", designation: "முன்னாள் சட்டமன்ற உறுப்பினர்" },
+  { name: "ஆளூர் ஷாநவாஸ்", constituency: "நாகப்பட்டினம் தொகுதி", designation: "முன்னாள் சட்டமன்ற உறுப்பினர்" },
+  { name: "பனையூர் மு. பாபு", constituency: "செய்யூர் தொகுதி", designation: "முன்னாள் சட்டமன்ற உறுப்பினர்" },
+  { name: "எஸ்.எஸ். பாலாஜி", constituency: "திருப்போரூர் தொகுதி", designation: "முன்னாள் சட்டமன்ற உறுப்பினர்" },
 ];
 
 type Member = { name: string; constituency: string; designation: string };
@@ -87,7 +87,7 @@ export default function ElectedMembers() {
 
         {/* Section B — MLAs */}
         <div className="mb-10">
-          <SectionHeading>சட்டமன்ற உறுப்பினர்கள்</SectionHeading>
+          <SectionHeading>முன்னாள் சட்டமன்ற உறுப்பினர்கள்</SectionHeading>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-14">
           {mlas.map((mla, i) => (

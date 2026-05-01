@@ -26,6 +26,16 @@ const sectionHeadingClass =
 
 type YesNo = "yes" | "no" | "";
 
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
+];
+
 const IT_SKILLS_OPTIONS = [
   "Graphic Design",
   "Video Editing",
@@ -90,6 +100,7 @@ export default function ItWingForm() {
     email: "",
     voterId: "",
     // Location
+    state: "Tamil Nadu",
     town: "",
     pincode: "",
     address: "",
@@ -100,6 +111,9 @@ export default function ItWingForm() {
     districtName: "",
     constituencyId: "",
     constituencyName: "",
+    // For non-TN states, free-text district/constituency
+    districtFreeText: "",
+    constituencyFreeText: "",
     // IT Skills detailed
     softwareTools: "",
     yearsExp: "",
@@ -175,6 +189,22 @@ export default function ItWingForm() {
     });
   }
 
+  function handleStateChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setForm({
+      ...form,
+      state: e.target.value,
+      // reset location fields when switching states
+      districtId: "",
+      districtName: "",
+      constituencyId: "",
+      constituencyName: "",
+      districtFreeText: "",
+      constituencyFreeText: "",
+    });
+  }
+
+  const isTamilNadu = form.state === "Tamil Nadu";
+
   function toggleSkill(skill: string) {
     setItSkills((prev) =>
       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
@@ -216,8 +246,13 @@ export default function ItWingForm() {
           address: form.address || undefined,
           education: form.education,
           occupation: form.occupation || undefined,
-          district: form.districtName || form.districtId,
-          constituency: form.constituencyName || form.constituencyId,
+          state: form.state,
+          district: isTamilNadu
+            ? (form.districtName || form.districtId)
+            : form.districtFreeText,
+          constituency: isTamilNadu
+            ? (form.constituencyName || form.constituencyId)
+            : form.constituencyFreeText,
           itKnowledge: itKnowledge === "yes",
           videoCreation: videoCreation === "yes",
           imageCreation: imageCreation === "yes",
@@ -467,53 +502,99 @@ export default function ItWingForm() {
           {/* ── Section 2: Location ── */}
           <p className={sectionHeadingClass}>இடம் / முகவரி</p>
 
-          {/* District */}
+          {/* State */}
           <div>
-            <label htmlFor="districtId" className={labelClass}>
-              மாவட்டம் {requiredStar}
+            <label htmlFor="state" className={labelClass}>
+              மாநிலம் (State) {requiredStar}
             </label>
             <select
-              id="districtId"
-              name="districtId"
+              id="state"
+              name="state"
               required
-              value={form.districtId}
-              onChange={handleDistrictChange}
+              value={form.state}
+              onChange={handleStateChange}
               className={inputClass}
             >
-              <option value="">-- மாவட்டத்தை தேர்ந்தெடுக்கவும் --</option>
-              {districts.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.nameTamil} ({d.nameEnglish})
-                </option>
+              <option value="">-- மாநிலத்தை தேர்ந்தெடுக்கவும் --</option>
+              {INDIAN_STATES.map((s) => (
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </div>
 
-          {/* Constituency */}
+          {/* District — dropdown for TN, free text for others */}
           <div>
-            <label htmlFor="constituencyId" className={labelClass}>
-              சட்டமன்றத் தொகுதி {requiredStar}
+            <label htmlFor={isTamilNadu ? "districtId" : "districtFreeText"} className={labelClass}>
+              மாவட்டம் (District) {requiredStar}
             </label>
-            <select
-              id="constituencyId"
-              name="constituencyId"
-              required
-              value={form.constituencyId}
-              onChange={handleConstituencyChange}
-              className={inputClass}
-              disabled={!form.districtId}
-            >
-              <option value="">
-                {form.districtId
-                  ? "-- தொகுதியை தேர்ந்தெடுக்கவும் --"
-                  : "-- முதலில் மாவட்டம் தேர்ந்தெடுக்கவும் --"}
-              </option>
-              {constituencies.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nameTamil} ({c.nameEnglish})
+            {isTamilNadu ? (
+              <select
+                id="districtId"
+                name="districtId"
+                required
+                value={form.districtId}
+                onChange={handleDistrictChange}
+                className={inputClass}
+              >
+                <option value="">-- மாவட்டத்தை தேர்ந்தெடுக்கவும் --</option>
+                {districts.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.nameTamil} ({d.nameEnglish})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id="districtFreeText"
+                name="districtFreeText"
+                type="text"
+                required
+                value={form.districtFreeText}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="உங்கள் மாவட்டம் பெயர் உள்ளிடவும்"
+              />
+            )}
+          </div>
+
+          {/* Constituency — dropdown for TN, free text for others */}
+          <div>
+            <label htmlFor={isTamilNadu ? "constituencyId" : "constituencyFreeText"} className={labelClass}>
+              சட்டமன்றத் தொகுதி / தொகுதி {requiredStar}
+            </label>
+            {isTamilNadu ? (
+              <select
+                id="constituencyId"
+                name="constituencyId"
+                required
+                value={form.constituencyId}
+                onChange={handleConstituencyChange}
+                className={inputClass}
+                disabled={!form.districtId}
+              >
+                <option value="">
+                  {form.districtId
+                    ? "-- தொகுதியை தேர்ந்தெடுக்கவும் --"
+                    : "-- முதலில் மாவட்டம் தேர்ந்தெடுக்கவும் --"}
                 </option>
-              ))}
-            </select>
+                {constituencies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nameTamil} ({c.nameEnglish})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id="constituencyFreeText"
+                name="constituencyFreeText"
+                type="text"
+                required
+                value={form.constituencyFreeText}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="உங்கள் தொகுதி பெயர் உள்ளிடவும்"
+              />
+            )}
           </div>
 
           {/* Town */}

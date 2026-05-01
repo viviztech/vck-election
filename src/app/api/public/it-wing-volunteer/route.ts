@@ -10,6 +10,7 @@ interface VolunteerBody {
   whatsapp?: string;
   email?: string;
   voterId?: string;
+  state?: string;
   town?: string;
   pincode?: string;
   address?: string;
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
         whatsapp: str(b.whatsapp) ?? null,
         email: str(b.email) ?? null,
         voterId: str(b.voterId) ?? null,
+        state: str(b.state) ?? "Tamil Nadu",
         town: str(b.town) ?? null,
         pincode: str(b.pincode) ?? null,
         address: str(b.address) ?? null,

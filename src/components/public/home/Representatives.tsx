@@ -20,22 +20,22 @@ const MPs: Rep[] = [
 const MLAs: Rep[] = [
   {
     name: "சிந்தனைச் செல்வன்",
-    role: "ச.உ.",
+    role: "மு. ச.உ.",
     constituency: "காட்டுமன்னார்கோவில்",
   },
   {
     name: "ஆளூர் ஷாநவாஸ்",
-    role: "ச.உ.",
+    role: "மு. ச.உ.",
     constituency: "நாகப்பட்டினம்",
   },
   {
     name: "பனையூர் மு. பாபு",
-    role: "ச.உ.",
+    role: "மு. ச.உ.",
     constituency: "செய்யூர்",
   },
   {
     name: "எஸ்.எஸ். பாலாஜி",
-    role: "ச.உ.",
+    role: "மு. ச.உ.",
     constituency: "திருப்போரூர்",
   },
 ];
@@ -119,7 +119,7 @@ export default function Representatives() {
             className="text-[#C41E1E] text-xs uppercase tracking-widest font-semibold mb-6"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            சட்டமன்ற உறுப்பினர்கள்
+            முன்னாள் சட்டமன்ற உறுப்பினர்கள்
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {MLAs.map((rep) => (

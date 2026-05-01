@@ -83,6 +83,7 @@ model District {
   code           String         @unique
   constituencies Constituency[]
   formEntries    FormEntry[]
+  orgMembers     OrgMember[]
 
   @@map("districts")
 }
@@ -94,12 +95,57 @@ model Constituency {
   code        String      @unique
   districtId  String
   district    District    @relation(fields: [districtId], references: [id])
+  parliamentaryConstituencyId String?
+  parliamentaryConstituency   ParliamentaryConstituency? @relation(fields: [parliamentaryConstituencyId], references: [id])
   formEntries FormEntry[]
   members     ConstituencyMember[]
+  localUnits  LocalUnit[]
+  orgMembers  OrgMember[]
 
   @@unique([nameTamil, districtId])
   @@index([districtId])
+  @@index([parliamentaryConstituencyId])
   @@map("constituencies")
+}
+
+model ParliamentaryConstituency {
+  id          String   @id @default(cuid())
+  nameTamil   String
+  nameEnglish String
+  code        String   @unique  // PC001–PC039
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assemblies  Constituency[]
+  orgMembers  OrgMember[]
+
+  @@map("parliamentary_constituencies")
+}
+
+model LocalUnit {
+  id             String        @id @default(cuid())
+  type           LocalUnitType
+  nameTamil      String
+  nameEnglish    String
+  constituencyId String
+  constituency   Constituency  @relation(fields: [constituencyId], references: [id])
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  orgMembers OrgMember[]
+
+  @@index([constituencyId])
+  @@index([type])
+  @@map("local_units")
+}
+
+enum LocalUnitType {
+  BLOCK
+  TOWN_PANCHAYAT
+  WARD
 }
 
 // ─── CORE DOMAIN ────────────────────────────────────────────────
@@ -182,7 +228,8 @@ model PostingType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members ConstituencyMember[]
+  members    ConstituencyMember[]
+  orgMembers OrgMember[]
 
   @@index([bodyType])
   @@map("posting_types")
@@ -221,6 +268,62 @@ model ConstituencyMember {
   @@index([constituencyId])
   @@index([postingTypeId])
   @@map("constituency_members")
+}
+
+// ─── ORG MEMBER SYSTEM (new — replaces ConstituencyMember over time) ───────────
+
+model OrgMember {
+  id String @id @default(cuid())
+
+  // Geo scope — exactly one of these will be set depending on the level
+  stateLevel                  Boolean @default(false)
+  parliamentaryConstituencyId String?
+  parliamentaryConstituency   ParliamentaryConstituency? @relation(fields: [parliamentaryConstituencyId], references: [id])
+  districtId                  String?
+  district                    District? @relation(fields: [districtId], references: [id])
+  constituencyId              String?
+  constituency                Constituency? @relation(fields: [constituencyId], references: [id])
+  localUnitId                 String?
+  localUnit                   LocalUnit? @relation(fields: [localUnitId], references: [id])
+
+  // Wing — null = main body posting
+  wingId   String?
+  wing     PartyWing? @relation(fields: [wingId], references: [id])
+
+  postingTypeId String
+  postingType   PostingType @relation(fields: [postingTypeId], references: [id])
+
+  name              String
+  address           String?  @db.Text
+  age               Int?
+  gender            Gender?
+  contact           String?
+  alternateContact  String?
+  email             String?
+  partyMembershipId String?
+  photoKey          String?
+
+  facebook  String?
+  instagram String?
+  x         String?
+  whatsapp  String?
+  youtube   String?
+  linkedin  String?
+  telegram  String?
+
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([stateLevel])
+  @@index([parliamentaryConstituencyId])
+  @@index([districtId])
+  @@index([constituencyId])
+  @@index([localUnitId])
+  @@index([wingId])
+  @@index([postingTypeId])
+  @@map("org_members")
 }
 
 model AuditLog {
@@ -317,6 +420,7 @@ enum ParentType {
 enum BodyType {
   MAIN_BODY
   SUB_BODY
+  LOCAL
 }
 
 enum Gender {
@@ -367,6 +471,8 @@ model PartyWing {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  orgMembers OrgMember[]
+
   @@map("party_wings")
 }
 
@@ -410,6 +516,7 @@ model ItWingVolunteer {
   voterId        String?
 
   // Location
+  state          String   @default("Tamil Nadu")
   town           String?
   pincode        String?
   address        String?  @db.Text

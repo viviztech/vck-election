@@ -17,6 +17,7 @@ interface Volunteer {
   address: string | null;
   education: string;
   occupation: string | null;
+  state: string;
   district: string;
   constituency: string;
   itKnowledge: boolean;
@@ -181,6 +182,7 @@ export function ItWingVolunteersClient() {
                 <th className="px-4 py-3 font-semibold text-gray-600">#</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">பெயர்</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">தொலைபேசி</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">மாநிலம்</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">மாவட்டம்</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">தொகுதி</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">IT</th>
@@ -194,7 +196,7 @@ export function ItWingVolunteersClient() {
                 Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
               ) : volunteers.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-gray-400">
+                  <td colSpan={10} className="px-4 py-12 text-center text-gray-400">
                     தன்னார்வலர்கள் இல்லை
                   </td>
                 </tr>
@@ -221,6 +223,9 @@ export function ItWingVolunteersClient() {
                         <div>{v.phone}</div>
                         {v.whatsapp && <div className="text-xs text-gray-400">WA: {v.whatsapp}</div>}
                       </td>
+                      <td className="px-4 py-3 text-gray-700 text-xs">
+                        {v.state === "Tamil Nadu" ? "TN" : v.state}
+                      </td>
                       <td className="px-4 py-3 text-gray-700">{v.district}</td>
                       <td className="px-4 py-3 text-gray-700">{v.constituency}</td>
                       <td className="px-4 py-3"><Badge yes={v.itKnowledge} /></td>
@@ -233,7 +238,7 @@ export function ItWingVolunteersClient() {
 
                     {expanded === v.id && (
                       <tr key={`${v.id}-detail`} className="bg-blue-50">
-                        <td colSpan={9} className="px-6 py-5">
+                        <td colSpan={10} className="px-6 py-5">
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                             {/* Contact */}
@@ -242,6 +247,7 @@ export function ItWingVolunteersClient() {
                             <DetailItem label="வாக்காளர் அடையாள எண்" value={v.voterId} />
 
                             {/* Location */}
+                            <DetailItem label="மாநிலம்" value={v.state} />
                             <DetailItem label="ஊர்" value={v.town} />
                             <DetailItem label="பின்கோடு" value={v.pincode} />
                             <DetailItem label="முகவரி" value={v.address} />
