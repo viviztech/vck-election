@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 interface District {
   id: string;
+  code: string;
   nameTamil: string;
   nameEnglish: string;
 }
@@ -203,7 +204,15 @@ export default function ItWingForm() {
     });
   }
 
+  // States whose districts/constituencies are in our DB
+  const DB_STATES: Record<string, string[]> = {
+    "Tamil Nadu":  ["TVL","CHN","KAN","VEL","KRI","DHR","TVN","VIL","SLM","NMK","EDE","NLR","CBE","DIN","KAR","TIR","PER","CUD","NAG","TVR","THA","PUD","SIV","MDU","THN","TPN","TNV","KKN","ARY","TRV","KAL","TEN","CGT","TPR","RAN","MAY","RMN"],
+    "Puducherry":  ["PCY","KKL","MHE","YNM"],
+  };
   const isTamilNadu = form.state === "Tamil Nadu";
+  const stateDistrictCodes = DB_STATES[form.state] ?? [];
+  const stateDistricts = districts.filter((d) => stateDistrictCodes.includes(d.code));
+  const hasDbDistricts = stateDistricts.length > 0;
 
   function toggleSkill(skill: string) {
     setItSkills((prev) =>
@@ -247,10 +256,10 @@ export default function ItWingForm() {
           education: form.education,
           occupation: form.occupation || undefined,
           state: form.state,
-          district: isTamilNadu
+          district: hasDbDistricts
             ? (form.districtName || form.districtId)
             : form.districtFreeText,
-          constituency: isTamilNadu
+          constituency: hasDbDistricts
             ? (form.constituencyName || form.constituencyId)
             : form.constituencyFreeText,
           itKnowledge: itKnowledge === "yes",
@@ -524,10 +533,10 @@ export default function ItWingForm() {
 
           {/* District — dropdown for TN, free text for others */}
           <div>
-            <label htmlFor={isTamilNadu ? "districtId" : "districtFreeText"} className={labelClass}>
+            <label htmlFor={hasDbDistricts ? "districtId" : "districtFreeText"} className={labelClass}>
               மாவட்டம் (District) {requiredStar}
             </label>
-            {isTamilNadu ? (
+            {hasDbDistricts ? (
               <select
                 id="districtId"
                 name="districtId"
@@ -537,7 +546,7 @@ export default function ItWingForm() {
                 className={inputClass}
               >
                 <option value="">-- மாவட்டத்தை தேர்ந்தெடுக்கவும் --</option>
-                {districts.map((d) => (
+                {stateDistricts.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.nameTamil} ({d.nameEnglish})
                   </option>
@@ -557,12 +566,12 @@ export default function ItWingForm() {
             )}
           </div>
 
-          {/* Constituency — dropdown for TN, free text for others */}
+          {/* Constituency — dropdown if state has DB data, free text otherwise */}
           <div>
-            <label htmlFor={isTamilNadu ? "constituencyId" : "constituencyFreeText"} className={labelClass}>
+            <label htmlFor={hasDbDistricts ? "constituencyId" : "constituencyFreeText"} className={labelClass}>
               சட்டமன்றத் தொகுதி / தொகுதி {requiredStar}
             </label>
-            {isTamilNadu ? (
+            {hasDbDistricts ? (
               <select
                 id="constituencyId"
                 name="constituencyId"
