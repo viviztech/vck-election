@@ -50,7 +50,7 @@ const VCK_RESULTS = [
   },
   {
     constituencyId: "cmnfj5ok6002m3cuu8wwt9lb8", // Tindivanam (SC) — Viluppuram dist.
-    candidateName:      "Vanniyarasu",
+    candidateName:      "Vanni Arasu",
     rank1CandidateName: "P. Arjunan",
     opponentParty:      "AIADMK",
   },

@@ -178,8 +178,8 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="bg-black/30 py-4">
-        <p className="text-center text-xs text-white/30">
+      <div className="bg-[#C41E1E] py-4">
+        <p className="text-center text-xs text-white/80">
           விடுதலைச் சிறுத்தைகள் கட்சி &copy; 2026 — எல்லா உரிமைகளும்
           பாதுகாக்கப்பட்டவை
         </p>

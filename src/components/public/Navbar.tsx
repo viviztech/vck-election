@@ -245,13 +245,6 @@ export default function Navbar() {
               தேர்தல் முடிவுகள்
             </Link>
 
-            <Link
-              href="/it-wing-volunteer"
-              className="hidden xl:inline-flex items-center px-5 py-2 bg-[#C41E1E] text-white text-sm font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200 whitespace-nowrap"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              விசிக-வில் இணைய
-            </Link>
 
             {/* Hamburger — hidden at xl+ */}
             <button
@@ -358,22 +351,6 @@ export default function Navbar() {
                 ))}
               </motion.nav>
 
-              {/* CTA at bottom */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="mt-10"
-              >
-                <Link
-                  href="/it-wing-volunteer"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex justify-center items-center w-full py-4 bg-[#C41E1E] text-white text-lg font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
-                  விசிக-வில் இணைய
-                </Link>
-              </motion.div>
             </div>
           </motion.div>
         )}

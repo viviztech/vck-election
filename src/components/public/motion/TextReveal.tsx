@@ -21,7 +21,7 @@ export default function TextReveal({ sentences, className }: TextRevealProps) {
   return (
     <section
       ref={sectionRef}
-      className={`relative bg-[#0A1628] overflow-hidden py-28 px-6 ${className ?? ""}`}
+      className={`relative bg-slate-50 overflow-hidden py-28 px-6 ${className ?? ""}`}
     >
       {/* Parallax grid lines background */}
       <motion.div
@@ -32,14 +32,13 @@ export default function TextReveal({ sentences, className }: TextRevealProps) {
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(196,30,30,0.07)" strokeWidth="1" />
+              <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(196,30,30,0.1)" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
       </motion.div>
 
-      {/* Red accent bar top-left */}
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Section label */}
         <div className="flex items-center gap-4 mb-16">
@@ -65,7 +64,7 @@ export default function TextReveal({ sentences, className }: TextRevealProps) {
         <div className="mt-16 flex items-center gap-4">
           <div className="h-px w-8 bg-[#C41E1E]/30" />
           <span
-            className="text-white/20 text-xs tracking-widest"
+            className="text-slate-400 text-xs tracking-widest"
             style={{ fontFamily: "var(--font-body)" }}
           >
             விடுதலை சிறுத்தைகள் கட்சி
@@ -95,8 +94,8 @@ function GoalCard({
   return (
     <motion.div
       ref={ref}
-      className={`group relative rounded-2xl border border-white/8 bg-white/3 backdrop-blur-sm
-        hover:border-[#C41E1E]/40 hover:bg-white/6 transition-all duration-500 cursor-default
+      className={`group relative rounded-2xl border border-slate-200 bg-white shadow-sm
+        hover:border-[#C41E1E]/40 hover:shadow-md transition-all duration-500 cursor-default
         ${isLast ? "md:col-span-2 lg:col-span-1" : ""}`}
       initial={{ opacity: 0, y: 36 }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 36 }}
@@ -138,7 +137,7 @@ function GoalCard({
 
         {/* Sentence */}
         <p
-          className="text-white/80 group-hover:text-white transition-colors duration-300 leading-relaxed text-base"
+          className="text-slate-700 group-hover:text-slate-900 transition-colors duration-300 leading-relaxed text-base"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           {sentence}
