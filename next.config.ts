@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Hardcode production URL so NextAuth never falls back to localhost
+  // Redirect www → apex so both domains behave identically
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.vckitwing.com" }],
+        destination: "https://vckitwing.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "https://vckitwing.com",
     DATABASE_URL: process.env.DATABASE_URL ?? "",
