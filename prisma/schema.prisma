@@ -27,6 +27,7 @@ model User {
 
   userPermissions   UserPermission[]
   adminActivityLogs AdminActivityLog[]
+  electionResults   ElectionResult[]
   suspendedAt       DateTime?
   suspendedReason   String?
 
@@ -97,10 +98,11 @@ model Constituency {
   district    District    @relation(fields: [districtId], references: [id])
   parliamentaryConstituencyId String?
   parliamentaryConstituency   ParliamentaryConstituency? @relation(fields: [parliamentaryConstituencyId], references: [id])
-  formEntries FormEntry[]
-  members     ConstituencyMember[]
-  localUnits  LocalUnit[]
-  orgMembers  OrgMember[]
+  formEntries     FormEntry[]
+  members         ConstituencyMember[]
+  localUnits      LocalUnit[]
+  orgMembers      OrgMember[]
+  electionResults ElectionResult[]
 
   @@unique([nameTamil, districtId])
   @@index([districtId])
@@ -500,6 +502,51 @@ model ContactMessage {
   createdAt DateTime @default(now())
 
   @@map("contact_messages")
+}
+
+model ElectionResult {
+  id             String       @id @default(cuid())
+  year           Int
+  electionType   ElectionType @default(STATE)
+  constituencyId String
+  constituency   Constituency @relation(fields: [constituencyId], references: [id])
+
+  candidateName  String
+  candidatePhoto String?
+  partySymbol    String?
+
+  vckVotes   Int?
+  totalVotes Int?
+  winMargin  Int?
+  isWon      Boolean      @default(false)
+  status     ResultStatus @default(COUNTING)
+
+  rank1CandidateName  String?
+  rank1Votes          Int?
+
+  updatedById String?
+  updatedBy   User?   @relation(fields: [updatedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, electionType, constituencyId])
+  @@index([year, electionType])
+  @@index([constituencyId])
+  @@map("election_results")
+}
+
+enum ElectionType {
+  STATE
+  PARLIAMENT
+  LOCAL
+}
+
+enum ResultStatus {
+  COUNTING
+  LEADING
+  TRAILING
+  DECLARED
 }
 
 model ItWingVolunteer {

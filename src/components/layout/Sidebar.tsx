@@ -18,11 +18,12 @@ const adminNavGroups: NavGroup[] = [
   {
     group: "Elections",
     items: [
-      { href: "/upload",            label: "Upload Form",        icon: "📤" },
-      { href: "/admin/entries",     label: "All Entries",        icon: "📁" },
-      { href: "/constituencies",    label: "Constituencies",     icon: "🗺️" },
-      { href: "/report",            label: "Report (PDF)",       icon: "📄" },
-      { href: "/export",            label: "Export Data",        icon: "⬇️" },
+      { href: "/upload",                       label: "Upload Form",        icon: "📤" },
+      { href: "/admin/entries",                label: "All Entries",        icon: "📁" },
+      { href: "/constituencies",               label: "Constituencies",     icon: "🗺️" },
+      { href: "/admin/election-results",       label: "Election Results",   icon: "🏆" },
+      { href: "/report",                       label: "Report (PDF)",       icon: "📄" },
+      { href: "/export",                       label: "Export Data",        icon: "⬇️" },
     ],
   },
   {
@@ -191,7 +192,7 @@ export function Sidebar() {
         </aside>
       </div>
 
-      <aside className="hidden md:flex w-60 bg-slate-900 text-white flex-col min-h-screen shrink-0">
+      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 bg-slate-900 text-white flex-col z-30">
         {sidebarContent}
       </aside>
     </>
