@@ -228,9 +228,26 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Election results — highlighted live link */}
+            <Link
+              href="/elections/results"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-white whitespace-nowrap relative overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #C41E1E 0%, #8B0000 100%)",
+                boxShadow: "0 0 16px rgba(196,30,30,0.6)",
+                fontFamily: "var(--font-heading)",
+              }}
+            >
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+              </span>
+              தேர்தல் முடிவுகள்
+            </Link>
+
             <Link
               href="/it-wing-volunteer"
-              className="hidden sm:inline-flex items-center px-5 py-2 bg-[#C41E1E] text-white text-sm font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200 whitespace-nowrap"
+              className="hidden xl:inline-flex items-center px-5 py-2 bg-[#C41E1E] text-white text-sm font-bold rounded-full hover:bg-[#a81818] transition-colors duration-200 whitespace-nowrap"
               style={{ fontFamily: "var(--font-heading)" }}
             >
               விசிக-வில் இணைய
@@ -280,6 +297,31 @@ export default function Navbar() {
             <div className="h-14 shrink-0" />
 
             <div className="flex-1 overflow-y-auto px-6 pt-8 pb-12 flex flex-col justify-between">
+              {/* Election results — top CTA in mobile menu */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="mb-6"
+              >
+                <Link
+                  href="/elections/results"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl text-white text-lg font-black"
+                  style={{
+                    background: "linear-gradient(135deg, #C41E1E 0%, #7f0000 100%)",
+                    boxShadow: "0 0 24px rgba(196,30,30,0.5)",
+                    fontFamily: "var(--font-heading)",
+                  }}
+                >
+                  <span className="relative flex h-3 w-3 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
+                  </span>
+                  தேர்தல் முடிவுகள் 2026
+                </Link>
+              </motion.div>
+
               {/* Nav links — grouped */}
               <motion.nav
                 variants={linkStagger}

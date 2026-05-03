@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import Link from "next/link";
 
 import SpotlightHero from "@/components/public/motion/SpotlightHero";
 import TextReveal from "@/components/public/motion/TextReveal";
@@ -35,7 +36,43 @@ export default async function Home() {
       {/* 1 — Hero */}
       <SpotlightHero />
 
-      {/* 2 — Manifesto text reveal */}
+      {/* 2 — Election results live banner */}
+      <div className="bg-[#0A1628] border-y border-[#C41E1E]/30 px-4 py-5">
+        <Link
+          href="/elections/results"
+          className="max-w-4xl mx-auto flex items-center justify-between gap-4 group"
+        >
+          <div className="flex items-center gap-4">
+            {/* Pulsing dot */}
+            <span className="relative flex h-4 w-4 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C41E1E] opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-[#C41E1E]" />
+            </span>
+            <div>
+              <p
+                className="text-white font-black text-base sm:text-xl leading-tight"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                தேர்தல் முடிவுகள் 2026 — LIVE
+              </p>
+              <p className="text-white/50 text-xs sm:text-sm mt-0.5">
+                8 தொகுதிகளில் விசிக நிலை · முடிவுகளை இப்போது பாருங்கள்
+              </p>
+            </div>
+          </div>
+          <span
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C41E1E] text-white text-sm font-bold group-hover:bg-[#a81818] transition-colors"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            முடிவுகள் பார்க்க
+            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </Link>
+      </div>
+
+      {/* 3 — Manifesto text reveal */}
       <TextReveal sentences={REVEAL_SENTENCES} />
 
       {/* 3 — Core beliefs */}
