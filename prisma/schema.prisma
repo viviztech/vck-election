@@ -523,9 +523,13 @@ model ElectionResult {
 
   rank1CandidateName  String?
   rank1Votes          Int?
+  opponentParty       String?
+  opponentPhoto       String?
 
   updatedById String?
   updatedBy   User?   @relation(fields: [updatedById], references: [id])
+
+  comments  ElectionComment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -534,6 +538,21 @@ model ElectionResult {
   @@index([year, electionType])
   @@index([constituencyId])
   @@map("election_results")
+}
+
+model ElectionComment {
+  id               String         @id @default(cuid())
+  electionResultId String
+  electionResult   ElectionResult @relation(fields: [electionResultId], references: [id], onDelete: Cascade)
+
+  authorName String
+  body       String   @db.Text
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([electionResultId])
+  @@index([isApproved])
+  @@map("election_comments")
 }
 
 enum ElectionType {

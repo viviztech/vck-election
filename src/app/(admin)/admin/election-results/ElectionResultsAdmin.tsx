@@ -1,21 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 type ResultStatus = "COUNTING" | "LEADING" | "TRAILING" | "DECLARED";
 
-interface Constituency {
-  id: string;
-  nameEnglish: string;
-  nameTamil: string;
-  district: { nameEnglish: string };
-}
-
 interface ElectionResult {
   id: string;
-  year: number;
-  electionType: string;
   constituencyId: string;
   constituency: {
     id: string;
@@ -25,7 +15,6 @@ interface ElectionResult {
   };
   candidateName: string;
   candidatePhoto: string | null;
-  partySymbol: string | null;
   vckVotes: number | null;
   totalVotes: number | null;
   winMargin: number | null;
@@ -33,25 +22,16 @@ interface ElectionResult {
   status: ResultStatus;
   rank1CandidateName: string | null;
   rank1Votes: number | null;
+  opponentParty: string | null;
+  opponentPhoto: string | null;
   updatedBy: { name: string | null; email: string } | null;
   updatedAt: string;
-}
-
-const STATUS_CONFIG: Record<ResultStatus, { label: string; bg: string; text: string }> = {
-  COUNTING: { label: "Counting", bg: "bg-blue-100", text: "text-blue-700" },
-  LEADING:  { label: "Leading",  bg: "bg-yellow-100", text: "text-yellow-700" },
-  TRAILING: { label: "Trailing", bg: "bg-red-100",    text: "text-red-700" },
-  DECLARED: { label: "Declared", bg: "bg-green-100",  text: "text-green-700" },
-};
-
-interface Props {
-  results: ElectionResult[];
-  constituencies: Constituency[];
-  isSuperAdmin: boolean;
+  _count: { comments: number };
 }
 
 interface EditState {
   candidateName: string;
+  candidatePhoto: string;
   vckVotes: string;
   totalVotes: string;
   winMargin: string;
@@ -59,46 +39,39 @@ interface EditState {
   status: ResultStatus;
   rank1CandidateName: string;
   rank1Votes: string;
+  opponentParty: string;
+  opponentPhoto: string;
 }
+
+const STATUS_CONFIG: Record<ResultStatus, { label: string; bg: string; text: string; border: string }> = {
+  COUNTING: { label: "Counting", bg: "bg-blue-50",   text: "text-blue-700",  border: "border-blue-200" },
+  LEADING:  { label: "Leading",  bg: "bg-amber-50",  text: "text-amber-700", border: "border-amber-200" },
+  TRAILING: { label: "Trailing", bg: "bg-red-50",    text: "text-red-700",   border: "border-red-200" },
+  DECLARED: { label: "Declared", bg: "bg-green-50",  text: "text-green-700", border: "border-green-200" },
+};
 
 function toEditState(r: ElectionResult): EditState {
   return {
-    candidateName:     r.candidateName,
-    vckVotes:          r.vckVotes?.toString() ?? "",
-    totalVotes:        r.totalVotes?.toString() ?? "",
-    winMargin:         r.winMargin?.toString() ?? "",
-    isWon:             r.isWon,
-    status:            r.status,
+    candidateName:      r.candidateName,
+    candidatePhoto:     r.candidatePhoto ?? "",
+    vckVotes:           r.vckVotes?.toString() ?? "",
+    totalVotes:         r.totalVotes?.toString() ?? "",
+    winMargin:          r.winMargin?.toString() ?? "",
+    isWon:              r.isWon,
+    status:             r.status,
     rank1CandidateName: r.rank1CandidateName ?? "",
-    rank1Votes:        r.rank1Votes?.toString() ?? "",
+    rank1Votes:         r.rank1Votes?.toString() ?? "",
+    opponentParty:      r.opponentParty ?? "",
+    opponentPhoto:      r.opponentPhoto ?? "",
   };
 }
 
-export function ElectionResultsAdmin({ results: initial, constituencies, isSuperAdmin }: Props) {
-  const router = useRouter();
+export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { results: ElectionResult[]; isSuperAdmin: boolean }) {
   const [results, setResults] = useState<ElectionResult[]>(initial);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editState, setEditState] = useState<EditState | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [addState, setAddState] = useState<{
-    constituencyId: string;
-    candidateName: string;
-    vckVotes: string;
-    totalVotes: string;
-    winMargin: string;
-    isWon: boolean;
-    status: ResultStatus;
-  }>({
-    constituencyId: "",
-    candidateName: "",
-    vckVotes: "",
-    totalVotes: "",
-    winMargin: "",
-    isWon: false,
-    status: "COUNTING",
-  });
 
   function startEdit(r: ElectionResult) {
     setEditingId(r.id);
@@ -112,6 +85,10 @@ export function ElectionResultsAdmin({ results: initial, constituencies, isSuper
     setError(null);
   }
 
+  function patch<K extends keyof EditState>(key: K, value: EditState[K]) {
+    setEditState((s) => (s ? { ...s, [key]: value } : s));
+  }
+
   async function saveEdit(id: string) {
     if (!editState) return;
     setSaving(true);
@@ -122,18 +99,23 @@ export function ElectionResultsAdmin({ results: initial, constituencies, isSuper
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           candidateName:      editState.candidateName,
-          vckVotes:           editState.vckVotes   ? parseInt(editState.vckVotes)   : null,
-          totalVotes:         editState.totalVotes  ? parseInt(editState.totalVotes) : null,
-          winMargin:          editState.winMargin   ? parseInt(editState.winMargin)  : null,
+          candidatePhoto:     editState.candidatePhoto || null,
+          vckVotes:           editState.vckVotes    ? parseInt(editState.vckVotes)    : null,
+          totalVotes:         editState.totalVotes   ? parseInt(editState.totalVotes)  : null,
+          winMargin:          editState.winMargin    ? parseInt(editState.winMargin)   : null,
           isWon:              editState.isWon,
           status:             editState.status,
           rank1CandidateName: editState.rank1CandidateName || null,
-          rank1Votes:         editState.rank1Votes  ? parseInt(editState.rank1Votes) : null,
+          rank1Votes:         editState.rank1Votes   ? parseInt(editState.rank1Votes)  : null,
+          opponentParty:      editState.opponentParty || null,
+          opponentPhoto:      editState.opponentPhoto || null,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
       const updated = await res.json();
-      setResults((prev) => prev.map((r) => (r.id === id ? updated : r)));
+      setResults((prev) =>
+        prev.map((r) => (r.id === id ? { ...updated, _count: r._count } : r))
+      );
       setEditingId(null);
       setEditState(null);
     } catch (e) {
@@ -143,192 +125,197 @@ export function ElectionResultsAdmin({ results: initial, constituencies, isSuper
     }
   }
 
-  async function handleAdd() {
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/election-results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          year: 2026,
-          electionType: "STATE",
-          constituencyId: addState.constituencyId,
-          candidateName:  addState.candidateName,
-          vckVotes:       addState.vckVotes   ? parseInt(addState.vckVotes)   : null,
-          totalVotes:     addState.totalVotes  ? parseInt(addState.totalVotes) : null,
-          winMargin:      addState.winMargin   ? parseInt(addState.winMargin)  : null,
-          isWon:          addState.isWon,
-          status:         addState.status,
-        }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      router.refresh();
-      setShowAddForm(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Add failed");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const wonCount   = results.filter((r) => r.isWon).length;
-  const totalSeats = results.length;
+  const totalVotes   = results.reduce((s, r) => s + (r.vckVotes ?? 0), 0);
+  const totalOpponent = results.reduce((s, r) => s + (r.rank1Votes ?? 0), 0);
+  const totalMargin  = totalVotes - totalOpponent;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl">
       {/* Summary banner */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Total Seats" value={totalSeats} color="blue" />
-        <StatCard label="Won" value={wonCount} color="green" />
-        <StatCard label="Leading" value={results.filter((r) => r.status === "LEADING").length} color="yellow" />
-        <StatCard label="Counting" value={results.filter((r) => r.status === "COUNTING").length} color="gray" />
+        <StatCard value={results.length} label="Total Seats" sub="VCK Fought" color="slate" />
+        <StatCard value={results.filter((r) => r.isWon).length} label="Won" sub="Declared" color="green" />
+        <StatCard value={totalVotes > 0 ? totalVotes.toLocaleString("en-IN") : "—"} label="VCK Total Votes" sub="All 8 seats" color="blue" />
+        <StatCard value={totalMargin > 0 ? "+" + totalMargin.toLocaleString("en-IN") : "—"} label="Combined Margin" sub="vs opponent" color="emerald" />
       </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
       )}
 
-      {/* Add new result */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Constituency Results</h2>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-700 transition-colors"
-        >
-          {showAddForm ? "Cancel" : "+ Add Result"}
-        </button>
+        <h2 className="text-lg font-semibold text-gray-900">8 VCK Won Constituencies</h2>
+        <p className="text-xs text-gray-400">Click &quot;Update&quot; on any card to edit vote counts</p>
       </div>
 
-      {showAddForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-          <h3 className="font-medium text-gray-900">Add New Constituency Result</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Constituency</label>
-              <select
-                value={addState.constituencyId}
-                onChange={(e) => setAddState((s) => ({ ...s, constituencyId: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              >
-                <option value="">Select constituency...</option>
-                {constituencies.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nameEnglish} ({c.district.nameEnglish})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <FormField label="Candidate Name" value={addState.candidateName}
-              onChange={(v) => setAddState((s) => ({ ...s, candidateName: v }))} />
-            <FormField label="VCK Votes" type="number" value={addState.vckVotes}
-              onChange={(v) => setAddState((s) => ({ ...s, vckVotes: v }))} />
-            <FormField label="Total Votes" type="number" value={addState.totalVotes}
-              onChange={(v) => setAddState((s) => ({ ...s, totalVotes: v }))} />
-            <FormField label="Win Margin" type="number" value={addState.winMargin}
-              onChange={(v) => setAddState((s) => ({ ...s, winMargin: v }))} />
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
-              <StatusSelect value={addState.status} onChange={(v) => setAddState((s) => ({ ...s, status: v }))} />
-            </div>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={addState.isWon}
-              onChange={(e) => setAddState((s) => ({ ...s, isWon: e.target.checked }))} />
-            Mark as Won
-          </label>
-          <div className="flex gap-3">
-            <button onClick={handleAdd} disabled={saving || !addState.constituencyId || !addState.candidateName}
-              className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50">
-              {saving ? "Saving..." : "Add Result"}
-            </button>
-            <button onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200">
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Results table */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {results.map((r) => {
           const isEditing = editingId === r.id;
           const cfg = STATUS_CONFIG[r.status];
+          const vckV   = r.vckVotes ?? 0;
+          const oppV   = r.rank1Votes ?? 0;
+          const maxV   = Math.max(vckV, oppV, 1);
+          const diff   = vckV - oppV;
+          const voteShare = r.vckVotes && r.totalVotes
+            ? ((r.vckVotes / r.totalVotes) * 100).toFixed(1)
+            : null;
 
           return (
-            <div key={r.id} className={`bg-white border rounded-xl overflow-hidden ${r.isWon ? "border-green-200" : "border-gray-200"}`}>
-              {/* Header row */}
-              <div className={`flex items-center justify-between px-5 py-3 ${r.isWon ? "bg-green-50" : "bg-gray-50"}`}>
+            <div
+              key={r.id}
+              className={`bg-white border-2 rounded-2xl overflow-hidden ${
+                r.isWon ? "border-green-300" : cfg.border
+              }`}
+            >
+              {/* Card header */}
+              <div className={`flex items-center justify-between px-5 py-3 ${r.isWon ? "bg-green-50" : cfg.bg}`}>
                 <div className="flex items-center gap-3">
-                  {r.isWon && <span className="text-green-600 font-bold text-lg">✓</span>}
+                  {r.isWon && (
+                    <span className="text-xl" title="Won">🏆</span>
+                  )}
                   <div>
-                    <p className="font-semibold text-gray-900">{r.constituency.nameEnglish}</p>
+                    <p className="font-bold text-gray-900 text-base">{r.constituency.nameEnglish}</p>
                     <p className="text-xs text-gray-500">{r.constituency.nameTamil} · {r.constituency.district.nameEnglish}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.bg} ${cfg.text}`}>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border}`}>
                     {cfg.label}
                   </span>
+                  {r._count.comments > 0 && (
+                    <span className="text-xs text-gray-400">💬 {r._count.comments}</span>
+                  )}
                   {!isEditing && (
-                    <button onClick={() => startEdit(r)}
-                      className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded-lg hover:bg-slate-700">
+                    <button
+                      onClick={() => startEdit(r)}
+                      className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded-lg hover:bg-slate-700"
+                    >
                       Update
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Data row */}
               {!isEditing ? (
-                <div className="px-5 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                  <DataCell label="Candidate" value={r.candidateName} />
-                  <DataCell label="VCK Votes" value={r.vckVotes?.toLocaleString("en-IN") ?? "—"} />
-                  <DataCell label="Total Votes" value={r.totalVotes?.toLocaleString("en-IN") ?? "—"} />
-                  <DataCell label="Win Margin" value={r.winMargin?.toLocaleString("en-IN") ?? "—"} highlight={!!r.winMargin} />
-                  {r.rank1CandidateName && (
-                    <DataCell label="Leading Opponent" value={`${r.rank1CandidateName} (${r.rank1Votes?.toLocaleString("en-IN") ?? "—"})`} />
-                  )}
-                  <div className="col-span-2 sm:col-span-4 text-xs text-gray-400 mt-1">
-                    Last updated: {new Date(r.updatedAt).toLocaleString("en-IN")}
-                    {r.updatedBy && ` by ${r.updatedBy.name ?? r.updatedBy.email}`}
+                <div className="px-5 py-4 space-y-4">
+                  {/* Candidate vs Opponent row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* VCK candidate */}
+                    <div className="flex items-center gap-3">
+                      {r.candidatePhoto ? (
+                        <img src={r.candidatePhoto} alt={r.candidateName}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-red-300 shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0 border-2 border-red-300">
+                          <span className="text-red-600 font-bold text-lg">{r.candidateName[0]}</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight">{r.candidateName}</p>
+                        <p className="text-xs text-red-600 font-medium">VCK</p>
+                        {r.vckVotes != null && (
+                          <p className="text-sm font-bold text-gray-800 mt-0.5">
+                            {r.vckVotes.toLocaleString("en-IN")}
+                            {voteShare && <span className="text-xs font-normal text-gray-500 ml-1">({voteShare}%)</span>}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Opponent */}
+                    <div className="flex items-center gap-3">
+                      {r.opponentPhoto ? (
+                        <img src={r.opponentPhoto} alt={r.rank1CandidateName ?? "Opponent"}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-300 shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border-2 border-gray-300">
+                          <span className="text-gray-500 font-bold text-lg">
+                            {r.rank1CandidateName?.[0] ?? "?"}
+                          </span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight">
+                          {r.rank1CandidateName ?? "Opponent"}
+                        </p>
+                        <p className="text-xs text-gray-500">{r.opponentParty ?? "—"}</p>
+                        {r.rank1Votes != null && (
+                          <p className="text-sm font-bold text-gray-800 mt-0.5">
+                            {r.rank1Votes.toLocaleString("en-IN")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Vote comparison bars */}
+                  {(vckV > 0 || oppV > 0) && (
+                    <div className="space-y-2">
+                      <VoteBar label="VCK" votes={vckV} max={maxV} color="bg-red-500" />
+                      <VoteBar label={r.opponentParty ?? "Opponent"} votes={oppV} max={maxV} color="bg-gray-400" />
+                      <div className={`text-sm font-bold text-center py-1.5 rounded-lg ${diff >= 0 ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                        {diff >= 0 ? "+" : ""}{diff.toLocaleString("en-IN")} votes difference
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-400">
+                    Updated {new Date(r.updatedAt).toLocaleString("en-IN")}
+                    {r.updatedBy && ` by ${r.updatedBy.name ?? r.updatedBy.email}`}
+                  </p>
                 </div>
               ) : (
                 /* Edit form */
                 <div className="px-5 py-4 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField label="Candidate Name" value={editState!.candidateName}
-                      onChange={(v) => setEditState((s) => s ? { ...s, candidateName: v } : s)} />
-                    <FormField label="VCK Votes" type="number" value={editState!.vckVotes}
-                      onChange={(v) => setEditState((s) => s ? { ...s, vckVotes: v } : s)} />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                    <fieldset className="space-y-3 border border-red-200 rounded-xl p-4">
+                      <legend className="text-xs font-bold text-red-600 px-1">VCK Candidate</legend>
+                      <FormField label="Candidate Name" value={editState!.candidateName}
+                        onChange={(v) => patch("candidateName", v)} />
+                      <FormField label="Candidate Photo URL" value={editState!.candidatePhoto}
+                        onChange={(v) => patch("candidatePhoto", v)} placeholder="https://..." />
+                      <FormField label="VCK Votes" type="number" value={editState!.vckVotes}
+                        onChange={(v) => patch("vckVotes", v)} />
+                    </fieldset>
+
+                    <fieldset className="space-y-3 border border-gray-200 rounded-xl p-4">
+                      <legend className="text-xs font-bold text-gray-500 px-1">Opponent (Rank 1)</legend>
+                      <FormField label="Opponent Name" value={editState!.rank1CandidateName}
+                        onChange={(v) => patch("rank1CandidateName", v)} />
+                      <FormField label="Opponent Party" value={editState!.opponentParty}
+                        onChange={(v) => patch("opponentParty", v)} placeholder="e.g. AIADMK" />
+                      <FormField label="Opponent Photo URL" value={editState!.opponentPhoto}
+                        onChange={(v) => patch("opponentPhoto", v)} placeholder="https://..." />
+                      <FormField label="Opponent Votes" type="number" value={editState!.rank1Votes}
+                        onChange={(v) => patch("rank1Votes", v)} />
+                    </fieldset>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <FormField label="Total Votes" type="number" value={editState!.totalVotes}
-                      onChange={(v) => setEditState((s) => s ? { ...s, totalVotes: v } : s)} />
+                      onChange={(v) => patch("totalVotes", v)} />
                     <FormField label="Win Margin" type="number" value={editState!.winMargin}
-                      onChange={(v) => setEditState((s) => s ? { ...s, winMargin: v } : s)} />
+                      onChange={(v) => patch("winMargin", v)} />
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
-                      <StatusSelect value={editState!.status}
-                        onChange={(v) => setEditState((s) => s ? { ...s, status: v } : s)} />
+                      <StatusSelect value={editState!.status} onChange={(v) => patch("status", v)} />
                     </div>
-                    <FormField label="Opponent Name (rank 1)" value={editState!.rank1CandidateName}
-                      onChange={(v) => setEditState((s) => s ? { ...s, rank1CandidateName: v } : s)} />
-                    <FormField label="Opponent Votes" type="number" value={editState!.rank1Votes}
-                      onChange={(v) => setEditState((s) => s ? { ...s, rank1Votes: v } : s)} />
                   </div>
-                  <label className="flex items-center gap-2 text-sm">
+
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                     <input type="checkbox" checked={editState!.isWon}
-                      onChange={(e) => setEditState((s) => s ? { ...s, isWon: e.target.checked } : s)} />
-                    Mark as Won
+                      onChange={(e) => patch("isWon", e.target.checked)}
+                      className="w-4 h-4 accent-green-600" />
+                    Mark as Won 🏆
                   </label>
-                  <div className="flex gap-3">
+
+                  <div className="flex gap-3 pt-2">
                     <button onClick={() => saveEdit(r.id)} disabled={saving}
-                      className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50">
-                      {saving ? "Saving..." : "Save"}
+                      className="px-5 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50">
+                      {saving ? "Saving..." : "Save Changes"}
                     </button>
                     <button onClick={cancelEdit}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200">
+                      className="px-5 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200">
                       Cancel
                     </button>
                   </div>
@@ -337,45 +324,46 @@ export function ElectionResultsAdmin({ results: initial, constituencies, isSuper
             </div>
           );
         })}
-
-        {results.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
-            No election results yet. Click &quot;Add Result&quot; to get started.
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  const colors: Record<string, string> = {
-    blue:   "bg-blue-50 text-blue-700",
-    green:  "bg-green-50 text-green-700",
-    yellow: "bg-yellow-50 text-yellow-700",
-    gray:   "bg-gray-50 text-gray-700",
-  };
+function VoteBar({ label, votes, max, color }: { label: string; votes: number; max: number; color: string }) {
+  const pct = max > 0 ? Math.round((votes / max) * 100) : 0;
   return (
-    <div className={`rounded-xl p-4 ${colors[color]}`}>
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs font-medium mt-0.5 opacity-70">{label}</p>
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-gray-500 w-20 shrink-0 truncate">{label}</span>
+      <div className="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+        <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs font-bold text-gray-700 w-20 text-right shrink-0">
+        {votes.toLocaleString("en-IN")}
+      </span>
     </div>
   );
 }
 
-function DataCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function StatCard({ value, label, sub, color }: { value: string | number; label: string; sub: string; color: string }) {
+  const colors: Record<string, string> = {
+    slate:   "bg-slate-50 text-slate-800",
+    green:   "bg-green-50 text-green-800",
+    blue:    "bg-blue-50 text-blue-800",
+    emerald: "bg-emerald-50 text-emerald-800",
+  };
   return (
-    <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className={`font-medium ${highlight ? "text-green-700" : "text-gray-900"}`}>{value}</p>
+    <div className={`rounded-xl p-4 ${colors[color]}`}>
+      <p className="text-2xl font-black">{value}</p>
+      <p className="text-xs font-semibold mt-0.5">{label}</p>
+      <p className="text-xs opacity-60">{sub}</p>
     </div>
   );
 }
 
 function FormField({
-  label, value, onChange, type = "text",
+  label, value, onChange, type = "text", placeholder,
 }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string;
+  label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string;
 }) {
   return (
     <div>
@@ -383,6 +371,7 @@ function FormField({
       <input
         type={type}
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
       />

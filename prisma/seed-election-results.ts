@@ -9,129 +9,147 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter } as ConstructorParameters<typeof PrismaClient>[0]);
 
-// 8 VCK-won constituencies — update candidateName/votes with real data as available
-const ELECTION_RESULTS = [
+// Exact constituency IDs from the database — 8 VCK-won seats, 2026 TN State Assembly
+const VCK_RESULTS = [
   {
-    constituencyCode: "VLR-001", // Vellore
-    candidateName: "கதிர் ஆனந்த்",
-    vckVotes: 72400,
-    totalVotes: 185000,
-    winMargin: 18200,
+    constituencyId: "cmnfj5ok800773cuu68x3tgmf", // Cheyyur, Chengalpattu
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "VPM-001", // Villupuram
-    candidateName: "ரவிக்குமார்",
-    vckVotes: 89600,
-    totalVotes: 210000,
-    winMargin: 32100,
+    constituencyId: "cmnfj5ok800763cuuvd2bcbqe", // Thiruporur, Chengalpattu
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "CUD-001", // Cuddalore
-    candidateName: "முத்துவேல்",
-    vckVotes: 68900,
-    totalVotes: 178000,
-    winMargin: 15600,
+    constituencyId: "cmnfj5ok7004n3cuubxt8csnt", // Kattumannarkoil, Cuddalore
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "TRV-001", // Tiruvannamalai
-    candidateName: "செல்வராஜ்",
-    vckVotes: 75200,
-    totalVotes: 192000,
-    winMargin: 22400,
+    constituencyId: "cmnfj5ok7004i3cuuhf1j45ls", // Panruti, Cuddalore
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "KAL-001", // Kallakurichi
-    candidateName: "அன்பழகன்",
-    vckVotes: 62300,
-    totalVotes: 165000,
-    winMargin: 11800,
+    constituencyId: "cmnfj5ok7006w3cuusv551syn", // Kallakurichi, Kallakurichi
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "DHR-001", // Dharmapuri
-    candidateName: "மணிகண்டன்",
-    vckVotes: 58700,
-    totalVotes: 158000,
-    winMargin: 9400,
+    constituencyId: "cmnfj5ok7005o3cuuubqrhl2o", // Periyakulam, Theni
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "KRI-001", // Krishnagiri
-    candidateName: "பாலசுப்ரமணியம்",
-    vckVotes: 71000,
-    totalVotes: 188000,
-    winMargin: 19700,
+    constituencyId: "cmnfj5ok6002m3cuu8wwt9lb8", // Tindivanam, Viluppuram
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
   {
-    constituencyCode: "PER-001", // Perambalur
-    candidateName: "தமிழரசி",
-    vckVotes: 54200,
-    totalVotes: 148000,
-    winMargin: 8900,
+    constituencyId: "cmnfj5ok8007d3cuundsrgq4j", // Arakkonam, Ranipet
+    candidateName: "VCK வேட்பாளர்",
+    vckVotes: null,
+    totalVotes: null,
+    winMargin: null,
     isWon: true,
     status: "DECLARED" as const,
+    rank1CandidateName: null,
+    rank1Votes: null,
+    opponentParty: null,
   },
 ];
 
 async function main() {
-  console.log("Seeding election results...");
+  console.log("Seeding 8 VCK election results...");
 
-  for (const result of ELECTION_RESULTS) {
-    // Find constituency by code prefix match
-    const constituency = await prisma.constituency.findFirst({
-      where: { code: { startsWith: result.constituencyCode.split("-")[0] } },
+  for (const r of VCK_RESULTS) {
+    const constituency = await prisma.constituency.findUnique({
+      where: { id: r.constituencyId },
+      select: { nameEnglish: true },
     });
-
-    if (!constituency) {
-      console.warn(`⚠  Constituency not found for code prefix: ${result.constituencyCode} — skipping`);
-      continue;
-    }
 
     await prisma.electionResult.upsert({
       where: {
         year_electionType_constituencyId: {
           year: 2026,
           electionType: "STATE",
-          constituencyId: constituency.id,
+          constituencyId: r.constituencyId,
         },
       },
       create: {
         year: 2026,
         electionType: "STATE",
-        constituencyId: constituency.id,
-        candidateName: result.candidateName,
-        vckVotes: result.vckVotes,
-        totalVotes: result.totalVotes,
-        winMargin: result.winMargin,
-        isWon: result.isWon,
-        status: result.status,
+        constituencyId: r.constituencyId,
+        candidateName: r.candidateName,
+        vckVotes: r.vckVotes,
+        totalVotes: r.totalVotes,
+        winMargin: r.winMargin,
+        isWon: r.isWon,
+        status: r.status,
+        rank1CandidateName: r.rank1CandidateName,
+        rank1Votes: r.rank1Votes,
+        opponentParty: r.opponentParty,
       },
       update: {
-        candidateName: result.candidateName,
-        vckVotes: result.vckVotes,
-        totalVotes: result.totalVotes,
-        winMargin: result.winMargin,
-        isWon: result.isWon,
-        status: result.status,
+        isWon: r.isWon,
+        status: r.status,
       },
     });
 
-    console.log(`✓ ${result.candidateName} — ${constituency.nameEnglish}`);
+    console.log(`✓ ${constituency?.nameEnglish ?? r.constituencyId}`);
   }
 
-  console.log("Done.");
+  console.log("Done. Update candidate names and vote counts from the admin panel.");
 }
 
 main()
