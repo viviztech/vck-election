@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Hardcode production URL so NextAuth never falls back to localhost
   env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "https://main.d38gppm8yah8zy.amplifyapp.com",
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL ?? "https://vckitwing.com",
     DATABASE_URL: process.env.DATABASE_URL ?? "",
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? "",
     S3_REGION: process.env.S3_REGION ?? "ap-south-1",
