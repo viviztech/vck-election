@@ -26,10 +26,14 @@ export default function LenisProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const instance = new Lenis({
-      duration: 1.4,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       smoothWheel: true,
+      // Always use the window as scroll root — avoids conflicts with
+      // fixed-height containers and dynamically loaded content
+      wrapper: window,
+      content: document.documentElement,
     })
 
     setLenis(instance)
@@ -41,8 +45,13 @@ export default function LenisProvider({ children }: { children: ReactNode }) {
 
     rafRef.current = requestAnimationFrame(raf)
 
+    // Recalculate scroll dimensions when DOM changes (dynamic content loads)
+    const ro = new ResizeObserver(() => instance.resize())
+    ro.observe(document.body)
+
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+      ro.disconnect()
       instance.destroy()
     }
   }, [])

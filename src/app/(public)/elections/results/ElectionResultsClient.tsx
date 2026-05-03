@@ -398,7 +398,7 @@ function CommentSection({ resultId }: { resultId: string }) {
           )}
 
           {!loadingC && comments.length > 0 && (
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+            <div className="space-y-3" data-lenis-prevent>
               {comments.map((c) => (
                 <div key={c.id} className="bg-white/5 rounded-xl px-4 py-3">
                   <div className="flex items-center justify-between mb-1">

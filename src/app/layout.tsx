@@ -37,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ta" className={`${muktaMalar.variable} ${balooThambi2.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50">
+    <html lang="ta" className={`${muktaMalar.variable} ${balooThambi2.variable} antialiased`}>
+      <body className="min-h-screen flex flex-col bg-gray-50">
         <Providers>{children}</Providers>
       </body>
     </html>
