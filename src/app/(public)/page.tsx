@@ -96,8 +96,8 @@ export default async function Home() {
       {/* 9 — Flag explained */}
       <FlagDecoded />
 
-      {/* 10 — News */}
-      <NewsTeaserSection />
+      {/* 10 — News (hidden) */}
+      {/* <NewsTeaserSection /> */}
 
       {/* 11 — Social feeds */}
       <SocialFeedsSection />
