@@ -228,7 +228,7 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 <img
                   src={r.opponentPhoto}
                   alt={r.rank1CandidateName ?? "Opponent"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/20 shadow-lg grayscale"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/20 shadow-lg"
                 />
               ) : (
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-700 flex items-center justify-center border-4 border-white/20 shadow-lg">
