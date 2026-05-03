@@ -9,15 +9,9 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const VCK_CONSTITUENCY_IDS = [
-  "cmnfj5ok800773cuu68x3tgmf",
-  "cmnfj5ok800763cuuvd2bcbqe",
-  "cmnfj5ok7004n3cuubxt8csnt",
-  "cmnfj5ok7004i3cuuhf1j45ls",
-  "cmnfj5ok7006w3cuusv551syn",
-  "cmnfj5ok7005o3cuuubqrhl2o",
-  "cmnfj5ok6002m3cuu8wwt9lb8",
-  "cmnfj5ok8007d3cuundsrgq4j",
+const VCK_CONSTITUENCY_NAMES = [
+  "Cheyyur", "Thiruporur", "Kattumannarkoil", "Panruti",
+  "Kallakurichi", "Periyakulam", "Tindivanam", "Arakkonam",
 ];
 
 export default async function ElectionResultsPage() {
@@ -25,7 +19,7 @@ export default async function ElectionResultsPage() {
     where: {
       year: 2026,
       electionType: "STATE",
-      constituencyId: { in: VCK_CONSTITUENCY_IDS },
+      constituency: { nameEnglish: { in: VCK_CONSTITUENCY_NAMES } },
     },
     include: {
       constituency: {

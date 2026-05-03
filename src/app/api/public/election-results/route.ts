@@ -5,8 +5,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const year = parseInt(searchParams.get("year") ?? "2026");
 
+  const VCK_NAMES = ["Cheyyur","Thiruporur","Kattumannarkoil","Panruti","Kallakurichi","Periyakulam","Tindivanam","Arakkonam"];
+
   const results = await prisma.electionResult.findMany({
-    where: { year, electionType: "STATE" },
+    where: { year, electionType: "STATE", constituency: { nameEnglish: { in: VCK_NAMES } } },
     include: {
       constituency: {
         select: {
