@@ -61,7 +61,7 @@ export function ElectionResultsClient() {
 
   useEffect(() => {
     fetchResults();
-    const id = setInterval(fetchResults, 30_000);
+    const id = setInterval(fetchResults, 10 * 60_000);
     return () => clearInterval(id);
   }, []);
 
@@ -95,7 +95,7 @@ export function ElectionResultsClient() {
             <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
           )}
           {hasLive
-            ? `Live · auto-refreshes every 30s${lastRefresh ? " · " + lastRefresh.toLocaleTimeString("en-IN") : ""}`
+            ? `Live · auto-refreshes every 10 mins${lastRefresh ? " · " + lastRefresh.toLocaleTimeString("en-IN") : ""}`
             : "Results declared"}
         </div>
 
