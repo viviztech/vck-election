@@ -178,8 +178,11 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
           const cfg = STATUS_CONFIG[r.status];
           const vckV   = r.vckVotes ?? 0;
           const oppV   = r.rank1Votes ?? 0;
-          const maxV   = Math.max(vckV, oppV, 1);
+          const tvkV   = r.rank2Votes ?? 0;
+          const maxV   = Math.max(vckV, oppV, tvkV, 1);
           const diff   = vckV - oppV;
+          const diffTVK = vckV - tvkV;
+          const hasTVK = !!(r.rank2CandidateName);
           const voteShare = r.vckVotes && r.totalVotes
             ? ((r.vckVotes / r.totalVotes) * 100).toFixed(1)
             : null;
@@ -222,8 +225,8 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
 
               {!isEditing ? (
                 <div className="px-5 py-4 space-y-4">
-                  {/* Candidate vs Opponent row */}
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Candidate row — VCK | Rank-1 | TVK */}
+                  <div className={`grid gap-4 ${hasTVK ? "grid-cols-3" : "grid-cols-2"}`}>
                     {/* VCK candidate */}
                     <div className="flex items-center gap-3">
                       {r.candidatePhoto ? (
@@ -246,7 +249,7 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
                       </div>
                     </div>
 
-                    {/* Opponent */}
+                    {/* Opponent (rank 1) */}
                     <div className="flex items-center gap-3">
                       {r.opponentPhoto ? (
                         <img src={r.opponentPhoto} alt={r.rank1CandidateName ?? "Opponent"}
@@ -270,16 +273,51 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
                         )}
                       </div>
                     </div>
+
+                    {/* TVK (rank 2) */}
+                    {hasTVK && (
+                      <div className="flex items-center gap-3">
+                        {r.rank2Photo ? (
+                          <img src={r.rank2Photo} alt={r.rank2CandidateName ?? "TVK"}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-yellow-300 shrink-0" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center shrink-0 border-2 border-yellow-300">
+                            <span className="text-yellow-600 font-bold text-lg">
+                              {r.rank2CandidateName?.[0] ?? "T"}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm leading-tight">
+                            {r.rank2CandidateName}
+                          </p>
+                          <p className="text-xs text-yellow-600 font-medium">{r.rank2Party ?? "TVK"}</p>
+                          {r.rank2Votes != null && (
+                            <p className="text-sm font-bold text-gray-800 mt-0.5">
+                              {r.rank2Votes.toLocaleString("en-IN")}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Vote comparison bars */}
-                  {(vckV > 0 || oppV > 0) && (
+                  {(vckV > 0 || oppV > 0 || tvkV > 0) && (
                     <div className="space-y-2">
                       <VoteBar label="VCK" votes={vckV} max={maxV} color="bg-red-500" />
                       <VoteBar label={r.opponentParty ?? "Opponent"} votes={oppV} max={maxV} color="bg-gray-400" />
+                      {hasTVK && (
+                        <VoteBar label={r.rank2Party ?? "TVK"} votes={tvkV} max={maxV} color="bg-yellow-400" />
+                      )}
                       <div className={`text-sm font-bold text-center py-1.5 rounded-lg ${diff >= 0 ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-                        {diff >= 0 ? "+" : ""}{diff.toLocaleString("en-IN")} votes difference
+                        vs {r.opponentParty ?? "Opp"}: {diff >= 0 ? "+" : ""}{diff.toLocaleString("en-IN")}
                       </div>
+                      {hasTVK && (vckV > 0 || tvkV > 0) && (
+                        <div className={`text-sm font-bold text-center py-1.5 rounded-lg ${diffTVK >= 0 ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                          vs {r.rank2Party ?? "TVK"}: {diffTVK >= 0 ? "+" : ""}{diffTVK.toLocaleString("en-IN")}
+                        </div>
+                      )}
                     </div>
                   )}
 
