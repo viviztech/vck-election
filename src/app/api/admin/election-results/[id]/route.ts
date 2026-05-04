@@ -36,6 +36,8 @@ export async function PATCH(
     "rank2Votes",
     "rank2Party",
     "rank2Photo",
+    "totalRounds",
+    "currentRound",
   ];
 
   const data: Record<string, unknown> = { updatedById: session.user.id };

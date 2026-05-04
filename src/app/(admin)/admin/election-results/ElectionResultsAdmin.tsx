@@ -28,6 +28,8 @@ interface ElectionResult {
   rank2Votes: number | null;
   rank2Party: string | null;
   rank2Photo: string | null;
+  totalRounds: number | null;
+  currentRound: number | null;
   updatedBy: { name: string | null; email: string } | null;
   updatedAt: string;
   _count: { comments: number };
@@ -49,6 +51,8 @@ interface EditState {
   rank2Votes: string;
   rank2Party: string;
   rank2Photo: string;
+  totalRounds: string;
+  currentRound: string;
 }
 
 const STATUS_CONFIG: Record<ResultStatus, { label: string; bg: string; text: string; border: string }> = {
@@ -75,6 +79,8 @@ function toEditState(r: ElectionResult): EditState {
     rank2Votes:         r.rank2Votes?.toString() ?? "",
     rank2Party:         r.rank2Party ?? "",
     rank2Photo:         r.rank2Photo ?? "",
+    totalRounds:        r.totalRounds?.toString() ?? "",
+    currentRound:       r.currentRound?.toString() ?? "",
   };
 }
 
@@ -125,6 +131,8 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
           rank2Votes:         editState.rank2Votes   ? parseInt(editState.rank2Votes)  : null,
           rank2Party:         editState.rank2Party || null,
           rank2Photo:         editState.rank2Photo || null,
+          totalRounds:        editState.totalRounds  ? parseInt(editState.totalRounds) : null,
+          currentRound:       editState.currentRound ? parseInt(editState.currentRound): null,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -275,10 +283,17 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
                     </div>
                   )}
 
-                  <p className="text-xs text-gray-400">
-                    Updated {new Date(r.updatedAt).toLocaleString("en-IN")}
-                    {r.updatedBy && ` by ${r.updatedBy.name ?? r.updatedBy.email}`}
-                  </p>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    {(r.totalRounds != null) && (
+                      <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
+                        Round {r.currentRound ?? "?"} / {r.totalRounds}
+                      </span>
+                    )}
+                    <p className="text-xs text-gray-400">
+                      Updated {new Date(r.updatedAt).toLocaleString("en-IN")}
+                      {r.updatedBy && ` by ${r.updatedBy.name ?? r.updatedBy.email}`}
+                    </p>
+                  </div>
                 </div>
               ) : (
                 /* Edit form */
@@ -319,15 +334,19 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
                     </fieldset>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <FormField label="Total Votes" type="number" value={editState!.totalVotes}
                       onChange={(v) => patch("totalVotes", v)} />
                     <FormField label="Win Margin" type="number" value={editState!.winMargin}
                       onChange={(v) => patch("winMargin", v)} />
-                    <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
-                      <StatusSelect value={editState!.status} onChange={(v) => patch("status", v)} />
-                    </div>
+                    <FormField label="Total Rounds" type="number" value={editState!.totalRounds}
+                      onChange={(v) => patch("totalRounds", v)} placeholder="e.g. 14" />
+                    <FormField label="Current Round" type="number" value={editState!.currentRound}
+                      onChange={(v) => patch("currentRound", v)} placeholder="e.g. 7" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+                    <StatusSelect value={editState!.status} onChange={(v) => patch("status", v)} />
                   </div>
 
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">

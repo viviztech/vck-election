@@ -28,6 +28,8 @@ interface ElectionResult {
   rank2Votes: number | null;
   rank2Party: string | null;
   rank2Photo: string | null;
+  totalRounds: number | null;
+  currentRound: number | null;
   updatedAt: string;
   constituency: {
     nameEnglish: string;
@@ -174,6 +176,25 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
           <p className="text-white/50 text-sm mt-0.5">
             {r.constituency.nameEnglish} · {r.constituency.district.nameEnglish}
           </p>
+          {r.totalRounds != null && (
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {Array.from({ length: r.totalRounds }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 w-4 rounded-full ${
+                      r.currentRound != null && i < r.currentRound
+                        ? "bg-amber-400"
+                        : "bg-white/20"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-white/50 text-xs">
+                Round {r.currentRound ?? 0} / {r.totalRounds}
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />

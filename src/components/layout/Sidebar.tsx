@@ -22,6 +22,7 @@ const adminNavGroups: NavGroup[] = [
       { href: "/admin/entries",                label: "All Entries",        icon: "📁" },
       { href: "/constituencies",               label: "Constituencies",     icon: "🗺️" },
       { href: "/admin/election-results",       label: "Election Results",   icon: "🏆" },
+      { href: "/admin/election-comments",     label: "Comments",           icon: "💬" },
       { href: "/report",                       label: "Report (PDF)",       icon: "📄" },
       { href: "/export",                       label: "Export Data",        icon: "⬇️" },
     ],
