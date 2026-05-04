@@ -139,6 +139,48 @@ export function ElectionResultsClient() {
   );
 }
 
+/* ── Party brand colours ────────────────────────────────── */
+function partyBorder(party: string | null | undefined): string {
+  switch ((party ?? "").toUpperCase()) {
+    case "VCK":    return "border-blue-500";
+    case "AIADMK": return "border-green-500";
+    case "PMK":    return "border-amber-400";
+    case "AMMK":   return "border-green-500";
+    case "TVK":    return "border-yellow-400";
+    default:       return "border-white/30";
+  }
+}
+function partyBg(party: string | null | undefined): string {
+  switch ((party ?? "").toUpperCase()) {
+    case "VCK":    return "bg-blue-900";
+    case "AIADMK": return "bg-green-900";
+    case "PMK":    return "bg-amber-900";
+    case "AMMK":   return "bg-green-900";
+    case "TVK":    return "bg-yellow-900/50";
+    default:       return "bg-slate-700";
+  }
+}
+function partyBadgeBg(party: string | null | undefined): string {
+  switch ((party ?? "").toUpperCase()) {
+    case "VCK":    return "bg-blue-600";
+    case "AIADMK": return "bg-green-700";
+    case "PMK":    return "bg-amber-500";
+    case "AMMK":   return "bg-green-700";
+    case "TVK":    return "bg-yellow-400 !text-black";
+    default:       return "bg-slate-600";
+  }
+}
+function partyBarColor(party: string | null | undefined): string {
+  switch ((party ?? "").toUpperCase()) {
+    case "VCK":    return "bg-blue-500";
+    case "AIADMK": return "bg-green-500";
+    case "PMK":    return "bg-amber-400";
+    case "AMMK":   return "bg-green-500";
+    case "TVK":    return "bg-yellow-400";
+    default:       return "bg-slate-500";
+  }
+}
+
 /* ── Individual result card ─────────────────────────────── */
 function ResultCard({ result: r }: { result: ElectionResult }) {
   const cfg   = STATUS_CONFIG[r.status];
@@ -216,16 +258,17 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 <img
                   src={r.candidatePhoto}
                   alt={r.candidateName}
-                  className="w-18 h-18 sm:w-22 sm:h-22 rounded-full object-cover border-4 border-[#C41E1E] shadow-lg"
+                  className={`rounded-full object-cover border-4 shadow-lg ${partyBorder("VCK")}`}
+                  style={{ width: "4.5rem", height: "4.5rem" }}
                 />
               ) : (
-                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-red-900 flex items-center justify-center border-4 border-[#C41E1E] shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
+                <div className={`rounded-full flex items-center justify-center border-4 shadow-lg ${partyBg("VCK")} ${partyBorder("VCK")}`} style={{ width: "4.5rem", height: "4.5rem" }}>
                   <span className="text-white font-black text-2xl">
                     {r.candidateName[0]}
                   </span>
                 </div>
               )}
-              <span className="absolute -bottom-1 -right-1 bg-[#C41E1E] text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
+              <span className={`absolute -bottom-1 -right-1 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow ${partyBadgeBg("VCK")}`}>
                 VCK
               </span>
             </div>
@@ -255,17 +298,18 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 <img
                   src={r.opponentPhoto}
                   alt={r.rank1CandidateName ?? "Opponent"}
-                  className="w-18 h-18 sm:w-22 sm:h-22 rounded-full object-cover border-4 border-white/20 shadow-lg"
+                  className={`rounded-full object-cover border-4 shadow-lg ${partyBorder(r.opponentParty)}`}
+                  style={{ width: "4.5rem", height: "4.5rem" }}
                 />
               ) : (
-                <div className="rounded-full bg-slate-700 flex items-center justify-center border-4 border-white/20 shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
-                  <span className="text-white/60 font-black text-2xl">
+                <div className={`rounded-full flex items-center justify-center border-4 shadow-lg ${partyBg(r.opponentParty)} ${partyBorder(r.opponentParty)}`} style={{ width: "4.5rem", height: "4.5rem" }}>
+                  <span className="text-white/70 font-black text-2xl">
                     {r.rank1CandidateName?.[0] ?? "?"}
                   </span>
                 </div>
               )}
               {r.opponentParty && (
-                <span className="absolute -bottom-1 -right-1 bg-slate-600 text-white/80 text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
+                <span className={`absolute -bottom-1 -right-1 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow ${partyBadgeBg(r.opponentParty)}`}>
                   {r.opponentParty}
                 </span>
               )}
@@ -294,17 +338,17 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                   <img
                     src={r.rank2Photo}
                     alt={r.rank2CandidateName ?? "TVK"}
-                    className="rounded-full object-cover border-4 border-yellow-500/60 shadow-lg"
+                    className={`rounded-full object-cover border-4 shadow-lg ${partyBorder(r.rank2Party ?? "TVK")}`}
                     style={{ width: "4.5rem", height: "4.5rem" }}
                   />
                 ) : (
-                  <div className="rounded-full bg-yellow-900/40 flex items-center justify-center border-4 border-yellow-500/60 shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
-                    <span className="text-yellow-300 font-black text-2xl">
+                  <div className={`rounded-full flex items-center justify-center border-4 shadow-lg ${partyBg(r.rank2Party ?? "TVK")} ${partyBorder(r.rank2Party ?? "TVK")}`} style={{ width: "4.5rem", height: "4.5rem" }}>
+                    <span className="text-white font-black text-2xl">
                       {r.rank2CandidateName?.[0] ?? "T"}
                     </span>
                   </div>
                 )}
-                <span className="absolute -bottom-1 -right-1 bg-yellow-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
+                <span className={`absolute -bottom-1 -right-1 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow ${partyBadgeBg(r.rank2Party ?? "TVK")}`}>
                   {r.rank2Party ?? "TVK"}
                 </span>
               </div>
@@ -329,19 +373,19 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
         {/* Vote bars + difference — only show when we have actual votes */}
         {(vckV > 0 || oppV > 0 || tvkV > 0) && (
           <div className="space-y-3">
-            <VoteBar label="VCK" votes={vckV} max={maxV} color="bg-red-500" />
+            <VoteBar label="VCK" votes={vckV} max={maxV} color={partyBarColor("VCK")} />
             <VoteBar
               label={r.opponentParty ?? "Opp"}
               votes={oppV}
               max={maxV}
-              color="bg-slate-500"
+              color={partyBarColor(r.opponentParty)}
             />
             {hasTVK && tvkV >= 0 && (
               <VoteBar
                 label={r.rank2Party ?? "TVK"}
                 votes={tvkV}
                 max={maxV}
-                color="bg-yellow-500"
+                color={partyBarColor(r.rank2Party ?? "TVK")}
               />
             )}
             {/* VCK vs leading opponent */}
