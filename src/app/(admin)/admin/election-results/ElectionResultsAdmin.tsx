@@ -24,6 +24,10 @@ interface ElectionResult {
   rank1Votes: number | null;
   opponentParty: string | null;
   opponentPhoto: string | null;
+  rank2CandidateName: string | null;
+  rank2Votes: number | null;
+  rank2Party: string | null;
+  rank2Photo: string | null;
   updatedBy: { name: string | null; email: string } | null;
   updatedAt: string;
   _count: { comments: number };
@@ -41,6 +45,10 @@ interface EditState {
   rank1Votes: string;
   opponentParty: string;
   opponentPhoto: string;
+  rank2CandidateName: string;
+  rank2Votes: string;
+  rank2Party: string;
+  rank2Photo: string;
 }
 
 const STATUS_CONFIG: Record<ResultStatus, { label: string; bg: string; text: string; border: string }> = {
@@ -63,6 +71,10 @@ function toEditState(r: ElectionResult): EditState {
     rank1Votes:         r.rank1Votes?.toString() ?? "",
     opponentParty:      r.opponentParty ?? "",
     opponentPhoto:      r.opponentPhoto ?? "",
+    rank2CandidateName: r.rank2CandidateName ?? "",
+    rank2Votes:         r.rank2Votes?.toString() ?? "",
+    rank2Party:         r.rank2Party ?? "",
+    rank2Photo:         r.rank2Photo ?? "",
   };
 }
 
@@ -109,6 +121,10 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
           rank1Votes:         editState.rank1Votes   ? parseInt(editState.rank1Votes)  : null,
           opponentParty:      editState.opponentParty || null,
           opponentPhoto:      editState.opponentPhoto || null,
+          rank2CandidateName: editState.rank2CandidateName || null,
+          rank2Votes:         editState.rank2Votes   ? parseInt(editState.rank2Votes)  : null,
+          rank2Party:         editState.rank2Party || null,
+          rank2Photo:         editState.rank2Photo || null,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -267,7 +283,7 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
               ) : (
                 /* Edit form */
                 <div className="px-5 py-4 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
                     <fieldset className="space-y-3 border border-red-200 rounded-xl p-4">
                       <legend className="text-xs font-bold text-red-600 px-1">VCK Candidate</legend>
                       <FormField label="Candidate Name" value={editState!.candidateName}
@@ -288,6 +304,18 @@ export function ElectionResultsAdmin({ results: initial, isSuperAdmin }: { resul
                         onChange={(v) => patch("opponentPhoto", v)} placeholder="https://..." />
                       <FormField label="Opponent Votes" type="number" value={editState!.rank1Votes}
                         onChange={(v) => patch("rank1Votes", v)} />
+                    </fieldset>
+
+                    <fieldset className="space-y-3 border border-yellow-200 rounded-xl p-4">
+                      <legend className="text-xs font-bold text-yellow-600 px-1">TVK Candidate (Rank 2)</legend>
+                      <FormField label="TVK Candidate Name" value={editState!.rank2CandidateName}
+                        onChange={(v) => patch("rank2CandidateName", v)} />
+                      <FormField label="Party" value={editState!.rank2Party}
+                        onChange={(v) => patch("rank2Party", v)} placeholder="TVK" />
+                      <FormField label="Photo URL" value={editState!.rank2Photo}
+                        onChange={(v) => patch("rank2Photo", v)} placeholder="https://..." />
+                      <FormField label="TVK Votes" type="number" value={editState!.rank2Votes}
+                        onChange={(v) => patch("rank2Votes", v)} />
                     </fieldset>
                   </div>
 

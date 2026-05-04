@@ -24,6 +24,10 @@ interface ElectionResult {
   rank1Votes: number | null;
   opponentParty: string | null;
   opponentPhoto: string | null;
+  rank2CandidateName: string | null;
+  rank2Votes: number | null;
+  rank2Party: string | null;
+  rank2Photo: string | null;
   updatedAt: string;
   constituency: {
     nameEnglish: string;
@@ -138,11 +142,13 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
   const cfg   = STATUS_CONFIG[r.status];
   const vckV  = r.vckVotes ?? 0;
   const oppV  = r.rank1Votes ?? 0;
-  const maxV  = Math.max(vckV, oppV, 1);
+  const tvkV  = r.rank2Votes ?? 0;
+  const maxV  = Math.max(vckV, oppV, tvkV, 1);
   const diff  = vckV - oppV;
   const voteShare = vckV && r.totalVotes
     ? ((vckV / r.totalVotes) * 100).toFixed(1)
     : null;
+  const hasTVK = !!(r.rank2CandidateName);
 
   return (
     <div
@@ -180,8 +186,8 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
 
       {/* Card body */}
       <div className="bg-[#0D1F3C] px-6 py-6 space-y-6">
-        {/* Candidate vs Opponent */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-8">
+        {/* Candidate vs Opponent(s) */}
+        <div className={`grid gap-4 sm:gap-6 ${hasTVK ? "grid-cols-3" : "grid-cols-2"}`}>
           {/* VCK candidate */}
           <div className="flex flex-col items-center text-center gap-3">
             <div className="relative">
@@ -189,11 +195,11 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 <img
                   src={r.candidatePhoto}
                   alt={r.candidateName}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-[#C41E1E] shadow-lg"
+                  className="w-18 h-18 sm:w-22 sm:h-22 rounded-full object-cover border-4 border-[#C41E1E] shadow-lg"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-red-900 flex items-center justify-center border-4 border-[#C41E1E] shadow-lg">
-                  <span className="text-white font-black text-3xl">
+                <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-red-900 flex items-center justify-center border-4 border-[#C41E1E] shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
+                  <span className="text-white font-black text-2xl">
                     {r.candidateName[0]}
                   </span>
                 </div>
@@ -204,14 +210,14 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
             </div>
             <div>
               <p
-                className="text-white font-bold text-base leading-tight"
+                className="text-white font-bold text-sm leading-tight"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
                 {r.candidateName}
               </p>
-              <p className="text-red-400 text-xs font-medium mt-0.5">விடுதலைச் சிறுத்தைகள் கட்சி</p>
+              <p className="text-red-400 text-xs font-medium mt-0.5">விடுதலைச் சிறுத்தைகள்</p>
               {vckV > 0 && (
-                <p className="text-white font-black text-lg mt-1">
+                <p className="text-white font-black text-base mt-1">
                   {vckV.toLocaleString("en-IN")}
                   {voteShare && (
                     <span className="text-white/50 text-xs font-normal ml-1">({voteShare}%)</span>
@@ -221,18 +227,18 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
             </div>
           </div>
 
-          {/* Opponent */}
+          {/* Opponent (rank 1) */}
           <div className="flex flex-col items-center text-center gap-3">
             <div className="relative">
               {r.opponentPhoto ? (
                 <img
                   src={r.opponentPhoto}
                   alt={r.rank1CandidateName ?? "Opponent"}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white/20 shadow-lg"
+                  className="w-18 h-18 sm:w-22 sm:h-22 rounded-full object-cover border-4 border-white/20 shadow-lg"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-slate-700 flex items-center justify-center border-4 border-white/20 shadow-lg">
-                  <span className="text-white/60 font-black text-3xl">
+                <div className="rounded-full bg-slate-700 flex items-center justify-center border-4 border-white/20 shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
+                  <span className="text-white/60 font-black text-2xl">
                     {r.rank1CandidateName?.[0] ?? "?"}
                   </span>
                 </div>
@@ -245,23 +251,62 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
             </div>
             <div>
               <p
-                className="text-white/80 font-bold text-base leading-tight"
+                className="text-white/80 font-bold text-sm leading-tight"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
                 {r.rank1CandidateName ?? "Opponent"}
               </p>
               <p className="text-white/40 text-xs mt-0.5">{r.opponentParty ?? "Opposition"}</p>
               {oppV > 0 && (
-                <p className="text-white/70 font-black text-lg mt-1">
+                <p className="text-white/70 font-black text-base mt-1">
                   {oppV.toLocaleString("en-IN")}
                 </p>
               )}
             </div>
           </div>
+
+          {/* TVK candidate (rank 2) */}
+          {hasTVK && (
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="relative">
+                {r.rank2Photo ? (
+                  <img
+                    src={r.rank2Photo}
+                    alt={r.rank2CandidateName ?? "TVK"}
+                    className="rounded-full object-cover border-4 border-yellow-500/60 shadow-lg"
+                    style={{ width: "4.5rem", height: "4.5rem" }}
+                  />
+                ) : (
+                  <div className="rounded-full bg-yellow-900/40 flex items-center justify-center border-4 border-yellow-500/60 shadow-lg" style={{ width: "4.5rem", height: "4.5rem" }}>
+                    <span className="text-yellow-300 font-black text-2xl">
+                      {r.rank2CandidateName?.[0] ?? "T"}
+                    </span>
+                  </div>
+                )}
+                <span className="absolute -bottom-1 -right-1 bg-yellow-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
+                  {r.rank2Party ?? "TVK"}
+                </span>
+              </div>
+              <div>
+                <p
+                  className="text-white/80 font-bold text-sm leading-tight"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  {r.rank2CandidateName}
+                </p>
+                <p className="text-yellow-400/70 text-xs mt-0.5">{r.rank2Party ?? "TVK"}</p>
+                {tvkV > 0 && (
+                  <p className="text-white/70 font-black text-base mt-1">
+                    {tvkV.toLocaleString("en-IN")}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Vote bars + difference — only show when we have actual votes */}
-        {(vckV > 0 || oppV > 0) && (
+        {(vckV > 0 || oppV > 0 || tvkV > 0) && (
           <div className="space-y-3">
             <VoteBar label="VCK" votes={vckV} max={maxV} color="bg-red-500" />
             <VoteBar
@@ -270,6 +315,14 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
               max={maxV}
               color="bg-slate-500"
             />
+            {hasTVK && tvkV >= 0 && (
+              <VoteBar
+                label={r.rank2Party ?? "TVK"}
+                votes={tvkV}
+                max={maxV}
+                color="bg-yellow-500"
+              />
+            )}
             <div
               className={`rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 ${
                 diff >= 0
@@ -280,7 +333,7 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
               <span className={`text-lg font-black ${diff >= 0 ? "text-green-400" : "text-red-400"}`}>
                 {diff >= 0 ? "+" : ""}{diff.toLocaleString("en-IN")}
               </span>
-              <span className="text-white/50 text-xs">votes {diff >= 0 ? "ahead" : "behind"}</span>
+              <span className="text-white/50 text-xs">votes {diff >= 0 ? "ahead" : "behind"} {r.opponentParty ?? "opponent"}</span>
               {r.totalVotes && (
                 <span className="text-white/30 text-xs ml-2">
                   of {r.totalVotes.toLocaleString("en-IN")} total
@@ -291,7 +344,7 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
         )}
 
         {/* Counting state — no votes yet */}
-        {vckV === 0 && oppV === 0 && (
+        {vckV === 0 && oppV === 0 && tvkV === 0 && (
           <div className="flex items-center justify-center gap-2 py-3 text-white/30 text-sm">
             <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
             Counting in progress — results will appear here

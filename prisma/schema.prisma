@@ -526,6 +526,11 @@ model ElectionResult {
   opponentParty       String?
   opponentPhoto       String?
 
+  rank2CandidateName  String?
+  rank2Votes          Int?
+  rank2Party          String?
+  rank2Photo          String?
+
   updatedById String?
   updatedBy   User?   @relation(fields: [updatedById], references: [id])
 
