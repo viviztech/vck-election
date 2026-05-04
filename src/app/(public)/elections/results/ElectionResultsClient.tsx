@@ -344,23 +344,20 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 color="bg-yellow-500"
               />
             )}
-            <div
-              className={`rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 ${
-                diff >= 0
-                  ? "bg-green-500/15 border border-green-500/30"
-                  : "bg-red-500/15 border border-red-500/30"
-              }`}
-            >
-              <span className={`text-lg font-black ${diff >= 0 ? "text-green-400" : "text-red-400"}`}>
-                {diff >= 0 ? "+" : ""}{diff.toLocaleString("en-IN")}
-              </span>
-              <span className="text-white/50 text-xs">votes {diff >= 0 ? "ahead" : "behind"} {r.opponentParty ?? "opponent"}</span>
-              {r.totalVotes && (
-                <span className="text-white/30 text-xs ml-2">
-                  of {r.totalVotes.toLocaleString("en-IN")} total
-                </span>
-              )}
-            </div>
+            {/* VCK vs rank-1 diff */}
+            <DiffRow
+              diff={diff}
+              vsLabel={r.opponentParty ?? "Opponent"}
+              totalVotes={r.totalVotes}
+            />
+            {/* VCK vs TVK diff */}
+            {hasTVK && vckV + tvkV > 0 && (
+              <DiffRow
+                diff={vckV - tvkV}
+                vsLabel={r.rank2Party ?? "TVK"}
+                totalVotes={null}
+              />
+            )}
           </div>
         )}
 
@@ -374,6 +371,27 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
 
         {/* Comments */}
         <CommentSection resultId={r.id} />
+      </div>
+    </div>
+  );
+}
+
+/* ── Diff row ───────────────────────────────────────────── */
+function DiffRow({ diff, vsLabel, totalVotes }: { diff: number; vsLabel: string; totalVotes: number | null | undefined }) {
+  const positive = diff >= 0;
+  return (
+    <div className={`rounded-xl py-2 px-4 flex items-center justify-between gap-2 ${
+      positive ? "bg-green-500/15 border border-green-500/30" : "bg-red-500/15 border border-red-500/30"
+    }`}>
+      <span className="text-white/40 text-xs shrink-0">vs {vsLabel}</span>
+      <div className="flex items-center gap-2">
+        <span className={`text-base font-black ${positive ? "text-green-400" : "text-red-400"}`}>
+          {positive ? "+" : ""}{diff.toLocaleString("en-IN")}
+        </span>
+        <span className="text-white/40 text-xs">{positive ? "ahead" : "behind"}</span>
+        {totalVotes && (
+          <span className="text-white/25 text-xs">· {totalVotes.toLocaleString("en-IN")} total</span>
+        )}
       </div>
     </div>
   );
