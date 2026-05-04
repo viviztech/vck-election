@@ -344,20 +344,20 @@ function ResultCard({ result: r }: { result: ElectionResult }) {
                 color="bg-yellow-500"
               />
             )}
-            {/* VCK vs rank-1 diff */}
-            <DiffRow
-              diff={diff}
-              vsLabel={r.opponentParty ?? "Opponent"}
-              totalVotes={r.totalVotes}
-            />
-            {/* VCK vs TVK diff */}
-            {hasTVK && vckV + tvkV > 0 && (
-              <DiffRow
-                diff={vckV - tvkV}
-                vsLabel={r.rank2Party ?? "TVK"}
-                totalVotes={null}
-              />
-            )}
+            {/* VCK vs leading opponent */}
+            {(() => {
+              const leadingVotes = hasTVK ? Math.max(oppV, tvkV) : oppV;
+              const leadingLabel = hasTVK && tvkV > oppV
+                ? (r.rank2Party ?? "TVK")
+                : (r.opponentParty ?? "Opponent");
+              return (
+                <DiffRow
+                  diff={vckV - leadingVotes}
+                  vsLabel={leadingLabel}
+                  totalVotes={r.totalVotes}
+                />
+              );
+            })()}
           </div>
         )}
 
