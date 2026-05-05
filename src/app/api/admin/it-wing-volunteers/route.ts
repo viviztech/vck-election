@@ -15,11 +15,40 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
   const search = searchParams.get("search") ?? "";
   const district = searchParams.get("district") ?? "";
+  const constituency = searchParams.get("constituency") ?? "";
+  const gender = searchParams.get("gender") ?? "";
+  const availability = searchParams.get("availability") ?? "";
+  const itKnowledge = searchParams.get("itKnowledge") ?? "";
+  const videoCreation = searchParams.get("videoCreation") ?? "";
+  const imageCreation = searchParams.get("imageCreation") ?? "";
+  const vckMember = searchParams.get("vckMember") ?? "";
+  const canTravel = searchParams.get("canTravel") ?? "";
+  const dateFrom = searchParams.get("dateFrom") ?? "";
+  const dateTo = searchParams.get("dateTo") ?? "";
   const format = searchParams.get("format") ?? "";
   const PAGE_SIZE = 20;
 
   const where: Record<string, unknown> = {};
   if (district) where.district = { contains: district, mode: "insensitive" };
+  if (constituency) where.constituency = { contains: constituency, mode: "insensitive" };
+  if (gender) where.gender = gender;
+  if (availability) where.availability = availability;
+  if (itKnowledge === "true") where.itKnowledge = true;
+  else if (itKnowledge === "false") where.itKnowledge = false;
+  if (videoCreation === "true") where.videoCreation = true;
+  else if (videoCreation === "false") where.videoCreation = false;
+  if (imageCreation === "true") where.imageCreation = true;
+  else if (imageCreation === "false") where.imageCreation = false;
+  if (vckMember === "true") where.vckMember = true;
+  else if (vckMember === "false") where.vckMember = false;
+  if (canTravel === "true") where.canTravel = true;
+  else if (canTravel === "false") where.canTravel = false;
+  if (dateFrom || dateTo) {
+    where.createdAt = {
+      ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+      ...(dateTo ? { lte: new Date(dateTo + "T23:59:59.999Z") } : {}),
+    };
+  }
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },

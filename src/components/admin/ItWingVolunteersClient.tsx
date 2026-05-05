@@ -44,7 +44,48 @@ interface Volunteer {
   createdAt: string;
 }
 
+interface Filters {
+  search: string;
+  district: string;
+  constituency: string;
+  gender: string;
+  availability: string;
+  itKnowledge: string;
+  videoCreation: string;
+  imageCreation: string;
+  vckMember: string;
+  canTravel: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+const EMPTY_FILTERS: Filters = {
+  search: "",
+  district: "",
+  constituency: "",
+  gender: "",
+  availability: "",
+  itKnowledge: "",
+  videoCreation: "",
+  imageCreation: "",
+  vckMember: "",
+  canTravel: "",
+  dateFrom: "",
+  dateTo: "",
+};
+
 const PAGE_SIZE = 20;
+
+const TN_DISTRICTS = [
+  "அரியலூர்", "செங்கல்பட்டு", "சென்னை", "கோயம்புத்தூர்", "கடலூர்",
+  "தர்மபுரி", "திண்டுக்கல்", "ஈரோடு", "கள்ளக்குறிச்சி", "கன்னியாகுமரி",
+  "கரூர்", "கிருஷ்ணகிரி", "மதுரை", "மயிலாடுதுறை", "நாகப்பட்டினம்",
+  "நாமக்கல்", "நீலகிரி", "பெரம்பலூர்", "புதுக்கோட்டை", "ராமநாதபுரம்",
+  "ரானிப்பேட்டை", "சேலம்", "சிவகங்கை", "தேனி", "தூத்துக்குடி",
+  "திருச்சிராப்பள்ளி", "திருவாரூர்", "திருவண்ணாமலை", "திருவள்ளூர்",
+  "திருநெல்வேலி", "திருப்பத்தூர்", "திருப்பூர்", "வேலூர்", "விழுப்புரம்",
+  "விருதுநகர்",
+];
 
 function Badge({ yes }: { yes: boolean }) {
   return (
@@ -85,21 +126,66 @@ function DetailItem({ label, value }: { label: string; value?: string | null | R
   );
 }
 
+function SelectFilter({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+      >
+        <option value="">அனைத்தும்</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function countActiveFilters(f: Filters): number {
+  return Object.entries(f).filter(([, v]) => v !== "").length;
+}
+
 export function ItWingVolunteersClient() {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [draftSearch, setDraftSearch] = useState("");
+  const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
+  const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const activeCount = countActiveFilters(applied);
 
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page) });
-    if (search) params.set("search", search);
+    if (applied.search) params.set("search", applied.search);
+    if (applied.district) params.set("district", applied.district);
+    if (applied.constituency) params.set("constituency", applied.constituency);
+    if (applied.gender) params.set("gender", applied.gender);
+    if (applied.availability) params.set("availability", applied.availability);
+    if (applied.itKnowledge) params.set("itKnowledge", applied.itKnowledge);
+    if (applied.videoCreation) params.set("videoCreation", applied.videoCreation);
+    if (applied.imageCreation) params.set("imageCreation", applied.imageCreation);
+    if (applied.vckMember) params.set("vckMember", applied.vckMember);
+    if (applied.canTravel) params.set("canTravel", applied.canTravel);
+    if (applied.dateFrom) params.set("dateFrom", applied.dateFrom);
+    if (applied.dateTo) params.set("dateTo", applied.dateTo);
 
     const res = await fetch(`/api/admin/it-wing-volunteers?${params}`);
     if (res.ok) {
@@ -108,20 +194,41 @@ export function ItWingVolunteersClient() {
       setTotal(data.total);
     }
     setLoading(false);
-  }, [page, search]);
+  }, [page, applied]);
 
   useEffect(() => { load(); }, [load]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setPage(1);
-    setSearch(draftSearch);
+    setApplied(draft);
+  }
+
+  function handleReset() {
+    setDraft(EMPTY_FILTERS);
+    setApplied(EMPTY_FILTERS);
+    setPage(1);
   }
 
   function handleExport() {
     const params = new URLSearchParams({ format: "csv" });
-    if (search) params.set("search", search);
+    if (applied.search) params.set("search", applied.search);
+    if (applied.district) params.set("district", applied.district);
+    if (applied.constituency) params.set("constituency", applied.constituency);
+    if (applied.gender) params.set("gender", applied.gender);
+    if (applied.availability) params.set("availability", applied.availability);
+    if (applied.itKnowledge) params.set("itKnowledge", applied.itKnowledge);
+    if (applied.videoCreation) params.set("videoCreation", applied.videoCreation);
+    if (applied.imageCreation) params.set("imageCreation", applied.imageCreation);
+    if (applied.vckMember) params.set("vckMember", applied.vckMember);
+    if (applied.canTravel) params.set("canTravel", applied.canTravel);
+    if (applied.dateFrom) params.set("dateFrom", applied.dateFrom);
+    if (applied.dateTo) params.set("dateTo", applied.dateTo);
     window.location.href = `/api/admin/it-wing-volunteers?${params}`;
+  }
+
+  function setField<K extends keyof Filters>(key: K, value: string) {
+    setDraft((prev) => ({ ...prev, [key]: value }));
   }
 
   const availabilityLabel: Record<string, string> = {
@@ -131,47 +238,241 @@ export function ItWingVolunteersClient() {
     campaigns: "தேர்தல் காலம் மட்டும்",
   };
 
+  const boolOptions = [
+    { value: "true", label: "ஆம்" },
+    { value: "false", label: "இல்லை" },
+  ];
+
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto">
-          <input
-            type="text"
-            value={draftSearch}
-            onChange={(e) => setDraftSearch(e.target.value)}
-            placeholder="பெயர், தொலைபேசி, மாவட்டம், மின்னஞ்சல்..."
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-72"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition"
-          >
-            தேடு
-          </button>
-          {search && (
+      {/* Search Bar + Toggle */}
+      <form onSubmit={handleSearch}>
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <div className="flex gap-2 flex-1 flex-wrap">
+            <input
+              type="text"
+              value={draft.search}
+              onChange={(e) => setField("search", e.target.value)}
+              placeholder="பெயர், தொலைபேசி, மாவட்டம், மின்னஞ்சல்..."
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-72"
+            />
             <button
               type="button"
-              onClick={() => { setDraftSearch(""); setSearch(""); setPage(1); }}
-              className="px-3 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
+              onClick={() => setShowFilters((v) => !v)}
+              className={`px-4 py-2 border rounded-lg text-sm font-medium transition flex items-center gap-2 ${
+                showFilters || activeCount > 0
+                  ? "border-slate-600 bg-slate-800 text-white"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+              }`}
             >
-              ×
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+              </svg>
+              வடிப்பான்கள்
+              {activeCount > 0 && (
+                <span className="bg-white text-slate-800 text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  {activeCount}
+                </span>
+              )}
             </button>
-          )}
-        </form>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition"
+            >
+              தேடு
+            </button>
+            {activeCount > 0 && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-3 py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50 transition"
+              >
+                அனைத்தும் அழி
+              </button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
-            மொத்தம்: <strong>{total}</strong>
-          </span>
-          <button
-            onClick={handleExport}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2"
-          >
-            ⬇ CSV ஏற்றுமதி
-          </button>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm text-gray-500">
+              மொத்தம்: <strong>{total}</strong>
+            </span>
+            <button
+              type="button"
+              onClick={handleExport}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2"
+            >
+              ⬇ CSV ஏற்றுமதி
+            </button>
+          </div>
         </div>
-      </div>
+
+        {/* Advanced Filter Panel */}
+        {showFilters && (
+          <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              மேம்பட்ட வடிப்பு
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+
+              {/* District */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">மாவட்டம்</label>
+                <select
+                  value={draft.district}
+                  onChange={(e) => setField("district", e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                >
+                  <option value="">அனைத்தும்</option>
+                  {TN_DISTRICTS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Constituency */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">தொகுதி</label>
+                <input
+                  type="text"
+                  value={draft.constituency}
+                  onChange={(e) => setField("constituency", e.target.value)}
+                  placeholder="தொகுதி பெயர்"
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                />
+              </div>
+
+              {/* Gender */}
+              <SelectFilter
+                label="பாலினம்"
+                value={draft.gender}
+                onChange={(v) => setField("gender", v)}
+                options={[
+                  { value: "MALE", label: "ஆண்" },
+                  { value: "FEMALE", label: "பெண்" },
+                  { value: "OTHER", label: "பிற" },
+                ]}
+              />
+
+              {/* Availability */}
+              <SelectFilter
+                label="கிடைக்கும் நேரம்"
+                value={draft.availability}
+                onChange={(v) => setField("availability", v)}
+                options={[
+                  { value: "full_time", label: "முழு நேரம்" },
+                  { value: "part_time", label: "பகுதி நேரம்" },
+                  { value: "weekends", label: "வார இறுதி" },
+                  { value: "campaigns", label: "தேர்தல் காலம்" },
+                ]}
+              />
+
+              {/* IT Knowledge */}
+              <SelectFilter
+                label="IT அறிவு"
+                value={draft.itKnowledge}
+                onChange={(v) => setField("itKnowledge", v)}
+                options={boolOptions}
+              />
+
+              {/* Video Creation */}
+              <SelectFilter
+                label="வீடியோ உருவாக்கம்"
+                value={draft.videoCreation}
+                onChange={(v) => setField("videoCreation", v)}
+                options={boolOptions}
+              />
+
+              {/* Image Creation */}
+              <SelectFilter
+                label="படம் உருவாக்கம்"
+                value={draft.imageCreation}
+                onChange={(v) => setField("imageCreation", v)}
+                options={boolOptions}
+              />
+
+              {/* VCK Member */}
+              <SelectFilter
+                label="VCK உறுப்பினர்"
+                value={draft.vckMember}
+                onChange={(v) => setField("vckMember", v)}
+                options={boolOptions}
+              />
+
+              {/* Can Travel */}
+              <SelectFilter
+                label="பயணிக்க முடியுமா?"
+                value={draft.canTravel}
+                onChange={(v) => setField("canTravel", v)}
+                options={boolOptions}
+              />
+
+              {/* Date From */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">பதிவு தேதி (இருந்து)</label>
+                <input
+                  type="date"
+                  value={draft.dateFrom}
+                  onChange={(e) => setField("dateFrom", e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                />
+              </div>
+
+              {/* Date To */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">பதிவு தேதி (வரை)</label>
+                <input
+                  type="date"
+                  value={draft.dateTo}
+                  onChange={(e) => setField("dateTo", e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                />
+              </div>
+            </div>
+
+            {/* Active filter chips */}
+            {activeCount > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2 pt-3 border-t border-gray-200">
+                {applied.district && (
+                  <FilterChip label={`மாவட்டம்: ${applied.district}`} onRemove={() => { setField("district", ""); setApplied((p) => ({ ...p, district: "" })); }} />
+                )}
+                {applied.constituency && (
+                  <FilterChip label={`தொகுதி: ${applied.constituency}`} onRemove={() => { setField("constituency", ""); setApplied((p) => ({ ...p, constituency: "" })); }} />
+                )}
+                {applied.gender && (
+                  <FilterChip label={`பாலினம்: ${applied.gender === "MALE" ? "ஆண்" : applied.gender === "FEMALE" ? "பெண்" : "பிற"}`} onRemove={() => { setField("gender", ""); setApplied((p) => ({ ...p, gender: "" })); }} />
+                )}
+                {applied.availability && (
+                  <FilterChip label={`நேரம்: ${availabilityLabel[applied.availability] ?? applied.availability}`} onRemove={() => { setField("availability", ""); setApplied((p) => ({ ...p, availability: "" })); }} />
+                )}
+                {applied.itKnowledge && (
+                  <FilterChip label={`IT அறிவு: ${applied.itKnowledge === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("itKnowledge", ""); setApplied((p) => ({ ...p, itKnowledge: "" })); }} />
+                )}
+                {applied.videoCreation && (
+                  <FilterChip label={`வீடியோ: ${applied.videoCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("videoCreation", ""); setApplied((p) => ({ ...p, videoCreation: "" })); }} />
+                )}
+                {applied.imageCreation && (
+                  <FilterChip label={`படம்: ${applied.imageCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("imageCreation", ""); setApplied((p) => ({ ...p, imageCreation: "" })); }} />
+                )}
+                {applied.vckMember && (
+                  <FilterChip label={`VCK உறுப்பினர்: ${applied.vckMember === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("vckMember", ""); setApplied((p) => ({ ...p, vckMember: "" })); }} />
+                )}
+                {applied.canTravel && (
+                  <FilterChip label={`பயணம்: ${applied.canTravel === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("canTravel", ""); setApplied((p) => ({ ...p, canTravel: "" })); }} />
+                )}
+                {applied.dateFrom && (
+                  <FilterChip label={`இருந்து: ${applied.dateFrom}`} onRemove={() => { setField("dateFrom", ""); setApplied((p) => ({ ...p, dateFrom: "" })); }} />
+                )}
+                {applied.dateTo && (
+                  <FilterChip label={`வரை: ${applied.dateTo}`} onRemove={() => { setField("dateTo", ""); setApplied((p) => ({ ...p, dateTo: "" })); }} />
+                )}
+                {applied.search && (
+                  <FilterChip label={`தேடல்: "${applied.search}"`} onRemove={() => { setField("search", ""); setApplied((p) => ({ ...p, search: "" })); }} />
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </form>
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -241,23 +542,19 @@ export function ItWingVolunteersClient() {
                         <td colSpan={10} className="px-6 py-5">
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                            {/* Contact */}
                             <DetailItem label="மின்னஞ்சல்" value={v.email} />
                             <DetailItem label="வாட்ஸ்அப்" value={v.whatsapp} />
                             <DetailItem label="வாக்காளர் அடையாள எண்" value={v.voterId} />
 
-                            {/* Location */}
                             <DetailItem label="மாநிலம்" value={v.state} />
                             <DetailItem label="ஊர்" value={v.town} />
                             <DetailItem label="பின்கோடு" value={v.pincode} />
                             <DetailItem label="முகவரி" value={v.address} />
 
-                            {/* Education & Job */}
                             <DetailItem label="கல்வித்தகுதி" value={v.education} />
                             <DetailItem label="தொழில்" value={v.occupation} />
                             <DetailItem label="பிறந்த தேதி" value={v.dob} />
 
-                            {/* IT Skills */}
                             {v.itSkills.length > 0 && (
                               <div className="sm:col-span-2">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">IT திறன்கள்</p>
@@ -272,14 +569,12 @@ export function ItWingVolunteersClient() {
                             <DetailItem label="IT அனுபவம்" value={v.yearsExp !== null ? `${v.yearsExp} ஆண்டுகள்` : null} />
                             <DetailItem label="முதன்மை சாதனம்" value={v.primaryDevice} />
 
-                            {/* Social Media */}
                             <DetailItem label="Facebook" value={v.facebook} />
                             <DetailItem label="YouTube" value={v.youtube} />
                             <DetailItem label="Instagram" value={v.instagram} />
                             <DetailItem label="Twitter / X" value={v.twitterX} />
                             <DetailItem label="பின்தொடர்பவர்கள்" value={v.followers} />
 
-                            {/* Availability */}
                             <DetailItem label="கிடைக்கும் நேரம்" value={v.availability ? (availabilityLabel[v.availability] ?? v.availability) : null} />
                             {v.languages.length > 0 && (
                               <div>
@@ -297,7 +592,6 @@ export function ItWingVolunteersClient() {
                             </div>
                             <DetailItem label="எப்படி அறிந்தீர்கள்" value={v.hearAboutUs} />
 
-                            {/* Motivation */}
                             {v.priorExperience && (
                               <div className="sm:col-span-2 lg:col-span-3">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">முன்னர் தன்னார்வ அனுபவம்</p>
@@ -309,7 +603,6 @@ export function ItWingVolunteersClient() {
                               <p className="text-sm text-gray-800 whitespace-pre-wrap">{v.joinReason}</p>
                             </div>
 
-                            {/* Emergency */}
                             {(v.emergencyName || v.emergencyPhone) && (
                               <div className="sm:col-span-2 lg:col-span-3">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">அவசர தொடர்பு</p>
@@ -353,5 +646,20 @@ export function ItWingVolunteersClient() {
         </div>
       )}
     </div>
+  );
+}
+
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium">
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="hover:text-red-500 transition-colors ml-0.5 font-bold"
+      >
+        ×
+      </button>
+    </span>
   );
 }
