@@ -24,6 +24,7 @@ interface ReportData {
   bySkill: { skill: string; count: number }[];
   byLanguage: { language: string; count: number }[];
   byMonth: { month: string; count: number }[];
+  zeroCoverage: { nameTamil: string; nameEnglish: string; districtTamil: string; districtEnglish: string }[];
 }
 
 const AVAILABILITY_LABELS: Record<string, string> = {
@@ -143,7 +144,8 @@ function SmallPie({ data, labelFn }: { data: { name: string; value: number }[]; 
 export function ItWingReportsClient() {
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "location" | "skills" | "demographics">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "location" | "skills" | "demographics" | "zerocoverage">("overview");
+  const [districtFilter, setDistrictFilter] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/it-wing-volunteers/reports")
@@ -171,6 +173,7 @@ export function ItWingReportsClient() {
     { id: "location", label: "📍 இடம்" },
     { id: "skills", label: "💻 IT திறன்கள்" },
     { id: "demographics", label: "👥 புள்ளிவிவரம்" },
+    { id: "zerocoverage", label: `🚨 பூஜ்ய பதிவு (${data.zeroCoverage.length})` },
   ] as const;
 
   const itPct = data.total > 0 ? ((data.itKnowledgeCount / data.total) * 100).toFixed(1) : "0";
@@ -395,6 +398,99 @@ export function ItWingReportsClient() {
               keyLabel="மொழி"
               valueLabel="தன்னார்வலர்கள்"
             />
+          </div>
+        </div>
+      )}
+
+      {/* ZERO COVERAGE TAB */}
+      {activeTab === "zerocoverage" && (
+        <div className="space-y-4">
+          {/* Header row */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-gray-800">விண்ணப்பம் பெறாத தொகுதிகள்</h3>
+              <p className="text-sm text-gray-500 mt-0.5">
+                <span className="font-semibold text-red-600">{data.zeroCoverage.length}</span> தொகுதிகளில் இதுவரை எந்த விண்ணப்பமும் பதிவாகவில்லை
+              </p>
+            </div>
+            <a
+              href="/api/admin/it-wing-volunteers/reports?format=csv"
+              className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition flex items-center gap-2 shrink-0"
+            >
+              ⬇ CSV ஏற்றுமதி
+            </a>
+          </div>
+
+          {/* District filter */}
+          <div className="flex items-center gap-3">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide shrink-0">மாவட்டம் வடிப்பு:</label>
+            <select
+              value={districtFilter}
+              onChange={(e) => setDistrictFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+            >
+              <option value="">அனைத்தும் ({data.zeroCoverage.length})</option>
+              {Array.from(new Set(data.zeroCoverage.map((r) => r.districtTamil))).sort().map((d) => {
+                const cnt = data.zeroCoverage.filter((r) => r.districtTamil === d).length;
+                return <option key={d} value={d}>{d} ({cnt})</option>;
+              })}
+            </select>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-red-50 border-b border-red-100 text-left">
+                  <th className="px-4 py-3 font-semibold text-gray-600 w-10">#</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600">தொகுதி (தமிழ்)</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600">Constituency</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600">மாவட்டம்</th>
+                  <th className="px-4 py-3 font-semibold text-gray-600">District</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {data.zeroCoverage
+                  .filter((r) => !districtFilter || r.districtTamil === districtFilter)
+                  .map((r, i) => (
+                    <tr key={r.nameEnglish} className="hover:bg-red-50/40">
+                      <td className="px-4 py-2.5 text-gray-400 text-xs">{i + 1}</td>
+                      <td className="px-4 py-2.5 font-medium text-gray-800">{r.nameTamil}</td>
+                      <td className="px-4 py-2.5 text-gray-500">{r.nameEnglish}</td>
+                      <td className="px-4 py-2.5 text-gray-700">{r.districtTamil}</td>
+                      <td className="px-4 py-2.5 text-gray-400 text-xs">{r.districtEnglish}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* District summary cards */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">மாவட்டம் வாரியான சுருக்கம்</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {Array.from(
+                data.zeroCoverage.reduce((map, r) => {
+                  map.set(r.districtTamil, (map.get(r.districtTamil) ?? 0) + 1);
+                  return map;
+                }, new Map<string, number>())
+              )
+                .sort((a, b) => b[1] - a[1])
+                .map(([district, count]) => (
+                  <button
+                    key={district}
+                    onClick={() => setDistrictFilter(districtFilter === district ? "" : district)}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      districtFilter === district
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
+                    }`}
+                  >
+                    <p className="text-xl font-bold text-red-600">{count}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">{district}</p>
+                  </button>
+                ))}
+            </div>
           </div>
         </div>
       )}

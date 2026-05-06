@@ -1,14 +1,54 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role === "USER") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const format = searchParams.get("format") ?? "";
+
+  // CSV export for zero-coverage constituencies
+  if (format === "csv") {
+    const applied = await prisma.itWingVolunteer.findMany({
+      select: { constituency: true },
+      distinct: ["constituency"],
+    });
+    const appliedNames = new Set(applied.map((v) => v.constituency));
+
+    const allConstituencies = await prisma.constituency.findMany({
+      orderBy: [{ district: { nameTamil: "asc" } }, { nameTamil: "asc" }],
+      include: { district: { select: { nameTamil: true, nameEnglish: true } } },
+    });
+
+    const zeroCoverage = allConstituencies.filter(
+      (c) => !appliedNames.has(c.nameTamil) && !appliedNames.has(c.nameEnglish)
+    );
+
+    const header = ["#", "தொகுதி (தமிழ்)", "Constituency (English)", "மாவட்டம் (தமிழ்)", "District (English)"].join(",");
+    const rows = zeroCoverage.map((c, i) =>
+      [
+        i + 1,
+        `"${c.nameTamil}"`,
+        `"${c.nameEnglish}"`,
+        `"${c.district.nameTamil}"`,
+        `"${c.district.nameEnglish}"`,
+      ].join(",")
+    );
+
+    const csv = "﻿" + [header, ...rows].join("\n");
+    return new NextResponse(csv, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="zero-coverage-constituencies.csv"`,
+      },
+    });
   }
 
   const [
@@ -159,6 +199,23 @@ export async function GET() {
     .map(([language, count]) => ({ language, count }))
     .sort((a, b) => b.count - a.count);
 
+  // Zero-coverage constituencies
+  const appliedConstituencies = new Set(
+    byConstituency.map((r) => r.constituency)
+  );
+  const allConstituencies = await prisma.constituency.findMany({
+    orderBy: [{ district: { nameTamil: "asc" } }, { nameTamil: "asc" }],
+    include: { district: { select: { nameTamil: true, nameEnglish: true } } },
+  });
+  const zeroCoverage = allConstituencies
+    .filter((c) => !appliedConstituencies.has(c.nameTamil) && !appliedConstituencies.has(c.nameEnglish))
+    .map((c) => ({
+      nameTamil: c.nameTamil,
+      nameEnglish: c.nameEnglish,
+      districtTamil: c.district.nameTamil,
+      districtEnglish: c.district.nameEnglish,
+    }));
+
   return NextResponse.json({
     total,
     byDistrict: byDistrict.map((r) => ({ district: r.district, count: r._count.id })),
@@ -177,5 +234,6 @@ export async function GET() {
     bySkill,
     byLanguage,
     byMonth: registrationsByMonth.map((r) => ({ month: r.month, count: Number(r.count) })),
+    zeroCoverage,
   });
 }
