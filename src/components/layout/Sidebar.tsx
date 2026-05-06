@@ -99,7 +99,7 @@ export function Sidebar() {
   }
 
   const sidebarContent = (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <div className="px-5 py-5 border-b border-slate-700 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-white">
@@ -130,7 +130,7 @@ export function Sidebar() {
         </span>
       </div>
 
-      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+      <nav className="flex-1 px-3 py-3 overflow-y-auto min-h-0">
         {isAdmin ? (
           adminNavGroups.map((group) => (
             <div key={group.group || "__top"} className={group.group ? "mt-4" : ""}>
@@ -188,12 +188,12 @@ export function Sidebar() {
 
       <div className={`fixed inset-0 z-40 md:hidden ${open ? "block" : "hidden"}`}>
         <div onClick={() => setOpen(false)} className="absolute inset-0 bg-slate-900/70" />
-        <aside className="relative z-50 h-full w-72 max-w-full overflow-y-auto bg-slate-900 text-white shadow-xl">
+        <aside className="relative z-50 h-full w-72 max-w-full flex flex-col overflow-hidden bg-slate-900 text-white shadow-xl">
           {sidebarContent}
         </aside>
       </div>
 
-      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 bg-slate-900 text-white flex-col z-30">
+      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 bg-slate-900 text-white flex-col z-30 overflow-hidden">
         {sidebarContent}
       </aside>
     </>
