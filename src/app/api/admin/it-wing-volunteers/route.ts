@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
   const search = searchParams.get("search") ?? "";
+  const state = searchParams.get("state") ?? "";
   const district = searchParams.get("district") ?? "";
   const constituency = searchParams.get("constituency") ?? "";
   const gender = searchParams.get("gender") ?? "";
@@ -36,6 +37,7 @@ export async function GET(req: NextRequest) {
   const PAGE_SIZE = 20;
 
   const where: Record<string, unknown> = {};
+  if (state) where.state = { contains: state, mode: "insensitive" };
   if (district) where.district = { contains: district, mode: "insensitive" };
   if (constituency) where.constituency = { contains: constituency, mode: "insensitive" };
   if (gender) where.gender = gender;

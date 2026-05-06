@@ -49,6 +49,7 @@ interface DbConstituency { id: string; nameTamil: string; nameEnglish: string; d
 
 interface Filters {
   search: string;
+  state: string;
   districtName: string;
   constituencyName: string;
   gender: string;
@@ -69,8 +70,19 @@ interface Filters {
   yearsExpMax: string;
 }
 
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
+];
+
 const EMPTY_FILTERS: Filters = {
   search: "",
+  state: "",
   districtName: "",
   constituencyName: "",
   gender: "",
@@ -238,6 +250,7 @@ export function ItWingVolunteersClient() {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page) });
     if (applied.search) params.set("search", applied.search);
+    if (applied.state) params.set("state", applied.state);
     if (applied.districtName) params.set("district", applied.districtName);
     if (applied.constituencyName) params.set("constituency", applied.constituencyName);
     if (applied.gender) params.set("gender", applied.gender);
@@ -284,6 +297,7 @@ export function ItWingVolunteersClient() {
   function handleExport() {
     const params = new URLSearchParams({ format: "csv" });
     if (applied.search) params.set("search", applied.search);
+    if (applied.state) params.set("state", applied.state);
     if (applied.districtName) params.set("district", applied.districtName);
     if (applied.constituencyName) params.set("constituency", applied.constituencyName);
     if (applied.gender) params.set("gender", applied.gender);
@@ -371,6 +385,28 @@ export function ItWingVolunteersClient() {
             <div>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">இடம்</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {/* State */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>மாநிலம்</FilterLabel>
+                  <select
+                    value={draft.state}
+                    onChange={(e) => {
+                      const isTN = e.target.value === "Tamil Nadu" || e.target.value === "";
+                      setDraft((p) => ({
+                        ...p,
+                        state: e.target.value,
+                        districtName: isTN ? p.districtName : "",
+                        constituencyName: isTN ? p.constituencyName : "",
+                      }));
+                      if (!isTN) setConstituencies([]);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  >
+                    <option value="">அனைத்தும்</option>
+                    {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
                 {/* District */}
                 <div className="flex flex-col gap-1">
                   <FilterLabel>மாவட்டம்</FilterLabel>
@@ -381,7 +417,8 @@ export function ItWingVolunteersClient() {
                       setDraft((p) => ({ ...p, districtName: e.target.value, constituencyName: "" }));
                       if (!d) setConstituencies([]);
                     }}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    disabled={!!draft.state && draft.state !== "Tamil Nadu"}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:opacity-50"
                   >
                     <option value="">அனைத்தும்</option>
                     {districts.map((d) => (
@@ -575,6 +612,7 @@ export function ItWingVolunteersClient() {
             {activeCount > 0 && (
               <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-200">
                 {applied.search && <FilterChip label={`தேடல்: "${applied.search}"`} onRemove={() => removeApplied("search", "")} />}
+                {applied.state && <FilterChip label={`மாநிலம்: ${applied.state}`} onRemove={() => { removeApplied("state", ""); removeApplied("districtName", ""); removeApplied("constituencyName", ""); setConstituencies([]); }} />}
                 {applied.districtName && <FilterChip label={`மாவட்டம்: ${applied.districtName}`} onRemove={() => { removeApplied("districtName", ""); removeApplied("constituencyName", ""); setConstituencies([]); }} />}
                 {applied.constituencyName && <FilterChip label={`தொகுதி: ${applied.constituencyName}`} onRemove={() => removeApplied("constituencyName", "")} />}
                 {applied.gender && <FilterChip label={`பாலினம்: ${applied.gender === "MALE" ? "ஆண்" : applied.gender === "FEMALE" ? "பெண்" : "பிற"}`} onRemove={() => removeApplied("gender", "")} />}
