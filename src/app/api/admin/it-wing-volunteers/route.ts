@@ -25,6 +25,13 @@ export async function GET(req: NextRequest) {
   const canTravel = searchParams.get("canTravel") ?? "";
   const dateFrom = searchParams.get("dateFrom") ?? "";
   const dateTo = searchParams.get("dateTo") ?? "";
+  const occupation = searchParams.get("occupation") ?? "";
+  const primaryDevice = searchParams.get("primaryDevice") ?? "";
+  const itSkill = searchParams.get("itSkill") ?? "";
+  const language = searchParams.get("language") ?? "";
+  const hearAboutUs = searchParams.get("hearAboutUs") ?? "";
+  const yearsExpMin = searchParams.get("yearsExpMin") ?? "";
+  const yearsExpMax = searchParams.get("yearsExpMax") ?? "";
   const format = searchParams.get("format") ?? "";
   const PAGE_SIZE = 20;
 
@@ -47,6 +54,17 @@ export async function GET(req: NextRequest) {
     where.createdAt = {
       ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
       ...(dateTo ? { lte: new Date(dateTo + "T23:59:59.999Z") } : {}),
+    };
+  }
+  if (occupation) where.occupation = { contains: occupation, mode: "insensitive" };
+  if (primaryDevice) where.primaryDevice = primaryDevice;
+  if (itSkill) where.itSkills = { has: itSkill };
+  if (language) where.languages = { has: language };
+  if (hearAboutUs) where.hearAboutUs = { contains: hearAboutUs, mode: "insensitive" };
+  if (yearsExpMin || yearsExpMax) {
+    where.yearsExp = {
+      ...(yearsExpMin ? { gte: parseInt(yearsExpMin) } : {}),
+      ...(yearsExpMax ? { lte: parseInt(yearsExpMax) } : {}),
     };
   }
   if (search) {

@@ -44,56 +44,112 @@ interface Volunteer {
   createdAt: string;
 }
 
+interface DbDistrict { id: string; nameTamil: string; nameEnglish: string }
+interface DbConstituency { id: string; nameTamil: string; nameEnglish: string; districtId: string }
+
 interface Filters {
   search: string;
-  district: string;
-  constituency: string;
+  districtName: string;
+  constituencyName: string;
   gender: string;
   availability: string;
   itKnowledge: string;
   videoCreation: string;
   imageCreation: string;
   vckMember: string;
-  canTravel: string;
+  canTravel: boolean | null;
   dateFrom: string;
   dateTo: string;
+  occupation: string;
+  primaryDevice: string;
+  itSkill: string;
+  language: string;
+  hearAboutUs: string;
+  yearsExpMin: string;
+  yearsExpMax: string;
 }
 
 const EMPTY_FILTERS: Filters = {
   search: "",
-  district: "",
-  constituency: "",
+  districtName: "",
+  constituencyName: "",
   gender: "",
   availability: "",
   itKnowledge: "",
   videoCreation: "",
   imageCreation: "",
   vckMember: "",
-  canTravel: "",
+  canTravel: null,
   dateFrom: "",
   dateTo: "",
+  occupation: "",
+  primaryDevice: "",
+  itSkill: "",
+  language: "",
+  hearAboutUs: "",
+  yearsExpMin: "",
+  yearsExpMax: "",
 };
 
 const PAGE_SIZE = 20;
 
-const TN_DISTRICTS = [
-  "அரியலூர்", "செங்கல்பட்டு", "சென்னை", "கோயம்புத்தூர்", "கடலூர்",
-  "தர்மபுரி", "திண்டுக்கல்", "ஈரோடு", "கள்ளக்குறிச்சி", "கன்னியாகுமரி",
-  "கரூர்", "கிருஷ்ணகிரி", "மதுரை", "மயிலாடுதுறை", "நாகப்பட்டினம்",
-  "நாமக்கல்", "நீலகிரி", "பெரம்பலூர்", "புதுக்கோட்டை", "ராமநாதபுரம்",
-  "ரானிப்பேட்டை", "சேலம்", "சிவகங்கை", "தேனி", "தூத்துக்குடி",
-  "திருச்சிராப்பள்ளி", "திருவாரூர்", "திருவண்ணாமலை", "திருவள்ளூர்",
-  "திருநெல்வேலி", "திருப்பத்தூர்", "திருப்பூர்", "வேலூர்", "விழுப்புரம்",
-  "விருதுநகர்",
+const IT_SKILLS = [
+  "Graphic Design", "Video Editing", "Content Writing", "Web Development",
+  "Data Entry", "Social Media Management", "WhatsApp Campaign",
+  "Audio Editing", "Photography", "Live Streaming",
 ];
+
+const LANGUAGE_OPTIONS = ["தமிழ்", "English", "Hindi", "Telugu", "Malayalam", "Kannada"];
+
+const OCCUPATION_OPTIONS = [
+  "மாணவர் (Student)",
+  "தனியார் பணியாளர் (Private Employee)",
+  "அரசு பணியாளர் (Govt Employee)",
+  "சுய தொழில் (Self-employed)",
+  "வேலையில்லாதவர் (Unemployed)",
+  "பிற (Other)",
+];
+
+const HEAR_OPTIONS = [
+  "சமூக ஊடகம் (Social Media)",
+  "கட்சி கூட்டம் (Party Meeting)",
+  "நண்பர் / உறவினர் (Friend/Relative)",
+  "VCK இணையதளம் (VCK Website)",
+  "பிற (Other)",
+];
+
+const DEVICE_OPTIONS = [
+  { value: "mobile", label: "மொபைல் மட்டும்" },
+  { value: "laptop", label: "Laptop / PC" },
+  { value: "both", label: "இரண்டும்" },
+];
+
+const AVAILABILITY_OPTIONS = [
+  { value: "full_time", label: "முழு நேரம்" },
+  { value: "part_time", label: "பகுதி நேரம்" },
+  { value: "weekends", label: "வார இறுதி" },
+  { value: "campaigns", label: "தேர்தல் காலம்" },
+];
+
+const availabilityLabel: Record<string, string> = {
+  full_time: "முழு நேரம்",
+  part_time: "பகுதி நேரம்",
+  weekends: "வார இறுதி மட்டும்",
+  campaigns: "தேர்தல் காலம் மட்டும்",
+};
+
+const BOOL_OPTIONS = [
+  { value: "true", label: "ஆம்" },
+  { value: "false", label: "இல்லை" },
+];
+
+function countActiveFilters(f: Filters): number {
+  return Object.entries(f).filter(([, v]) => v !== "" && v !== null).length;
+}
 
 function Badge({ yes }: { yes: boolean }) {
   return (
-    <span
-      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-        yes ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-      }`}
-    >
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${yes ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
       {yes ? "ஆம்" : "இல்லை"}
     </span>
   );
@@ -107,10 +163,8 @@ function NullBadge({ value }: { value: boolean | null }) {
 function SkeletonRow() {
   return (
     <tr className="animate-pulse">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <td key={i} className="px-4 py-3">
-          <div className="h-4 bg-gray-200 rounded w-full" />
-        </td>
+      {Array.from({ length: 10 }).map((_, i) => (
+        <td key={i} className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-full" /></td>
       ))}
     </tr>
   );
@@ -126,36 +180,17 @@ function DetailItem({ label, value }: { label: string; value?: string | null | R
   );
 }
 
-function SelectFilter({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
-      >
-        <option value="">அனைத்தும்</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-    </div>
-  );
+function FilterLabel({ children }: { children: React.ReactNode }) {
+  return <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{children}</label>;
 }
 
-function countActiveFilters(f: Filters): number {
-  return Object.entries(f).filter(([, v]) => v !== "").length;
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium">
+      {label}
+      <button type="button" onClick={onRemove} className="hover:text-red-500 transition-colors ml-0.5 font-bold leading-none">×</button>
+    </span>
+  );
 }
 
 export function ItWingVolunteersClient() {
@@ -168,24 +203,59 @@ export function ItWingVolunteersClient() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  // District / constituency from DB
+  const [districts, setDistricts] = useState<DbDistrict[]>([]);
+  const [constituencies, setConstituencies] = useState<DbConstituency[]>([]);
+  const [loadingConstituencies, setLoadingConstituencies] = useState(false);
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const activeCount = countActiveFilters(applied);
+
+  // Load districts once
+  useEffect(() => {
+    fetch("/api/reference/districts")
+      .then((r) => r.json())
+      .then(setDistricts)
+      .catch(() => {});
+  }, []);
+
+  // Load constituencies when draft district changes
+  useEffect(() => {
+    const selected = districts.find((d) => d.nameTamil === draft.districtName || d.nameEnglish === draft.districtName);
+    if (!selected) {
+      setConstituencies([]);
+      setDraft((p) => ({ ...p, constituencyName: "" }));
+      return;
+    }
+    setLoadingConstituencies(true);
+    fetch(`/api/reference/constituencies?districtId=${selected.id}`)
+      .then((r) => r.json())
+      .then((data) => { setConstituencies(data); setLoadingConstituencies(false); })
+      .catch(() => setLoadingConstituencies(false));
+  }, [draft.districtName, districts]);
 
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page) });
     if (applied.search) params.set("search", applied.search);
-    if (applied.district) params.set("district", applied.district);
-    if (applied.constituency) params.set("constituency", applied.constituency);
+    if (applied.districtName) params.set("district", applied.districtName);
+    if (applied.constituencyName) params.set("constituency", applied.constituencyName);
     if (applied.gender) params.set("gender", applied.gender);
     if (applied.availability) params.set("availability", applied.availability);
     if (applied.itKnowledge) params.set("itKnowledge", applied.itKnowledge);
     if (applied.videoCreation) params.set("videoCreation", applied.videoCreation);
     if (applied.imageCreation) params.set("imageCreation", applied.imageCreation);
     if (applied.vckMember) params.set("vckMember", applied.vckMember);
-    if (applied.canTravel) params.set("canTravel", applied.canTravel);
+    if (applied.canTravel !== null) params.set("canTravel", String(applied.canTravel));
     if (applied.dateFrom) params.set("dateFrom", applied.dateFrom);
     if (applied.dateTo) params.set("dateTo", applied.dateTo);
+    if (applied.occupation) params.set("occupation", applied.occupation);
+    if (applied.primaryDevice) params.set("primaryDevice", applied.primaryDevice);
+    if (applied.itSkill) params.set("itSkill", applied.itSkill);
+    if (applied.language) params.set("language", applied.language);
+    if (applied.hearAboutUs) params.set("hearAboutUs", applied.hearAboutUs);
+    if (applied.yearsExpMin) params.set("yearsExpMin", applied.yearsExpMin);
+    if (applied.yearsExpMax) params.set("yearsExpMax", applied.yearsExpMax);
 
     const res = await fetch(`/api/admin/it-wing-volunteers?${params}`);
     if (res.ok) {
@@ -208,53 +278,55 @@ export function ItWingVolunteersClient() {
     setDraft(EMPTY_FILTERS);
     setApplied(EMPTY_FILTERS);
     setPage(1);
+    setConstituencies([]);
   }
 
   function handleExport() {
     const params = new URLSearchParams({ format: "csv" });
     if (applied.search) params.set("search", applied.search);
-    if (applied.district) params.set("district", applied.district);
-    if (applied.constituency) params.set("constituency", applied.constituency);
+    if (applied.districtName) params.set("district", applied.districtName);
+    if (applied.constituencyName) params.set("constituency", applied.constituencyName);
     if (applied.gender) params.set("gender", applied.gender);
     if (applied.availability) params.set("availability", applied.availability);
     if (applied.itKnowledge) params.set("itKnowledge", applied.itKnowledge);
     if (applied.videoCreation) params.set("videoCreation", applied.videoCreation);
     if (applied.imageCreation) params.set("imageCreation", applied.imageCreation);
     if (applied.vckMember) params.set("vckMember", applied.vckMember);
-    if (applied.canTravel) params.set("canTravel", applied.canTravel);
+    if (applied.canTravel !== null) params.set("canTravel", String(applied.canTravel));
     if (applied.dateFrom) params.set("dateFrom", applied.dateFrom);
     if (applied.dateTo) params.set("dateTo", applied.dateTo);
+    if (applied.occupation) params.set("occupation", applied.occupation);
+    if (applied.primaryDevice) params.set("primaryDevice", applied.primaryDevice);
+    if (applied.itSkill) params.set("itSkill", applied.itSkill);
+    if (applied.language) params.set("language", applied.language);
+    if (applied.hearAboutUs) params.set("hearAboutUs", applied.hearAboutUs);
+    if (applied.yearsExpMin) params.set("yearsExpMin", applied.yearsExpMin);
+    if (applied.yearsExpMax) params.set("yearsExpMax", applied.yearsExpMax);
     window.location.href = `/api/admin/it-wing-volunteers?${params}`;
   }
 
-  function setField<K extends keyof Filters>(key: K, value: string) {
-    setDraft((prev) => ({ ...prev, [key]: value }));
+  function setF<K extends keyof Filters>(key: K, value: Filters[K]) {
+    setDraft((p) => ({ ...p, [key]: value }));
   }
 
-  const availabilityLabel: Record<string, string> = {
-    full_time: "முழு நேரம்",
-    part_time: "பகுதி நேரம்",
-    weekends: "வார இறுதி மட்டும்",
-    campaigns: "தேர்தல் காலம் மட்டும்",
-  };
-
-  const boolOptions = [
-    { value: "true", label: "ஆம்" },
-    { value: "false", label: "இல்லை" },
-  ];
+  // Active filter chip removal helper
+  function removeApplied<K extends keyof Filters>(key: K, emptyVal: Filters[K]) {
+    setF(key, emptyVal);
+    setApplied((p) => ({ ...p, [key]: emptyVal }));
+  }
 
   return (
     <div className="space-y-4">
-      {/* Search Bar + Toggle */}
       <form onSubmit={handleSearch}>
+        {/* Top toolbar */}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="flex gap-2 flex-1 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <input
               type="text"
               value={draft.search}
-              onChange={(e) => setField("search", e.target.value)}
-              placeholder="பெயர், தொலைபேசி, மாவட்டம், மின்னஞ்சல்..."
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-72"
+              onChange={(e) => setF("search", e.target.value)}
+              placeholder="பெயர், தொலைபேசி, மின்னஞ்சல்..."
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-64"
             />
             <button
               type="button"
@@ -270,204 +342,257 @@ export function ItWingVolunteersClient() {
               </svg>
               வடிப்பான்கள்
               {activeCount > 0 && (
-                <span className="bg-white text-slate-800 text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">
-                  {activeCount}
-                </span>
+                <span className="bg-white text-slate-800 text-xs font-bold px-1.5 py-0.5 rounded-full leading-none">{activeCount}</span>
               )}
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition"
-            >
+            <button type="submit" className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition">
               தேடு
             </button>
             {activeCount > 0 && (
-              <button
-                type="button"
-                onClick={handleReset}
-                className="px-3 py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50 transition"
-              >
-                அனைத்தும் அழி
+              <button type="button" onClick={handleReset} className="px-3 py-2 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50 transition">
+                அழி
               </button>
             )}
           </div>
-
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-sm text-gray-500">
-              மொத்தம்: <strong>{total}</strong>
-            </span>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2"
-            >
-              ⬇ CSV ஏற்றுமதி
+            <span className="text-sm text-gray-500">மொத்தம்: <strong>{total}</strong></span>
+            <button type="button" onClick={handleExport} className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2">
+              ⬇ CSV
             </button>
           </div>
         </div>
 
-        {/* Advanced Filter Panel */}
+        {/* Advanced filter panel */}
         {showFilters && (
-          <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              மேம்பட்ட வடிப்பு
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">மேம்பட்ட வடிப்பு</p>
 
-              {/* District */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">மாவட்டம்</label>
-                <select
-                  value={draft.district}
-                  onChange={(e) => setField("district", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
-                >
-                  <option value="">அனைத்தும்</option>
-                  {TN_DISTRICTS.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Row 1: Location */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">இடம்</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {/* District */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>மாவட்டம்</FilterLabel>
+                  <select
+                    value={draft.districtName}
+                    onChange={(e) => {
+                      const d = districts.find(d => d.nameTamil === e.target.value || d.nameEnglish === e.target.value);
+                      setDraft((p) => ({ ...p, districtName: e.target.value, constituencyName: "" }));
+                      if (!d) setConstituencies([]);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  >
+                    <option value="">அனைத்தும்</option>
+                    {districts.map((d) => (
+                      <option key={d.id} value={d.nameTamil}>{d.nameTamil}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Constituency */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">தொகுதி</label>
-                <input
-                  type="text"
-                  value={draft.constituency}
-                  onChange={(e) => setField("constituency", e.target.value)}
-                  placeholder="தொகுதி பெயர்"
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
-                />
-              </div>
-
-              {/* Gender */}
-              <SelectFilter
-                label="பாலினம்"
-                value={draft.gender}
-                onChange={(v) => setField("gender", v)}
-                options={[
-                  { value: "MALE", label: "ஆண்" },
-                  { value: "FEMALE", label: "பெண்" },
-                  { value: "OTHER", label: "பிற" },
-                ]}
-              />
-
-              {/* Availability */}
-              <SelectFilter
-                label="கிடைக்கும் நேரம்"
-                value={draft.availability}
-                onChange={(v) => setField("availability", v)}
-                options={[
-                  { value: "full_time", label: "முழு நேரம்" },
-                  { value: "part_time", label: "பகுதி நேரம்" },
-                  { value: "weekends", label: "வார இறுதி" },
-                  { value: "campaigns", label: "தேர்தல் காலம்" },
-                ]}
-              />
-
-              {/* IT Knowledge */}
-              <SelectFilter
-                label="IT அறிவு"
-                value={draft.itKnowledge}
-                onChange={(v) => setField("itKnowledge", v)}
-                options={boolOptions}
-              />
-
-              {/* Video Creation */}
-              <SelectFilter
-                label="வீடியோ உருவாக்கம்"
-                value={draft.videoCreation}
-                onChange={(v) => setField("videoCreation", v)}
-                options={boolOptions}
-              />
-
-              {/* Image Creation */}
-              <SelectFilter
-                label="படம் உருவாக்கம்"
-                value={draft.imageCreation}
-                onChange={(v) => setField("imageCreation", v)}
-                options={boolOptions}
-              />
-
-              {/* VCK Member */}
-              <SelectFilter
-                label="VCK உறுப்பினர்"
-                value={draft.vckMember}
-                onChange={(v) => setField("vckMember", v)}
-                options={boolOptions}
-              />
-
-              {/* Can Travel */}
-              <SelectFilter
-                label="பயணிக்க முடியுமா?"
-                value={draft.canTravel}
-                onChange={(v) => setField("canTravel", v)}
-                options={boolOptions}
-              />
-
-              {/* Date From */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">பதிவு தேதி (இருந்து)</label>
-                <input
-                  type="date"
-                  value={draft.dateFrom}
-                  onChange={(e) => setField("dateFrom", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
-                />
-              </div>
-
-              {/* Date To */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">பதிவு தேதி (வரை)</label>
-                <input
-                  type="date"
-                  value={draft.dateTo}
-                  onChange={(e) => setField("dateTo", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
-                />
+                {/* Constituency (AC) */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>சட்டமன்றத் தொகுதி (AC)</FilterLabel>
+                  <select
+                    value={draft.constituencyName}
+                    onChange={(e) => setF("constituencyName", e.target.value)}
+                    disabled={!draft.districtName || loadingConstituencies}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:opacity-50"
+                  >
+                    <option value="">{loadingConstituencies ? "ஏற்றுகிறது..." : "அனைத்தும்"}</option>
+                    {constituencies.map((c) => (
+                      <option key={c.id} value={c.nameTamil}>{c.nameTamil}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
-            {/* Active filter chips */}
+            {/* Row 2: Personal */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">தனிப்பட்ட விவரங்கள்</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {/* Gender */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>பாலினம்</FilterLabel>
+                  <select value={draft.gender} onChange={(e) => setF("gender", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    <option value="MALE">ஆண்</option>
+                    <option value="FEMALE">பெண்</option>
+                    <option value="OTHER">பிற</option>
+                  </select>
+                </div>
+
+                {/* Occupation */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>தொழில்</FilterLabel>
+                  <select value={draft.occupation} onChange={(e) => setF("occupation", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {OCCUPATION_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+
+                {/* VCK Member */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>VCK உறுப்பினர்</FilterLabel>
+                  <select value={draft.vckMember ?? ""} onChange={(e) => setF("vckMember", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {BOOL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Can Travel */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>பயணிக்க முடியுமா?</FilterLabel>
+                  <select
+                    value={draft.canTravel === null ? "" : String(draft.canTravel)}
+                    onChange={(e) => setF("canTravel", e.target.value === "" ? null : e.target.value === "true")}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  >
+                    <option value="">அனைத்தும்</option>
+                    {BOOL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Language */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>மொழி</FilterLabel>
+                  <select value={draft.language} onChange={(e) => setF("language", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {LANGUAGE_OPTIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3: IT Skills */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">IT திறன்கள் & கிடைக்கும் தன்மை</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {/* IT Knowledge */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>IT அறிவு</FilterLabel>
+                  <select value={draft.itKnowledge} onChange={(e) => setF("itKnowledge", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {BOOL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Video Creation */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>வீடியோ உருவாக்கம்</FilterLabel>
+                  <select value={draft.videoCreation} onChange={(e) => setF("videoCreation", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {BOOL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Image Creation */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>படம் உருவாக்கம்</FilterLabel>
+                  <select value={draft.imageCreation} onChange={(e) => setF("imageCreation", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {BOOL_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                {/* IT Skill */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>IT திறன் (குறிப்பிட்ட)</FilterLabel>
+                  <select value={draft.itSkill} onChange={(e) => setF("itSkill", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {IT_SKILLS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+
+                {/* Primary Device */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>முதன்மை சாதனம்</FilterLabel>
+                  <select value={draft.primaryDevice} onChange={(e) => setF("primaryDevice", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {DEVICE_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Availability */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>கிடைக்கும் நேரம்</FilterLabel>
+                  <select value={draft.availability} onChange={(e) => setF("availability", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {AVAILABILITY_OPTIONS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
+                  </select>
+                </div>
+
+                {/* Years Exp Min */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>அனுபவம் (குறைந்தபட்சம் ஆண்டுகள்)</FilterLabel>
+                  <input
+                    type="number" min="0" max="50"
+                    value={draft.yearsExpMin}
+                    onChange={(e) => setF("yearsExpMin", e.target.value)}
+                    placeholder="எ.கா: 2"
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  />
+                </div>
+
+                {/* Years Exp Max */}
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>அனுபவம் (அதிகபட்சம் ஆண்டுகள்)</FilterLabel>
+                  <input
+                    type="number" min="0" max="50"
+                    value={draft.yearsExpMax}
+                    onChange={(e) => setF("yearsExpMax", e.target.value)}
+                    placeholder="எ.கா: 10"
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 4: Registration date & Source */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">பதிவு & மூலம்</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>பதிவு தேதி (இருந்து)</FilterLabel>
+                  <input type="date" value={draft.dateFrom} onChange={(e) => setF("dateFrom", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>பதிவு தேதி (வரை)</FilterLabel>
+                  <input type="date" value={draft.dateTo} onChange={(e) => setF("dateTo", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <FilterLabel>எப்படி அறிந்தீர்கள்</FilterLabel>
+                  <select value={draft.hearAboutUs} onChange={(e) => setF("hearAboutUs", e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <option value="">அனைத்தும்</option>
+                    {HEAR_OPTIONS.map((h) => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Active chips */}
             {activeCount > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2 pt-3 border-t border-gray-200">
-                {applied.district && (
-                  <FilterChip label={`மாவட்டம்: ${applied.district}`} onRemove={() => { setField("district", ""); setApplied((p) => ({ ...p, district: "" })); }} />
-                )}
-                {applied.constituency && (
-                  <FilterChip label={`தொகுதி: ${applied.constituency}`} onRemove={() => { setField("constituency", ""); setApplied((p) => ({ ...p, constituency: "" })); }} />
-                )}
-                {applied.gender && (
-                  <FilterChip label={`பாலினம்: ${applied.gender === "MALE" ? "ஆண்" : applied.gender === "FEMALE" ? "பெண்" : "பிற"}`} onRemove={() => { setField("gender", ""); setApplied((p) => ({ ...p, gender: "" })); }} />
-                )}
-                {applied.availability && (
-                  <FilterChip label={`நேரம்: ${availabilityLabel[applied.availability] ?? applied.availability}`} onRemove={() => { setField("availability", ""); setApplied((p) => ({ ...p, availability: "" })); }} />
-                )}
-                {applied.itKnowledge && (
-                  <FilterChip label={`IT அறிவு: ${applied.itKnowledge === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("itKnowledge", ""); setApplied((p) => ({ ...p, itKnowledge: "" })); }} />
-                )}
-                {applied.videoCreation && (
-                  <FilterChip label={`வீடியோ: ${applied.videoCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("videoCreation", ""); setApplied((p) => ({ ...p, videoCreation: "" })); }} />
-                )}
-                {applied.imageCreation && (
-                  <FilterChip label={`படம்: ${applied.imageCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("imageCreation", ""); setApplied((p) => ({ ...p, imageCreation: "" })); }} />
-                )}
-                {applied.vckMember && (
-                  <FilterChip label={`VCK உறுப்பினர்: ${applied.vckMember === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("vckMember", ""); setApplied((p) => ({ ...p, vckMember: "" })); }} />
-                )}
-                {applied.canTravel && (
-                  <FilterChip label={`பயணம்: ${applied.canTravel === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => { setField("canTravel", ""); setApplied((p) => ({ ...p, canTravel: "" })); }} />
-                )}
-                {applied.dateFrom && (
-                  <FilterChip label={`இருந்து: ${applied.dateFrom}`} onRemove={() => { setField("dateFrom", ""); setApplied((p) => ({ ...p, dateFrom: "" })); }} />
-                )}
-                {applied.dateTo && (
-                  <FilterChip label={`வரை: ${applied.dateTo}`} onRemove={() => { setField("dateTo", ""); setApplied((p) => ({ ...p, dateTo: "" })); }} />
-                )}
-                {applied.search && (
-                  <FilterChip label={`தேடல்: "${applied.search}"`} onRemove={() => { setField("search", ""); setApplied((p) => ({ ...p, search: "" })); }} />
-                )}
+              <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-200">
+                {applied.search && <FilterChip label={`தேடல்: "${applied.search}"`} onRemove={() => removeApplied("search", "")} />}
+                {applied.districtName && <FilterChip label={`மாவட்டம்: ${applied.districtName}`} onRemove={() => { removeApplied("districtName", ""); removeApplied("constituencyName", ""); setConstituencies([]); }} />}
+                {applied.constituencyName && <FilterChip label={`தொகுதி: ${applied.constituencyName}`} onRemove={() => removeApplied("constituencyName", "")} />}
+                {applied.gender && <FilterChip label={`பாலினம்: ${applied.gender === "MALE" ? "ஆண்" : applied.gender === "FEMALE" ? "பெண்" : "பிற"}`} onRemove={() => removeApplied("gender", "")} />}
+                {applied.occupation && <FilterChip label={`தொழில்: ${applied.occupation}`} onRemove={() => removeApplied("occupation", "")} />}
+                {applied.vckMember && <FilterChip label={`VCK: ${applied.vckMember === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => removeApplied("vckMember", "")} />}
+                {applied.canTravel !== null && <FilterChip label={`பயணம்: ${applied.canTravel ? "ஆம்" : "இல்லை"}`} onRemove={() => removeApplied("canTravel", null)} />}
+                {applied.language && <FilterChip label={`மொழி: ${applied.language}`} onRemove={() => removeApplied("language", "")} />}
+                {applied.itKnowledge && <FilterChip label={`IT அறிவு: ${applied.itKnowledge === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => removeApplied("itKnowledge", "")} />}
+                {applied.videoCreation && <FilterChip label={`வீடியோ: ${applied.videoCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => removeApplied("videoCreation", "")} />}
+                {applied.imageCreation && <FilterChip label={`படம்: ${applied.imageCreation === "true" ? "ஆம்" : "இல்லை"}`} onRemove={() => removeApplied("imageCreation", "")} />}
+                {applied.itSkill && <FilterChip label={`திறன்: ${applied.itSkill}`} onRemove={() => removeApplied("itSkill", "")} />}
+                {applied.primaryDevice && <FilterChip label={`சாதனம்: ${DEVICE_OPTIONS.find(d => d.value === applied.primaryDevice)?.label ?? applied.primaryDevice}`} onRemove={() => removeApplied("primaryDevice", "")} />}
+                {applied.availability && <FilterChip label={`நேரம்: ${availabilityLabel[applied.availability] ?? applied.availability}`} onRemove={() => removeApplied("availability", "")} />}
+                {applied.yearsExpMin && <FilterChip label={`அனுபவம் ≥ ${applied.yearsExpMin} ஆண்டுகள்`} onRemove={() => removeApplied("yearsExpMin", "")} />}
+                {applied.yearsExpMax && <FilterChip label={`அனுபவம் ≤ ${applied.yearsExpMax} ஆண்டுகள்`} onRemove={() => removeApplied("yearsExpMax", "")} />}
+                {applied.dateFrom && <FilterChip label={`இருந்து: ${applied.dateFrom}`} onRemove={() => removeApplied("dateFrom", "")} />}
+                {applied.dateTo && <FilterChip label={`வரை: ${applied.dateTo}`} onRemove={() => removeApplied("dateTo", "")} />}
+                {applied.hearAboutUs && <FilterChip label={`மூலம்: ${applied.hearAboutUs}`} onRemove={() => removeApplied("hearAboutUs", "")} />}
               </div>
             )}
           </div>
@@ -497,9 +622,7 @@ export function ItWingVolunteersClient() {
                 Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)
               ) : volunteers.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-12 text-center text-gray-400">
-                    தன்னார்வலர்கள் இல்லை
-                  </td>
+                  <td colSpan={10} className="px-4 py-12 text-center text-gray-400">தன்னார்வலர்கள் இல்லை</td>
                 </tr>
               ) : (
                 volunteers.map((v, idx) => (
@@ -509,9 +632,7 @@ export function ItWingVolunteersClient() {
                       className="hover:bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => setExpanded(expanded === v.id ? null : v.id)}
                     >
-                      <td className="px-4 py-3 text-gray-400">
-                        {(page - 1) * PAGE_SIZE + idx + 1}
-                      </td>
+                      <td className="px-4 py-3 text-gray-400">{(page - 1) * PAGE_SIZE + idx + 1}</td>
                       <td className="px-4 py-3 font-medium text-gray-900">
                         <div>{v.name}</div>
                         <div className="text-xs text-gray-400 space-x-1">
@@ -524,9 +645,7 @@ export function ItWingVolunteersClient() {
                         <div>{v.phone}</div>
                         {v.whatsapp && <div className="text-xs text-gray-400">WA: {v.whatsapp}</div>}
                       </td>
-                      <td className="px-4 py-3 text-gray-700 text-xs">
-                        {v.state === "Tamil Nadu" ? "TN" : v.state}
-                      </td>
+                      <td className="px-4 py-3 text-gray-700 text-xs">{v.state === "Tamil Nadu" ? "TN" : v.state}</td>
                       <td className="px-4 py-3 text-gray-700">{v.district}</td>
                       <td className="px-4 py-3 text-gray-700">{v.constituency}</td>
                       <td className="px-4 py-3"><Badge yes={v.itKnowledge} /></td>
@@ -541,20 +660,16 @@ export function ItWingVolunteersClient() {
                       <tr key={`${v.id}-detail`} className="bg-blue-50">
                         <td colSpan={10} className="px-6 py-5">
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
                             <DetailItem label="மின்னஞ்சல்" value={v.email} />
                             <DetailItem label="வாட்ஸ்அப்" value={v.whatsapp} />
                             <DetailItem label="வாக்காளர் அடையாள எண்" value={v.voterId} />
-
                             <DetailItem label="மாநிலம்" value={v.state} />
                             <DetailItem label="ஊர்" value={v.town} />
                             <DetailItem label="பின்கோடு" value={v.pincode} />
                             <DetailItem label="முகவரி" value={v.address} />
-
                             <DetailItem label="கல்வித்தகுதி" value={v.education} />
                             <DetailItem label="தொழில்" value={v.occupation} />
                             <DetailItem label="பிறந்த தேதி" value={v.dob} />
-
                             {v.itSkills.length > 0 && (
                               <div className="sm:col-span-2">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">IT திறன்கள்</p>
@@ -568,13 +683,11 @@ export function ItWingVolunteersClient() {
                             <DetailItem label="மென்பொருள் கருவிகள்" value={v.softwareTools} />
                             <DetailItem label="IT அனுபவம்" value={v.yearsExp !== null ? `${v.yearsExp} ஆண்டுகள்` : null} />
                             <DetailItem label="முதன்மை சாதனம்" value={v.primaryDevice} />
-
                             <DetailItem label="Facebook" value={v.facebook} />
                             <DetailItem label="YouTube" value={v.youtube} />
                             <DetailItem label="Instagram" value={v.instagram} />
                             <DetailItem label="Twitter / X" value={v.twitterX} />
                             <DetailItem label="பின்தொடர்பவர்கள்" value={v.followers} />
-
                             <DetailItem label="கிடைக்கும் நேரம்" value={v.availability ? (availabilityLabel[v.availability] ?? v.availability) : null} />
                             {v.languages.length > 0 && (
                               <div>
@@ -591,7 +704,6 @@ export function ItWingVolunteersClient() {
                               <NullBadge value={v.vckMember} />
                             </div>
                             <DetailItem label="எப்படி அறிந்தீர்கள்" value={v.hearAboutUs} />
-
                             {v.priorExperience && (
                               <div className="sm:col-span-2 lg:col-span-3">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">முன்னர் தன்னார்வ அனுபவம்</p>
@@ -602,13 +714,10 @@ export function ItWingVolunteersClient() {
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">இணைய காரணம்</p>
                               <p className="text-sm text-gray-800 whitespace-pre-wrap">{v.joinReason}</p>
                             </div>
-
                             {(v.emergencyName || v.emergencyPhone) && (
                               <div className="sm:col-span-2 lg:col-span-3">
                                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">அவசர தொடர்பு</p>
-                                <p className="text-sm text-gray-800">
-                                  {[v.emergencyName, v.emergencyPhone].filter(Boolean).join(" — ")}
-                                </p>
+                                <p className="text-sm text-gray-800">{[v.emergencyName, v.emergencyPhone].filter(Boolean).join(" — ")}</p>
                               </div>
                             )}
                           </div>
@@ -626,40 +735,15 @@ export function ItWingVolunteersClient() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50"
-          >
+          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50">
             ← முந்தைய
           </button>
-          <span className="text-sm text-gray-500">
-            {page} / {totalPages}
-          </span>
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50"
-          >
+          <span className="text-sm text-gray-500">{page} / {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-gray-50">
             அடுத்த →
           </button>
         </div>
       )}
     </div>
-  );
-}
-
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs rounded-full font-medium">
-      {label}
-      <button
-        type="button"
-        onClick={onRemove}
-        className="hover:text-red-500 transition-colors ml-0.5 font-bold"
-      >
-        ×
-      </button>
-    </span>
   );
 }
