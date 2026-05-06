@@ -206,7 +206,7 @@ const ALL_CONSTITUENCIES: Array<{
   { districtCode: "CUD", code: "AC156", nameEnglish: "Kurinjipadi", nameTamil: "குறிஞ்சிப்பாடி" },
   { districtCode: "CUD", code: "AC157", nameEnglish: "Bhuvanagiri", nameTamil: "புவனகிரி" },
   { districtCode: "CUD", code: "AC158", nameEnglish: "Chidambaram", nameTamil: "சிதம்பரம்" },
-  { districtCode: "CUD", code: "AC159", nameEnglish: "Kattumannarkoil", nameTamil: "கட்டுமன்னார்கோயில்" },
+  { districtCode: "CUD", code: "AC159", nameEnglish: "Kattumannarkoil", nameTamil: "காட்டுமன்னார்கோயில்" },
   // Dist 19 — Nagapattinam (3)
   { districtCode: "NAG", code: "AC163", nameEnglish: "Nagapattinam", nameTamil: "நாகப்பட்டினம்" },
   { districtCode: "NAG", code: "AC164", nameEnglish: "Kilvelur", nameTamil: "கீழ்வேளூர்" },
