@@ -636,3 +636,50 @@ model ItWingVolunteer {
 
   @@map("it_wing_volunteers")
 }
+
+model StudentRegistration {
+  id             String   @id @default(cuid())
+
+  // Personal
+  name           String
+  fatherName     String?
+  dob            String?
+  age            Int?
+  gender         Gender?
+  phone          String
+  whatsapp       String?
+  email          String?
+
+  // Educational
+  currentClass   String?
+  department     String?
+  schoolName     String
+  rollNumber     String?
+
+  marks10th      String?
+  max10th        String?
+  percent10th    String?
+  marks12th      String?
+  max12th        String?
+  percent12th    String?
+  marksCurrent   String?
+  maxCurrent     String?
+  percentCurrent String?
+
+  // Address
+  doorNo         String?
+  village        String?
+  taluk          String?
+  district       String
+  pincode        String?
+
+  // Additional
+  studentWingMember Boolean?
+  studentWingName   String?
+  hearAboutUs       String?
+  remarks           String?  @db.Text
+
+  createdAt      DateTime @default(now())
+
+  @@map("student_registrations")
+}

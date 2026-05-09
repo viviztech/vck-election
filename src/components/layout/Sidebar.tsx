@@ -42,6 +42,7 @@ const adminNavGroups: NavGroup[] = [
     items: [
       { href: "/admin/it-wing-volunteers", label: "IT Wing Volunteers", icon: "💻" },
       { href: "/admin/it-wing-volunteers/reports", label: "IT Wing Reports", icon: "📊" },
+      { href: "/admin/student-registrations", label: "Student Registrations", icon: "🎓" },
     ],
   },
   {
